@@ -153,3 +153,7 @@ body.bm-studio :is(#product-root,#engineering-root) input[type=range]::-moz-rang
 body.bm-studio :is(#product-root,#engineering-root) input[type=range]::-moz-range-thumb{background:var(--pd-accent)!important;border-color:var(--pd-accent)!important}
 :root[data-theme=dark] body.apple-lab.bm-studio #engineering-root{--ui-bg:#141513;--ui-surface:#20231d;--ui-surface-subtle:#2b3026;--ui-text:#f0f1ef;--ui-muted:#b9bcb1;--ui-line:#4a5141;--ui-accent:#f5735d;background:#141513!important;background-image:none!important}
 @media(min-width:651px) and (max-width:1000px){body.bm-studio .studio-chapter{position:relative;top:auto!important}}
+/* The lazy legacy model boot writes opacity:0 on its portal. The modern home
+   owns that portal's visibility whenever its route is active. */
+body.bm-studio.pd-home #portal-hub-overlay{opacity:1!important;visibility:visible!important}
+:root[data-theme=dark] body.apple-lab.bm-studio #engineering-root::before,:root[data-theme=dark] body.apple-lab.bm-studio #engineering-root::after{display:none!important}
