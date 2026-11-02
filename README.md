@@ -1,27 +1,32 @@
 # BM//MD
 
-Interactive training records, movement courses and mechanics experiments.
+Movement mechanics, equipment courses, training records and interactive exploration.
 
-This repository publishes the existing BM//MD website with GitHub Pages.
+Website: https://leekris20090720.github.io/bmmd-lab/
 
-## Website package
+## Publishing
 
-`site.zip` contains the public HTML, JavaScript, styles, teaching models and
-images. It can be extracted directly into any static website host. It does not
-contain visitor training records, private backups or account credentials.
+`site.zip` is the verified baseline public runtime. `overrides/` contains the
+current authored public assets. The official GitHub Pages workflow extracts
+the baseline, copies overrides over it and publishes the result. Changes to
+`site.zip`, `overrides/**`, or the workflow on `main` update the same website.
+Apply both layers when extracting the project for another static host.
 
-`.github/workflows/pages.yml` extracts the package and publishes it using
-GitHub's official open-source Pages actions. Replacing `site.zip` on `main`
-automatically updates the website.
+The original React/Three.js teaching runtime and every existing course,
+experiment and training route are retained. No visitor records, private
+backups, credentials or authoring-machine paths are published.
 
 ## Training records
 
-Records are saved in the visitor's browser. A different website address uses a
-separate browser storage area. Use Settings -> Backup and restore to export
-records from the previous address and import them at the new address.
+Records remain in the visitor's browser. Backups can be exported and imported
+through Settings -> Backup and restore. Updating this site at the same URL
+does not move or replace browser-local records.
 
-## Third-party notices
+## Design and notices
 
-The package retains the license and credit notices for React, Three.js, GSAP,
-React Bits, Magic UI and the other bundled resources. Hosting this package does
-not change their terms or grant additional rights in third-party images.
+The current visual treatment uses real equipment photographs, native text,
+scroll perspective, chapter stacking, React Bits ScrollReveal interpolation
+and a Uiverse arrow-button adaptation. Source notes and licences are retained
+at `assets/vendor/studio-redesign/` in the published site. All pre-existing
+third-party notices for React, Three.js, GSAP, React Bits and other resources
+remain included. No paid MotionSites or Aceternity templates were copied.

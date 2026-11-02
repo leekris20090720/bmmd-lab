@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>BM//MD · 动作力学与训练记录</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="apple-lab.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="sphere-map.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="dimensional-ui.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="beginner-ui.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="text-effects.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="mechanics-lab.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="learning-explainer.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="i18n.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="equipment-3d.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="studio-experience.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="site-composition.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="product-spaces.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="product-learning.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="local-save.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="product-motion.css?v=learn-entries-20261027-1">
+  <script src="site-metrics.js?v=learn-entries-20261027-1"></script>
+  <script src="assets/vendor/gsap/gsap.min.js?v=learn-entries-20261027-1"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./assets/vendor/three/three.module.js",
+        "three/addons/": "./assets/vendor/three/addons/"
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="learning-dynamics.css?v=learn-entries-20261027-1">
+  <link rel="stylesheet" href="cosmic-theme.css?v=cosmic-20261027-1">
+  <link rel="stylesheet" href="cosmic-learning.css?v=cosmic-20261027-1">
+  <link rel="stylesheet" href="cosmic-elements.css?v=cosmic-motion-20261027-2">
+  <link rel="stylesheet" href="cosmic-controls.css?v=cosmic-motion-20261027-2">
+  <link rel="stylesheet" href="cosmic-stage.css?v=cosmic-motion-20261027-2">
+  <link rel="stylesheet" href="cosmic-type.css?v=type-range-20261027-2">
+  <link rel="stylesheet" href="cosmic-range.css?v=type-range-20261027-2">
+  <link rel="stylesheet" href="scroll-motion.css?v=scroll-20261028-1">
+  <link rel="stylesheet" href="reference-effects.css?v=references-20261029-1">
+  <link rel="stylesheet" href="kinetic-effects.css?v=kinetic-unify-20261029-1">
+  <link rel="stylesheet" href="engineering-appearance.css?v=engineering-style-20261030-1">
+  <link rel="stylesheet" href="studio-redesign.css?v=taste-20261102-1">
+</head>
+<body class="telemetry-app apple-lab depth-ui theme-dark dark-mode bm-studio">
+  <div id="portal-hub-overlay">
+    <button type="button" class="portal-level-back" id="btn-portal-level-back">← 返回上一级</button>
+    <section class="hub-hero portal-stage portal-stage-active" id="portal-welcome-stage">
+      <header class="apple-welcome-header"><strong>BM<span class="apple-brand-divider">//</span>MD</strong><span>认识器械 · 学习动作 · 记录训练</span></header>
+      <div class="apple-hero-copy">
+        <p data-fx-key="home-eyebrow">线上专属健身房</p>
+        <h1 data-heading-renderer="reveal" data-text-fx="T01" data-fx-key="home-title">从学会一个动作开始。</h1>
+        <span data-text-fx="T02" data-fx-key="home-subtitle" data-fx-delay="250">看懂器械与动作，安排训练，记录每一组。无需先测身体或力量。</span>
+        <button type="button" class="portal-next-btn" id="btn-enter-portal-branches">开始探索</button>
+      </div>
+      <div class="apple-equipment-showcase" id="equipment-hero-root" role="region" aria-label="器械图片展示">
+        <img class="apple-equipment-side" src="assets/equipment-reference/op-fly.png" alt="" decoding="async">
+        <img class="apple-equipment-main" src="assets/equipment-reference/op-dap.png" alt="" decoding="async">
+        <img class="apple-equipment-side" src="assets/equipment-reference/hsllp.png" alt="" decoding="async">
+      </div>
+      <div class="apple-welcome-footer"><span>18 个器械模型</span><span>交互式受力分析</span><span>适合你的训练计划</span></div>
+      <button class="bm-text-explore-down" type="button" data-bm="home-explore" aria-label="向下探索" aria-controls="bm-home-intro">
+        <span class="bm-scroll-cue-label">向下探索</span>
+        <svg class="bm-scroll-cue-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M9 3v11M4.5 9.5 9 14l4.5-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <section id="bm-home-intro" class="bm-text-home-intro" aria-label="从认识到记录" data-text-fx="T15" data-fx-key="home-introduction">
+        <h2 data-heading-renderer="material">今天，先学好<mark data-text-fx="T05" data-text-upgrade="U01" data-fx-key="home-one-movement">一个动作</mark>。</h2>
+        <p class="bm-text-overview">在这里，你可以 <span data-fx-key="home-capabilities">认识器械、学会动作、记录训练</span></p>
+        <nav class="bm-text-learning-path" data-text-fx="T09" data-fx-key="home-learning-path" aria-label="认识、学习、记录">
+          <a href="#sphere">认识器械</a><span aria-hidden="true">→</span><a href="#library">学习动作</a><span aria-hidden="true">→</span><a href="#history">记录训练</a>
+        </nav>
+        <p class="bm-text-intro-note">从第一组开始，<span>看见进步</span>。</p>
+      </section>
+      <footer class="bm-text-brand-footer"><a href="#home" data-heading-renderer="stroke" data-text-fx="T06" data-text-upgrade="U03" data-fx-key="footer-brand" aria-label="BM//MD，返回首页">BM//MD</a><p>按自己的节奏开始。</p></footer>
+    </section>
+
+    <section class="portal-profile-stage portal-stage" id="portal-profile-stage" aria-labelledby="body-profile-heading">
+      <header class="portal-profile-header">
+        <div class="portal-profile-topline"><strong>BM//MD</strong><span>身体档案</span></div>
+        <h2 id="body-profile-heading" tabindex="-1">身体档案（可跳过）</h2>
+        <p>数据仅保存在当前浏览器。未填写保持未知；模型示例不代表你的身体或力量。</p>
+      </header>
+      <form id="onboarding-form">
+        <fieldset class="portal-profile-section">
+          <legend>基础数据 <small>可选，留空也能使用</small></legend>
+          <div class="form-grid portal-profile-fields">
+            <label>身高 (cm)
+              <input type="number" id="ob-height" name="height" data-profile-key="height" min="120" max="230" step="1" inputmode="decimal" placeholder="未测量可留空">
+            </label>
+            <label>体重 (kg)
+              <input type="number" id="ob-weight" name="weight" data-profile-key="weight" min="35" max="220" step="0.1" inputmode="decimal" placeholder="未测量可留空">
+            </label>
+            <label>臂展 (cm)
+              <input type="number" id="ob-arm-span" name="armSpan" data-profile-key="armSpan" min="120" max="240" step="1" inputmode="decimal" placeholder="未测量可留空">
+            </label>
+          </div>
+        </fieldset>
+        <fieldset class="portal-profile-section">
+          <legend>肢体尺寸 <small>高级设置 · 可选</small></legend>
+          <div class="form-grid portal-profile-fields">
+            <label>上臂长度 (cm)
+              <small>肩峰到肘尖</small>
+              <input type="number" id="ob-upper-arm-length" name="upperArmLength" data-profile-key="upperArmLength" min="20" max="55" step="0.1" inputmode="decimal" placeholder="未测量可留空">
+            </label>
+            <label>前臂长度 (cm)
+              <small>肘尖到手腕</small>
+              <input type="number" id="ob-forearm-length" name="forearmLength" data-profile-key="forearmLength" min="18" max="50" step="0.1" inputmode="decimal" placeholder="未测量可留空">
+            </label>
+            <label>肩宽 (cm)
+              <small>左肩峰到右肩峰</small>
+              <input type="number" id="ob-shoulder-width" name="shoulderWidthCm" data-profile-key="shoulderWidthCm" min="28" max="65" step="0.1" inputmode="decimal" placeholder="未测量可留空">
+            </label>
+            <label>大腿长度 (cm)
+              <small>髋骨外侧到膝盖外侧</small>
+              <input type="number" id="ob-femur-length" name="femurLength" data-profile-key="femurLength" min="30" max="75" step="0.1" inputmode="decimal" placeholder="未测量可留空">
+            </label>
+            <label>小腿长度 (cm)
+              <small>膝盖外侧到外踝</small>
+              <input type="number" id="ob-tibia-length" name="tibiaLength" data-profile-key="tibiaLength" min="28" max="70" step="0.1" inputmode="decimal" placeholder="未测量可留空">
+            </label>
+          </div>
+        </fieldset>
+        <p id="onboarding-status" class="portal-profile-status" role="alert" hidden></p>
+        <footer class="portal-profile-footer">
+          <button type="button" class="portal-profile-skip" id="btn-skip-body-profile">暂不填写</button>
+          <button type="submit" class="portal-profile-save" id="btn-finish-onboarding">保存档案并继续 <span aria-hidden="true">→</span></button>
+        </footer>
+      </form>
+    </section>
+
+    <section class="portal-branches-stage portal-stage" id="portal-branches-stage">
+      <div class="hub-hero compact">
+        <p>你的训练空间</p>
+        <h1>今天想先做什么？</h1>
+        <span>看懂动作，或者规划下一次训练。</span>
+      </div>
+      <div class="gateway-cards-grid workspace-gateways-grid">
+        <a href="#lab-actions" class="gateway-card workspace-gateway-card" id="btn-open-lab-gate" onclick="openLabActionGate(); return false;">
+          <small>理解动作</small>
+          <strong>3D 力学实验室</strong>
+          <span>选择具体动作，用 3D 模型看哪里最重、哪里最容易代偿。</span>
+          <em>选择动作 →</em>
+        </a>
+        <a href="#ws-plan" class="gateway-card workspace-gateway-card" onclick="enterPortalWorkspace('plan'); return false;">
+          <small>建立节奏</small>
+          <strong>训练计划</strong>
+          <span>按可用时间与器械安排训练；未知力量不生成个人公斤数。</span>
+          <em>打开计划 →</em>
+        </a>
+      </div>
+      <button type="button" class="portal-back-link" id="btn-back-to-profile">← 返回身体参数</button>
+    </section>
+
+    <section class="portal-lab-stage portal-stage" id="portal-lab-stage">
+      <div class="hub-hero compact">
+        <p>3D 力学实验室</p>
+        <h1>从你想练的部位开始。</h1>
+        <span>选择器械，转动模型，感受每段动作的受力变化。</span>
+      </div>
+    <section class="gateway-cards-grid lab-category-grid">
+      <button type="button" class="gateway-card lab-category-card" data-lab-category="chest">
+        <small>CHEST</small>
+        <strong>胸部推举与夹胸</strong>
+        <em>卧推 / 上斜推 / 绳索夹胸 / 固定夹胸</em>
+      </button>
+      <button type="button" class="gateway-card lab-category-card" data-lab-category="shoulder">
+        <small>SHOULDER</small>
+        <strong>肩部侧平举与推举</strong>
+        <em>侧平举 / 哑铃推肩 / 器械推肩</em>
+      </button>
+      <button type="button" class="gateway-card lab-category-card" data-lab-category="back">
+        <small>BACK</small>
+        <strong>背部下拉与划船</strong>
+        <em>高位下拉 / 绳索划船 / 大剪刀 / 悍马</em>
+      </button>
+      <button type="button" class="gateway-card lab-category-card" data-lab-category="legs">
+        <small>LEGS</small>
+        <strong>下肢深蹲与器械</strong>
+        <em>坐姿踢腿 / 倒蹬机 / 杠铃深蹲</em>
+      </button>
+    </section>
+    <section class="gateway-cards-grid lab-gateways-grid lab-action-picker-hidden">
+      <a href="#module-01" class="gateway-card" data-action-group="shoulder" onclick="transitToWorkspace('arm'); return false;">
+        <small>动作 01</small>
+        <strong>OP-DAP 双塔可调滑轮侧平举实验台</strong>
+        <em>进入动作测试</em>
+      </a>
+      <a href="#module-02" class="gateway-card" data-action-group="legs" onclick="transitToWorkspace('cam'); return false;">
+        <small>动作 02</small>
+        <strong>Life Fitness Axiom OP-LE 膝伸展机</strong>
+        <em>进入器械体检</em>
+      </a>
+      <a href="#module-03" class="gateway-card" data-action-group="legs" onclick="transitToWorkspace('incline'); return false;">
+        <small>动作 03</small>
+        <strong>Hammer Strength 45° 线性倒蹬机</strong>
+        <em>进入装片换算</em>
+      </a>
+      <a href="#module-04" class="gateway-card" data-action-group="chest" onclick="transitToWorkspace('pec'); return false;">
+        <small>动作 04</small>
+        <strong>Life Fitness Axiom OP-FLY 胸飞鸟 / 后束机</strong>
+        <em>进入胸肌张力测试</em>
+      </a>
+      <a href="#module-05" class="gateway-card" data-action-group="back" onclick="transitToWorkspace('lat'); return false;">
+        <small>动作 05</small>
+        <strong>Life Fitness Axiom OP-PD 高位下拉机</strong>
+        <em>进入背部力臂测试</em>
+      </a>
+      <a href="#module-06" class="gateway-card" data-scene-card="barbell-squat" data-action-group="legs" onclick="transitToWorkspace('barbell-squat'); return false;">
+        <small>动作 06</small>
+        <strong>奥林匹克深蹲架自由杠铃深蹲</strong>
+        <em>进入深蹲测试</em>
+      </a>
+    </section>
+      <button type="button" class="portal-back-link lab-category-back" id="btn-back-to-lab-categories">← 返回部位分类</button>
+      <button type="button" class="portal-back-link" id="btn-back-to-branches">← 返回功能分区</button>
+    </section>
+  </div>
+
+  <header class="system-header">
+    <nav id="bm-action-navigation" aria-label="学习与训练导航" hidden>
+      <details class="bm-action-site-menu"><summary>导航</summary><div class="bm-action-menu-content"><a href="#home">首页</a><a href="#library" aria-current="page">动作库</a><a href="#plans">我的计划</a><a href="#history">训练记录</a></div></details>
+      <details class="bm-action-tools"><summary>工具</summary><div class="bm-action-menu-content"><button type="button" data-bm="quick-search">搜索动作 <small>⌘ / Ctrl K</small></button><button type="button" data-bm="explore-space">互动探索</button></div></details>
+    </nav>
+    <div class="user-profile-widget">
+      <button type="button" id="btn-global-back">返回上一级</button>
+    </div>
+    <nav class="main-workspace-nav" aria-label="平台工作区切换">
+      <button type="button" class="nav-btn active" data-workspace="lab">3D 力学实验室</button>
+      <button type="button" class="nav-btn" data-workspace="plan">训练计划</button>
+    </nav>
+    <a class="brand" href="#home">
+      <b>BM//MD</b>
+      <span>你的训练空间</span>
+    </a>
+  </header>
+
+  <div class="workspace-viewport">
+  <section id="ws-lab" class="workspace-page active">
+  <div class="lab-action-strip">
+    <nav class="action-group-filter-bar" aria-label="动作部位筛选">
+      <button type="button" class="action-group-filter active" data-action-filter="all" aria-pressed="true">全部</button>
+      <button type="button" class="action-group-filter" data-action-filter="chest" aria-pressed="false">胸</button>
+      <button type="button" class="action-group-filter" data-action-filter="shoulder" aria-pressed="false">肩</button>
+      <button type="button" class="action-group-filter" data-action-filter="back" aria-pressed="false">背</button>
+      <button type="button" class="action-group-filter" data-action-filter="legs" aria-pressed="false">腿</button>
+    </nav>
+    <nav class="action-tab-bar" aria-label="核心动作切换">
+      <button type="button" class="action-tab active" data-scene="arm" data-action-group="shoulder">滑轮侧平举</button>
+      <button type="button" class="action-tab" data-scene="cam" data-action-group="legs">Axiom OP-LE 膝伸展</button>
+      <button type="button" class="action-tab" data-scene="incline" data-action-group="legs">Hammer 45° 线性倒蹬</button>
+      <button type="button" class="action-tab" data-scene="pec" data-action-group="chest">Axiom OP-FLY 胸飞鸟</button>
+      <button type="button" class="action-tab" data-scene="lat" data-action-group="back">Axiom OP-PD 高位下拉</button>
+      <button type="button" class="action-tab" data-scene="barbell-squat" data-action-group="legs">奥林匹克深蹲架</button>
+      <button type="button" class="action-tab" data-scene="overview" data-action-group="all">身材与器械自定义</button>
+    </nav>
+  </div>
+
+  <main class="workspace-shell">
+    <aside class="analysis-pane" id="analysis-scroll">
+      <button type="button" class="portal-return-btn" onclick="returnToPreviousLevel(); return false;">返回上一级</button>
+
+      <figure class="machine-reference-card" id="machine-reference-card" hidden>
+        <a id="machine-reference-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="查看厂家器械页面">
+          <img id="machine-reference-image" src="" alt="当前 3D 模型对应的真实器械">
+        </a>
+        <figcaption>
+          <span>实物参照</span>
+          <strong id="machine-reference-name">厂家实物参照</strong>
+          <small>点击图片查看厂家资料</small>
+        </figcaption>
+      </figure>
+
+      <section class="config-card" id="workspace-root">
+        <p class="model-scope-note">几何参数用于机械演示。用户测量、按身高估算与示例会分别标记。</p>
+        <p class="eyebrow">Global Setup</p>
+        <h2>身材与器械自定义</h2>
+        <label>臂长比例
+          <input id="arm-length-preset" type="hidden" value="0.35">
+          <div class="auto-readout" id="arm-length-readout">模型示例几何 · 个人身高与臂展未知</div>
+        </label>
+        <p class="config-note" id="arm-length-source-note">未填写身体参数时使用独立模型示例几何，不作为个人测量。</p>
+      </section>
+
+      <section class="config-card machine-config-card" id="machine-config-root">
+        <p class="eyebrow">Machine Parameters</p>
+        <h2>当前器械设置</h2>
+        <div class="machine-resistance-field">
+          <span id="machine-resistance-label">阻力系统类型</span>
+          <output class="machine-resistance-readout" id="machine-resistance-type" aria-labelledby="machine-resistance-label">
+            <strong id="machine-resistance-name">插片配重</strong>
+            <small id="machine-resistance-detail">双塔配重 · 滑轮钢索</small>
+          </output>
+        </div>
+        <div class="machine-fixed-field">
+          <span id="machine-fixed-label">固定结构</span>
+          <output id="machine-fixed-structure" aria-labelledby="machine-fixed-label">2:1 钢索传动 · 固定双塔机架</output>
+        </div>
+        <div class="machine-param-grid" id="machine-param-grid">
+          <label hidden><span id="machine-path-angle-label"></span>
+            <input id="machine-path-angle" type="range" min="0" max="100" value="50" disabled>
+            <span id="machine-path-angle-value"></span>
+          </label>
+          <label hidden><span id="machine-seat-height-label"></span>
+            <input id="machine-seat-height" type="range" min="0" max="100" value="50" disabled>
+            <span id="machine-seat-height-value"></span>
+          </label>
+          <label hidden><span id="machine-cam-bias-label"></span>
+            <input id="machine-cam-bias" type="range" min="0" max="100" value="50" disabled>
+            <span id="machine-cam-bias-value"></span>
+          </label>
+          <label hidden><span id="machine-efficiency-label"></span>
+            <input id="machine-efficiency" type="range" min="0" max="100" value="50" disabled>
+            <span id="machine-efficiency-value"></span>
+          </label>
+        </div>
+        <div class="machine-field-help" id="machine-field-help" hidden>模型位置示意 · 非实物档位刻度</div>
+        <div class="auto-readout machine-readout" id="machine-derived-readout"></div>
+      </section>
+
+      <section class="analysis-module" id="module-01" data-scene="arm">
+        <p class="eyebrow">Action 01</p>
+        <h2>OP-DAP 双塔可调滑轮侧平举</h2>
+        <p class="model-scope-note">模型示例 · 未测量你的肌肉激活、酸胀或伤害风险。百分比为示例曲线指标。</p>
+        <div class="metric-hero">模型相对力臂：<strong id="muscle-load-status">等待模型计算</strong></div>
+        <label>动作高度
+          <input id="arm-angle" type="range" min="0" max="90" value="44">
+          <span id="arm-angle-value">44°</span>
+        </label>
+        <input id="cable-mode" type="checkbox" checked hidden>
+        <details><summary>查看物理原理</summary><p>关于肩部理想转轴：τ = |r × F|。抬臂角 θ 从竖直向下量起；φ 是位置向量 r 与钢索拉力 F 的夹角。竖直重力点负载使用 mgL|sinθ|；绳索使用 TL|sinφ|。不是肌肉激活测量。</p></details>
+      </section>
+
+      <section class="analysis-module" id="module-02" data-scene="cam">
+        <p class="eyebrow">Action 02</p>
+        <h2>Life Fitness Axiom OP-LE 膝伸展机</h2>
+        <label>动作行程
+          <input id="cam-angle" type="range" min="0" max="360" value="0">
+          <span id="cam-angle-value">0°</span>
+        </label>
+        <label class="legacy-hidden-control" hidden>凸轮激进程度
+          <input id="cam-aggression" type="range" min="0.6" max="1.5" step="0.01" value="1" disabled>
+          <span id="cam-aggression-value">1.00×</span>
+        </label>
+        <div class="warning-card" id="cam-risk-text">凸轮轮廓用于解释阻力变化，不测量膝关节健康或伤害风险。</div>
+      </section>
+
+      <section class="analysis-module" id="module-03" data-scene="incline">
+        <p class="eyebrow">Action 03</p>
+        <h2>Hammer Strength 45° 线性倒蹬机</h2>
+        <label class="legacy-hidden-control" hidden>滑车自重
+          <input id="sled-tare" type="number" value="45" disabled>
+        </label>
+        <label>自由杠铃模型示例负荷（kg）
+          <input id="squat-load" type="number" value="100">
+        </label>
+        <label>装片重量
+          <input id="sled-mass" type="range" min="0" max="500" value="96.4">
+          <span id="sled-mass-value">96.4 kg 装片</span>
+        </label>
+        <div class="physics-engine-controls">
+          <button type="button" id="btn-m3-push">发力推起</button>
+          <button type="button" id="btn-m3-release">受控下放</button>
+          <button type="button" id="btn-m3-reset">重置轨道</button>
+        </div>
+        <div class="metrics-grid">
+          <article><span>推起</span><strong id="concentric-force">等待计算</strong></article>
+          <article><span>下放</span><strong id="eccentric-force">等待计算</strong></article>
+          <article><span>推起与下放阻力差</span><strong id="hysteresis-index">等待计算</strong></article>
+          <article><span>累计摩擦耗散（模型）</span><strong id="energy-loss-val">0.0 J</strong></article>
+        </div>
+        <p class="model-scope-note">准静态规定速度示意，实际模型轨道行程 1.5 m；曲线横轴为行程比例，纵轴为外力 N。仅比较同一模型，不换算个人能力。</p>
+        <canvas id="m03-hysteresis-chart"></canvas>
+      </section>
+
+      <section class="analysis-module" id="module-04" data-scene="pec">
+        <p class="eyebrow">Action 04</p>
+        <h2>Life Fitness Axiom OP-FLY 胸飞鸟 / 后束机</h2>
+        <p class="model-scope-note">模型示例 · 未测量你的肌肉激活、酸胀或伤害风险。百分比为示例曲线指标。</p>
+        <div class="metric-hero">模型相对阻力：<strong id="pec-load-status">等待模型计算</strong></div>
+        <label>夹胸幅度
+          <input id="pec-angle" type="range" min="0" max="100" value="58">
+          <span id="pec-angle-value">58%</span>
+        </label>
+        <label class="legacy-hidden-control" hidden>凸轮补偿程度
+          <input id="pec-cam" type="range" min="0.7" max="1.4" step="0.01" value="1.05" disabled>
+          <span id="pec-cam-value">1.05×</span>
+        </label>
+        <div class="warning-card">独立凸轮和铰接式握把随转臂运动，凸轮轮廓按器械型号预设。</div>
+      </section>
+
+      <section class="analysis-module" id="module-05" data-scene="lat">
+        <p class="eyebrow">Action 05</p>
+        <h2>Life Fitness Axiom OP-PD 高位下拉机</h2>
+        <p class="model-scope-note">模型示例 · 未测量你的肌肉激活、酸胀或伤害风险。百分比为示例曲线指标。</p>
+        <div class="metric-hero">模型相对阻力：<strong id="lat-load-status">等待模型计算</strong></div>
+        <label>下拉角度
+          <input id="lat-angle" type="range" min="10" max="120" value="64">
+          <span id="lat-angle-value">64°</span>
+        </label>
+        <label class="legacy-hidden-control" hidden>滑轮高度
+          <input id="lat-pulley" type="range" min="0" max="100" value="72" disabled>
+          <span id="lat-pulley-value">72%</span>
+        </label>
+        <div class="warning-card">长握把随固定转臂绕轴运动，凸轮和钢索带动配重塔。</div>
+      </section>
+
+      <section class="analysis-module" id="module-06" data-scene="barbell-squat">
+        <p class="eyebrow">Action 06</p>
+        <h2>奥林匹克深蹲架自由杠铃深蹲</h2>
+        <p class="model-scope-note">模型示例 · 未测量你的肌肉激活、酸胀或伤害风险。百分比为示例曲线指标。</p>
+        <div class="metric-hero">模型相对受力指标：<strong id="squat-load-status">等待模型计算</strong></div>
+        <label>下蹲深度
+          <input id="squat-depth" type="range" min="0" max="100" value="62">
+          <span id="squat-depth-value">62%</span>
+        </label>
+        <label class="legacy-hidden-control">对比模式
+          <select id="squat-mode">
+            <option value="free" selected>自由杠铃深蹲</option>
+          </select>
+        </label>
+        <div class="warning-card">白话：这个动作只看自由杠铃深蹲。下蹲越深，膝盖和腰背越需要稳定，腹压掉了就别继续加重量。</div>
+      </section>
+    </aside>
+
+    <section class="twin-pane">
+      <canvas id="digital-twin-canvas"></canvas>
+      <div class="twin-grid"></div>
+      <aside class="coach-hud">
+        <div class="coach-hud-header">
+          <span>模型读数</span>
+          <strong id="hud-scene">OP-DAP 双塔可调滑轮侧平举</strong>
+          <small id="hud-description">看示例几何中的力臂变化</small>
+        </div>
+        <div class="coach-metric">
+          <span id="hud-primary-label">模型力矩</span>
+          <strong id="hud-torque">等待计算</strong>
+          <div class="coach-progress"><i id="coach-muscle-bar"></i></div>
+          <small id="hud-angle">手臂角度 44°</small>
+        </div>
+        <div class="coach-metric">
+          <span id="hud-secondary-label">模型阻力估算</span>
+          <strong id="coach-perceived-load">等待计算</strong>
+          <div class="coach-progress cool"><i id="coach-load-bar"></i></div>
+          <small id="hud-normal">百分比基于当前模型曲线，不表示你的疲劳程度</small>
+        </div>
+        <div class="coach-advice"><span>避坑与训练建议</span><p id="hud-decision">滑轮高度会改变动作最吃力的区间。</p></div>
+        <div class="formula-engine">
+          <span id="formula-title">通俗讲解</span>
+          <p id="formula-output">选择一个动作，了解器械如何把负荷传到目标肌群。</p>
+        </div>
+      </aside>
+      <div class="viewport-control-toolbar">
+        <button type="button" id="btn-reset-camera">重置视角</button>
+        <button type="button" id="btn-zoom-in">放大</button>
+        <button type="button" id="btn-zoom-out">缩小</button>
+        <button type="button" id="btn-auto-rotate">自转</button>
+      </div>
+      <div class="viewport-help">空白拖拽旋转视角 · 滚轮缩放 · 悬停模型变手型后拖动作参数</div>
+    </section>
+  </main>
+  </section>
+
+  <section id="ws-plan" class="workspace-page">
+    <div class="custom-plan-toolbar">
+      <h2>训练计划</h2>
+      <div class="plan-mode-tabs" role="group" aria-label="计划方式">
+        <button type="button" id="btn-plan-manual" aria-pressed="true">自己编写</button>
+        <button type="button" id="btn-plan-auto" aria-pressed="false">自动生成</button>
+      </div>
+    </div>
+    <form id="custom-plan-editor" class="custom-plan-editor">
+      <div class="custom-split-control">
+        <label for="custom-plan-split">训练分化</label>
+        <select id="custom-plan-split">
+          <option value="1">一分化 · 1 个计划</option>
+          <option value="2">二分化 · 2 个计划</option>
+          <option value="3" selected>三分化 · 3 个计划</option>
+          <option value="4">四分化 · 4 个计划</option>
+          <option value="5">五分化 · 5 个计划</option>
+          <option value="6">六分化 · 6 个计划</option>
+        </select>
+      </div>
+      <div id="custom-plan-days" class="custom-plan-days"></div>
+      <div class="custom-plan-footer">
+        <span id="custom-plan-status" role="status" aria-live="polite">尚未保存</span>
+        <button type="submit" class="primary-btn">保存计划</button>
+      </div>
+    </form>
+    <div id="generated-plan-panel" hidden>
+    <div class="workspace-dashboard plan-grid">
+      <article class="workspace-card hero-card full-width">
+        <div class="hero-header-flex">
+          <div>
+            <p class="eyebrow">Smart Workout Planner</p>
+            <h2>训练计划草稿</h2>
+            <p id="plan-user-summary">填写实际训练条件后安排动作；个人力量未知时不推荐公斤数。</p>
+          </div>
+          <div class="plan-actions">
+            <select id="plan-split-selector">
+              <option value="ppl" selected>推 / 拉 / 腿 (PPL 3日分部)</option>
+              <option value="upper_lower">上下肢 (Upper / Lower 2日分部)</option>
+              <option value="hypertrophy">肌肉增肌周期 (Hypertrophy Block)</option>
+            </select>
+            <button type="button" class="primary-btn" id="btn-regenerate-plan">重新生成计划</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="workspace-card plan-day-card">
+        <div class="day-header">
+          <h3>DAY 1 - 推 (Push)</h3>
+          <span class="day-tag">主练：胸大肌 / 三角肌前中束 / 三头肌</span>
+        </div>
+        <div class="exercise-list" id="plan-day-push"></div>
+      </article>
+
+      <article class="workspace-card plan-day-card">
+        <div class="day-header">
+          <h3>DAY 2 - 拉 (Pull)</h3>
+          <span class="day-tag">主练：背阔肌 / 菱形肌 / 三角肌后束 / 二头肌</span>
+        </div>
+        <div class="exercise-list" id="plan-day-pull"></div>
+      </article>
+
+      <article class="workspace-card plan-day-card">
+        <div class="day-header">
+          <h3>DAY 3 - 腿 (Legs)</h3>
+          <span class="day-tag">主练：股四头肌 / 腘绳肌 / 臀大肌 / 腰脊</span>
+        </div>
+        <div class="exercise-list" id="plan-day-legs"></div>
+      </article>
+
+      <article class="workspace-card plan-sidebar-card">
+        <h3>每周容量与避伤建议</h3>
+        <div class="plan-insight-box">
+          <div class="insight-item">
+            <span>预估周训练总量</span>
+            <strong id="plan-total-volume">未知重量，无法汇总完整公斤总量</strong>
+          </div>
+          <div class="insight-item">
+            <span>生物力学避伤提示</span>
+            <p id="plan-biomech-warning" class="warning-text">未进行身体风险评估</p>
+          </div>
+        </div>
+        <button type="button" class="btn-primary full-btn" id="btn-plan-to-lab">跳转 3D 实验室验证动作 →</button>
+      </article>
+    </div>
+    </div>
+  </section>
+
+  <section id="ws-tracker" class="workspace-page">
+    <div class="workspace-dashboard tracker-grid">
+      <article class="workspace-card hero-card">
+        <p class="eyebrow">Training Load</p>
+        <h2>日常训练 / 1RM 算盘</h2>
+        <p>把健身房记录直接转成可执行的重量建议，避免今天状态好就乱冲、状态差还硬顶。</p>
+      </article>
+      <article class="workspace-card">
+        <h3>1RM 估算器</h3>
+        <label>训练重量 (kg)<input id="tracker-load" type="number"></label>
+        <label>完成次数<input id="tracker-reps" type="number" min="1" max="20"></label>
+        <div class="big-readout"><span>估算 1RM</span><strong id="tracker-1rm">未知</strong></div>
+      </article>
+      <article class="workspace-card">
+        <h3>RPE 状态换算</h3>
+        <label>主观难度 RPE<input id="tracker-rpe" type="number" min="6" max="10" step="0.5" placeholder="可不填写"></label>
+        <div class="big-readout"><span>建议工作重量</span><strong id="tracker-working-load">未知</strong></div>
+      </article>
+      <article class="workspace-card">
+        <h3>训练过度预警</h3>
+        <label>本周训练量<input id="tracker-week-load" type="number"></label>
+        <label>近四周平均<input id="tracker-month-load" type="number"></label>
+        <div class="risk-meter"><i id="tracker-acwr-bar"></i></div>
+        <p id="tracker-acwr-text">没有实际记录，暂不能比较。</p>
+      </article>
+      <article class="workspace-card barbell-calculator-card">
+        <h3>今日动作重量规划</h3>
+        <p id="set-plan-summary">只有同动作的实际输入可用于说明性估算，模型负荷不进入记录。</p>
+        <div class="set-plan-grid">
+          <div class="set-item" id="set-warmup-1">未填写实际数据</div>
+          <div class="set-item" id="set-warmup-2">未填写实际数据</div>
+          <div class="set-item highlight" id="set-working">未填写实际数据</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  </div>
+  <script src="i18n-training.js?v=learn-entries-20261027-1"></script>
+  <script src="i18n-mechanics.js?v=learn-entries-20261027-1"></script>
+  <script src="i18n-catalog.js?v=learn-entries-20261027-1"></script>
+  <script src="i18n.js?v=learn-entries-20261027-1"></script>
+  <script src="training-contracts.js?v=learn-entries-20261027-1"></script>
+  <script src="local-save.js?v=learn-entries-20261027-1"></script>
+  <script src="beginner-store.js?v=learn-entries-20261027-1"></script>
+  <script src="beginner-catalog.js?v=learn-entries-20261027-1"></script>
+  <script src="beginner-plan.js?v=learn-entries-20261027-1"></script>
+  <script src="product-training.js?v=learn-entries-20261027-1"></script>
+  <script src="learning-dynamics.js?v=fitness-focus-20261029-2"></script>
+  <script src="product-navigation.js?v=learn-entries-20261027-1"></script>
+  <script src="research-content.js?v=fitness-focus-20261029-2"></script>
+  <script src="product-spaces.js?v=taste-20261102-1"></script>
+  <script src="assets/ui/equipment-hero.js?v=kinetic-unify-20261029-1" defer></script>
+  <script src="studio-redesign.js?v=taste-20261102-1"></script>
+</body>
+</html>
