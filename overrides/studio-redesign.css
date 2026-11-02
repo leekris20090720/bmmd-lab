@@ -152,3 +152,4 @@ body.bm-studio :is(#product-root,#engineering-root) input[type=range]::-webkit-s
 body.bm-studio :is(#product-root,#engineering-root) input[type=range]::-moz-range-track{background:#48503e!important;border:0!important}
 body.bm-studio :is(#product-root,#engineering-root) input[type=range]::-moz-range-thumb{background:var(--pd-accent)!important;border-color:var(--pd-accent)!important}
 :root[data-theme=dark] body.apple-lab.bm-studio #engineering-root{--ui-bg:#141513;--ui-surface:#20231d;--ui-surface-subtle:#2b3026;--ui-text:#f0f1ef;--ui-muted:#b9bcb1;--ui-line:#4a5141;--ui-accent:#f5735d;background:#141513!important;background-image:none!important}
+@media(min-width:651px) and (max-width:1000px){body.bm-studio .studio-chapter{position:relative;top:auto!important}}

@@ -140,6 +140,11 @@
   }
   function schedule() { if (!queued) queued = requestAnimationFrame(mount); }
   document.addEventListener('click', event => {
+    if (home && document.body.dataset.bmRoute === 'home' && event.target.closest?.('a[href="#home"]')) {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: reduced() ? 'instant' : 'smooth' });
+      return;
+    }
     const button = event.target.closest?.('[data-studio-specimen]');
     if (!button || !home) return;
     const index = button.dataset.studioSpecimen;
