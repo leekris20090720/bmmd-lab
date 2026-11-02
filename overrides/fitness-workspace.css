@@ -1,0 +1,135 @@
+/* Fitness workspace: the selected FitNess reference, rendered with BM//MD's own data. */
+body.bm-studio{--fit-radius:20px;--fit-gap:24px;--fit-accent:var(--pd-accent);font-variant-numeric:tabular-nums}
+body.bm-studio .fit-home-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px var(--st-pad) 24px;text-align:left}
+body.bm-studio #portal-welcome-stage .fit-home-heading h1#studio-home-title{font:650 30px/1.25 var(--pd-font)!important;letter-spacing:-.04em!important;margin:0 0 10px!important;color:var(--pd-ink)!important;background:none!important;white-space:normal!important;text-align:left!important}
+body.bm-studio .fit-home-heading p{font-size:15px!important;color:var(--pd-muted)!important;line-height:1.6!important}
+body.bm-studio .fit-backup-link{white-space:nowrap;font-size:14px!important;color:var(--pd-muted)!important;min-height:44px;display:flex;align-items:center}
+/* At 1440: 2×57.6 outer gutters + 24 gap + 715.4 + 585.4 = 1440. */
+body.bm-studio #portal-welcome-stage .studio-hero{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);min-height:0;padding:0 var(--st-pad) 28px;gap:var(--fit-gap);align-items:stretch}
+body.bm-studio .studio-hero-copy{min-width:0;display:flex;flex-direction:column}
+body.bm-studio .fit-training-panel{background:var(--pd-paper);padding:24px;border-radius:var(--fit-radius);min-width:0;flex:1;text-align:left}
+body.bm-studio .fit-panel-top,body.bm-studio .fit-week-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+body.bm-studio .fit-panel-top p,body.bm-studio .fit-panel-top a{font-size:13px!important;color:var(--pd-muted)!important}
+body.bm-studio .fit-panel-top a,body.bm-studio .fit-week-heading a{min-height:36px;display:inline-flex;align-items:center;white-space:nowrap}
+body.bm-studio .fit-training-panel h2{font-size:clamp(23px,2.1vw,30px)!important;line-height:1.4!important;letter-spacing:-.045em!important;font-weight:600!important;margin:12px 0!important;color:var(--pd-ink)!important;overflow-wrap:anywhere}
+body.bm-studio .fit-training-panel .fit-plan-note{font-size:14px!important;line-height:1.75!important;color:var(--pd-muted)!important;max-width:36em}
+body.bm-studio .fit-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0;padding:16px 0;border-top:1px solid var(--pd-line);border-bottom:1px solid var(--pd-line)}
+body.bm-studio .fit-metrics dt{font-size:12px;color:var(--pd-muted);margin-bottom:6px;line-height:1.6}
+body.bm-studio .fit-metrics dd{font-size:30px;font-weight:500;line-height:1.2;margin:0;font-variant-numeric:tabular-nums}
+body.bm-studio .fit-week-heading h3{font-size:15px!important;font-weight:600!important;letter-spacing:0!important}
+body.bm-studio .fit-week-heading a{font-size:12px;color:var(--pd-muted)!important}
+body.bm-studio .fit-day-tabs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));position:relative;isolation:isolate;gap:4px;margin:10px 0 14px}
+body.bm-studio .fit-day-tabs button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:84px;border:0!important;border-radius:14px!important;padding:10px 2px;background:transparent!important;color:var(--pd-muted)!important;transition:color .2s,background-color .2s;z-index:1;box-shadow:none!important}
+body.bm-studio .fit-day-tabs button[aria-selected=true]{color:var(--pd-ink)!important}
+body.bm-studio .fit-day-tabs button:hover{background:#ffffff08!important}
+body.bm-studio .fit-day-tabs button>span{font-size:12px!important;white-space:nowrap}
+body.bm-studio .fit-day-tabs button>strong{font-size:20px;font-weight:500;line-height:1.2}
+body.bm-studio .fit-day-tabs button>small{font-size:13px;line-height:1;color:var(--pd-muted)}
+body.bm-studio .fit-day-tabs button[aria-selected=true]>small{color:var(--fit-accent)}
+body.bm-studio .fit-tab-indicator{position:absolute;top:0;left:0;height:100%;width:calc((100% - 24px)/7);border-radius:14px;background:var(--pd-wash);z-index:0;pointer-events:none;transition:transform .6s cubic-bezier(.22,1.35,.36,1),width .3s}
+body.bm-studio .fit-tab-indicator::after{content:"";position:absolute;width:18px;height:3px;border-radius:99px;left:calc(50% - 9px);bottom:10px;background:var(--fit-accent)}
+body.bm-studio .fit-day-empty{font-size:13px!important;color:var(--pd-muted)!important;margin:0!important;padding:10px 0;min-height:44px}
+body.bm-studio .fit-history-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;min-height:64px;font-size:13px!important}
+body.bm-studio .fit-history-row>span:first-child{min-width:0}
+body.bm-studio .fit-history-row strong{display:block;font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:32ch}
+body.bm-studio .fit-history-row small{display:block;font-size:12px;color:var(--pd-muted);margin-top:4px}
+body.bm-studio .fit-history-row>span:last-child{white-space:nowrap}
+body.bm-studio .fit-home .studio-hero-copy .studio-actions{margin-top:20px;gap:24px}
+body.bm-studio .fit-home .studio-arrow-button{border-radius:999px;min-height:52px;font-size:15px;gap:12px;padding:10px 18px}
+body.bm-studio .fit-home .studio-arrow-button>svg{width:28px;height:28px}
+body.bm-studio .fit-home .studio-link{font-size:14px}
+body.bm-studio .fit-home .studio-specimen{padding:24px;background:var(--pd-paper);border-radius:var(--fit-radius);display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+body.bm-studio .fit-home .studio-specimen-stage{height:360px;background:#1c221e;border-radius:14px;flex:1;min-height:280px}
+body.bm-studio .fit-home .studio-specimen-meta{font-size:12px;align-items:center;line-height:1.7;gap:16px}
+body.bm-studio .fit-home .studio-specimen-meta>span{max-width:60%}
+body.bm-studio .fit-home .studio-specimen-tabs{gap:6px;margin-top:18px}
+body.bm-studio .fit-home .studio-specimen-tabs button{padding:8px 12px;font-size:13px;border-radius:999px;flex:1;white-space:nowrap;background:var(--pd-wash);color:var(--pd-muted)}
+body.bm-studio .fit-home .studio-specimen-tabs button[aria-pressed=true]{background:var(--pd-ink)!important;color:var(--pd-bg)!important}
+body.bm-studio .fit-home .studio-quick{margin-top:0;padding-top:18px;padding-bottom:26px}
+body.bm-studio .fit-home .studio-quick :is(a,button){border-radius:14px;padding:20px 24px;transition:background-color .2s,transform .25s}
+body.bm-studio .fit-home .studio-quick :is(a,button):hover{background:var(--pd-paper);transform:translateY(-3px)}
+body.bm-studio .fit-home .studio-quick strong{font-size:22px}
+body.bm-studio .fit-home .studio-quick small{font-size:13px}
+body.bm-studio .fit-home .studio-intro{padding-top:92px;padding-bottom:100px}
+/* Real training controls keep their existing handlers and forms. */
+body.bm-studio #product-root :is(.pd-plan,.pd-empty,.pd-current,.pd-rest,.fit-session-progress){border-radius:var(--fit-radius)!important;background:var(--pd-paper)!important}
+body.bm-studio #product-root .pd-page-heading h1{font-size:30px!important;line-height:1.3!important}
+body.bm-studio #product-root :is(.pd-primary,button.pd-primary){border-radius:999px!important;background:var(--pd-accent)!important;color:#03190d!important}
+body.bm-studio #product-root :is(input,select,textarea){border-radius:8px!important;font-variant-numeric:tabular-nums}
+body.bm-studio #product-root .pd-plan{padding:24px!important;transition:background-color .2s,transform .2s}
+body.bm-studio #product-root .pd-plan:hover{background:#1b211e!important}
+body.bm-studio .fit-session-progress{padding:24px;margin-bottom:24px;border:0}
+body.bm-studio .fit-progress-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+body.bm-studio .fit-progress-heading h2{font-size:18px!important;line-height:1.4;margin:0!important}
+body.bm-studio .fit-progress-heading p{font-size:13px!important;color:var(--pd-muted);margin:0}
+body.bm-studio .fit-progress-heading strong{font-size:24px;font-weight:500;color:var(--pd-ink)}
+body.bm-studio .fit-set-row{padding:12px 0}
+body.bm-studio .fit-set-row>div:first-child{display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-size:14px;margin-bottom:10px}
+body.bm-studio .fit-set-row>div:first-child>span:last-child{color:var(--pd-muted);white-space:nowrap;font-size:13px}
+body.bm-studio .fit-set-row[aria-current=step]>div:first-child>span:first-child::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--pd-accent);margin-right:10px;vertical-align:middle}
+body.bm-studio .fit-set-track{height:5px;background:var(--pd-wash);border-radius:99px;overflow:hidden}
+body.bm-studio .fit-set-track>i{display:block;width:100%;height:100%;background:var(--pd-accent);transform-origin:left;transform:scaleX(var(--fit-progress));border-radius:inherit}
+body.bm-studio[data-bm-route="train/session"] #pd-content{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start}
+body.bm-studio[data-bm-route="train/session"] #pd-content>.fit-session-progress{grid-column:1/-1;margin:0}
+body.bm-studio[data-bm-route="train/session"] #pd-content>.pd-session-strip{grid-column:1/-1;margin:0}
+body.bm-studio[data-bm-route="train/session"] #pd-content>.pd-current{grid-column:1;padding:24px}
+body.bm-studio[data-bm-route="train/session"] #pd-content>.pd-rest{grid-column:2;grid-row:3;padding:24px;position:sticky;top:112px}
+body.bm-studio[data-bm-route="train/session"] #pd-content>.pd-rest output{font-size:40px!important;font-weight:500;line-height:1.4;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+body.bm-studio[data-bm-route="train/session"] #pd-content>:is(.pd-actions,section:not(.pd-current):not(.pd-rest):not(.fit-session-progress),details){grid-column:1/-1}
+body.bm-studio[data-bm-route="train/session"] .pd-record-inputs input{font-size:28px!important;font-weight:500;min-height:64px}
+body.bm-studio [role=tabpanel][hidden]{display:none!important}
+@media(max-width:1000px){
+ body.bm-studio #portal-welcome-stage .studio-hero{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:16px}
+ body.bm-studio .fit-training-panel,body.bm-studio .fit-home .studio-specimen{padding:20px}
+ body.bm-studio .fit-home .studio-specimen-stage{min-height:280px;height:320px}
+ body.bm-studio .fit-home .studio-specimen-meta{align-items:start;flex-direction:column;gap:4px}
+ body.bm-studio .fit-home .studio-specimen-meta>span{max-width:100%}
+ body.bm-studio .fit-home .studio-specimen-tabs{flex-wrap:wrap}
+ body.bm-studio .fit-home .studio-specimen-tabs button{flex:1 0 100%}
+ body.bm-studio .fit-day-tabs button>span{font-size:11px!important}
+ body.bm-studio .fit-metrics{gap:10px}
+ body.bm-studio .fit-metrics dt{font-size:11px}
+ body.bm-studio[data-bm-route="train/session"] #pd-content{grid-template-columns:minmax(0,1fr) 260px;gap:16px}
+}
+@media(max-width:650px){
+ body.bm-studio .fit-home-heading{padding:24px var(--st-pad);gap:12px;align-items:start}
+ body.bm-studio #portal-welcome-stage .fit-home-heading h1#studio-home-title{font-size:25px!important}
+ body.bm-studio .fit-home-heading p{font-size:13px!important;max-width:22em}
+ body.bm-studio .fit-home-heading .fit-backup-link{display:none}
+ body.bm-studio #portal-welcome-stage .studio-hero{grid-template-columns:1fr;gap:24px;padding-bottom:16px}
+ body.bm-studio .fit-training-panel{padding:20px}
+ body.bm-studio .fit-training-panel h2{font-size:23px!important}
+ body.bm-studio .fit-plan-note{font-size:14px!important}
+ body.bm-studio .fit-metrics{margin:20px 0;padding:16px 0;gap:8px}
+ body.bm-studio .fit-metrics dt{font-size:11px;min-height:18px}
+ body.bm-studio .fit-metrics dd{font-size:28px}
+ body.bm-studio .fit-day-tabs{gap:2px;margin-left:-6px;margin-right:-6px}
+ body.bm-studio .fit-day-tabs button{min-height:84px;border-radius:12px!important;gap:6px}
+ body.bm-studio .fit-day-tabs button>span{font-size:11px!important}
+ body.bm-studio .fit-day-tabs button>strong{font-size:18px}
+ body.bm-studio .fit-tab-indicator{border-radius:12px}
+ body.bm-studio .fit-home .studio-hero-copy .studio-actions{flex-wrap:nowrap;justify-content:space-between;gap:16px;margin-top:16px}
+ body.bm-studio .fit-home .studio-arrow-button{gap:8px;font-size:14px;padding:10px 14px;min-height:48px}
+ body.bm-studio .fit-home .studio-arrow-button>svg{width:24px;height:24px;margin-left:0}
+ body.bm-studio .fit-home .studio-specimen{padding:18px}
+ body.bm-studio .fit-home .studio-specimen-stage{min-height:280px;height:310px}
+ body.bm-studio .fit-home .studio-specimen-meta{flex-direction:row;align-items:center;gap:10px}
+ body.bm-studio .fit-home .studio-specimen-meta>span{max-width:58%}
+ body.bm-studio .fit-home .studio-specimen-tabs button{flex:1;min-width:0;padding:8px;font-size:12px}
+ body.bm-studio .fit-home .studio-quick{display:flex;flex-direction:column;gap:2px;padding-top:0;padding-bottom:0}
+ body.bm-studio .fit-home .studio-quick :is(a,button){padding:18px 12px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--pd-line)}
+ body.bm-studio .fit-home .studio-quick strong{font-size:19px}
+ body.bm-studio .fit-home .studio-quick small{font-size:12px;text-align:right}
+ body.bm-studio .fit-home .studio-intro{padding-top:72px;padding-bottom:80px}
+ body.bm-studio[data-bm-route="train/session"] #pd-content{display:block}
+ body.bm-studio[data-bm-route="train/session"] #pd-content>:is(.fit-session-progress,.pd-session-strip,.pd-current,.pd-rest,.pd-actions){margin-bottom:20px}
+ body.bm-studio[data-bm-route="train/session"] #pd-content>.pd-rest{position:relative;top:auto}
+ body.bm-studio .fit-session-progress{padding:20px}
+ body.bm-studio .fit-progress-heading{align-items:start;gap:12px}
+ body.bm-studio .fit-progress-heading p{font-size:12px!important;white-space:nowrap}
+ body.bm-studio .fit-history-row strong{max-width:20ch}
+ body.bm-studio #product-root .pd-page-heading h1{font-size:25px!important}
+}
+@media(max-width:360px){body.bm-studio .fit-training-panel{padding:16px}body.bm-studio .fit-metrics dt{font-size:11px}body.bm-studio .fit-home .studio-actions .studio-link{font-size:12px}}
+@media(prefers-reduced-motion:reduce){body.bm-studio .fit-tab-indicator,body.bm-studio .fit-home .studio-quick :is(a,button){transition:none!important;transform:none!important}}
+html.pd-reduced body.bm-studio .fit-tab-indicator,html.pd-reduced body.bm-studio .fit-home .studio-quick :is(a,button){transition:none!important;transform:none!important}

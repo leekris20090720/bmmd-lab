@@ -16,23 +16,23 @@
   const shadowHosts = new WeakSet();
   const shadowObservers = new Set();
   const shadowCSS = `
-    :host{--ui-bg:#141513;--ui-surface:#20231d;--ui-surface-subtle:#2b3026;--ui-text:#f0f1ef;--ui-muted:#b9bcb1;--ui-line:#494f40;--ui-accent:#f5735d;--ui-focus:#f5735d;--ui-primary-bg:#f5735d;--ui-primary-hover:#ff9476;--ui-primary-text:#171714;--ui-success:#b7ce97;--ui-danger:#fa9281;font-family:"BM Inter",Inter,-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+    :host{--ui-bg:#090b0a;--ui-surface:#151817;--ui-surface-subtle:#222625;--ui-text:#f0f3f1;--ui-muted:#b4bcb8;--ui-line:#3e4942;--ui-accent:#0ef87a;--ui-focus:#0ef87a;--ui-primary-bg:#0ef87a;--ui-primary-hover:#64ffa9;--ui-primary-text:#03190d;--ui-success:#0ef87a;--ui-danger:#ff9c91;font-family:"BM Inter",Inter,-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
     *,*::before,*::after{background-image:none!important;text-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;-webkit-text-fill-color:currentColor!important;box-shadow:none!important}
-    .pg-dialog{background:#141513!important;border:1px solid #494f40!important;border-radius:8px!important;color:#f0f1ef!important}
-    .pg-dialog::backdrop{background:#080907d9!important;backdrop-filter:none!important}
+    .pg-dialog{background:#090b0a!important;border:1px solid #3e4942!important;border-radius:8px!important;color:#f0f3f1!important}
+    .pg-dialog::backdrop{background:#040605e8!important;backdrop-filter:none!important}
     .pg-ambient,.ref-light,.ref-edge,.ref-glare,.ref-beam{display:none!important}
-    .pg-header{background:#141513!important}.pg-header h2{font-size:clamp(28px,4vw,44px)!important;letter-spacing:-.05em!important;color:#f0f1ef!important}
-    .pg-brand-mark{border:0!important;background:#30352b!important;color:#f0f1ef!important;border-radius:3px!important}
-    .pg-tabs{background:#20231d!important;border:0!important;border-radius:4px!important}
-    .pg-tabs::before{background:#414a36!important;border:0!important;border-radius:3px!important}
-    .pg-tabs button{background:transparent!important;color:#b9bcb1!important}.pg-tabs button[aria-selected=true]{color:#f0f1ef!important}
+    .pg-header{background:#090b0a!important}.pg-header h2{font-size:clamp(28px,4vw,44px)!important;letter-spacing:-.05em!important;color:#f0f3f1!important}
+    .pg-brand-mark{border:0!important;background:#252c28!important;color:#f0f3f1!important;border-radius:3px!important}
+    .pg-tabs{background:#151817!important;border:0!important;border-radius:4px!important}
+    .pg-tabs::before{background:#303c35!important;border:0!important;border-radius:3px!important}
+    .pg-tabs button{background:transparent!important;color:#b4bcb8!important}.pg-tabs button[aria-selected=true]{color:#f0f3f1!important}
     button,input,select{font-family:inherit!important;border-radius:4px!important}button{transition:transform .2s,background-color .2s!important}button:active{transform:scale(.98)}
-    .pg-gallery-display,.pg-game,.pg-gallery-info,.pg-search-field,.pg-choice,.pg-wave-choice,.pg-empty,.pg-result{background:#20231d!important;border-color:#424a39!important;border-radius:5px!important}
-    .pg-gallery-display{background:#2b3026!important}.pg-gallery-info{color:#f0f1ef!important}
-    .pg-gallery-stage{background:#292d25!important}.pg-gallery-ambient,.pg-gallery-grid,.pg-gallery-ring{display:none!important}
-    .pg-primary,.pg-gallery-primary{background:#f5735d!important;color:#171714!important;border:0!important}
-    .pg-search-field input{background:transparent!important;color:#f0f1ef!important}
-    :focus-visible{outline:2px solid #f5735d!important;outline-offset:4px!important}
+    .pg-gallery-display,.pg-game,.pg-gallery-info,.pg-search-field,.pg-choice,.pg-wave-choice,.pg-empty,.pg-result{background:#151817!important;border-color:#36423a!important;border-radius:5px!important}
+    .pg-gallery-display{background:#222625!important}.pg-gallery-info{color:#f0f3f1!important}
+    .pg-gallery-stage{background:#202622!important}.pg-gallery-ambient,.pg-gallery-grid,.pg-gallery-ring{display:none!important}
+    .pg-primary,.pg-gallery-primary{background:#0ef87a!important;color:#03190d!important;border:0!important}
+    .pg-search-field input{background:transparent!important;color:#f0f3f1!important}
+    :focus-visible{outline:2px solid #0ef87a!important;outline-offset:4px!important}
     .pg-dialog :is(p,small){color:var(--ui-muted)}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
     :host([data-pg-reduced=true]) *{transition:none!important;animation:none!important}
@@ -97,7 +97,7 @@
     lastTime = now;
     const rest = reduced() || document.body.hasAttribute('data-explore-open');
     const r = stage?.getBoundingClientRect();
-    targetRotation = rest || !r || innerWidth < 651 ? 0 : 16 * (1 - clamp(scrollY / (innerHeight * .65)));
+    targetRotation = rest || !r || innerWidth < 651 ? 0 : 6 * (1 - clamp(scrollY / (innerHeight * .65)));
     const follow = 1 - Math.exp(-dt / .14);
     scrollRotation += (targetRotation - scrollRotation) * follow;
     pointerX += ((rest ? 0 : aimX) - pointerX) * follow;

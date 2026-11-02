@@ -6,7 +6,7 @@ const header=document.createElement('header');header.id='pd-header';header.setAt
 const status=document.createElement('p');status.id='pd-status';status.setAttribute('role','status');status.setAttribute('data-i18n-skip','');document.body.append(status);
 const portal=document.getElementById('portal-hub-overlay'),welcome=document.getElementById('portal-welcome-stage');let route='',navigation=0,noticeTimer,returnTo='learn/courses';const loaders=new Map(),scrolls={};
 const pageNavigation=B.Navigation.create(history,location);
-const sourceURL=new URL('.',document.currentScript.src);const source=p=>{const url=new URL(p,sourceURL);url.searchParams.set('v','fitness-focus-20261029-2');return url.href;};
+const sourceURL=new URL('.',document.currentScript.src);const source=p=>{const url=new URL(p,sourceURL);url.searchParams.set('v','fitness-workspace-20261103-1');return url.href;};
 function script(p){if(loaders.has(p))return loaders.get(p);const job=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=source(p);s.onload=resolve;s.onerror=()=>{loaders.delete(p);s.remove();reject(Error(t('学习资源未能加载，请重试：','Learning resource could not load; retry: ')+p));};document.body.append(s);});loaders.set(p,job);return job;}
 const modelScripts=['mechanics-core.js','mechanics-education.js','mechanics-spring.js','mechanics-snapshots.js','mechanics-three-bridge.js','assets/ui/three-runtime.js','equipment-op-le.js','studio-rendering.js','lesson-profiles.js','equipment-inspector.js','human-lessons.js','script.js'];
 // Download together, execute in the original dependency order. Classic script
@@ -17,18 +17,37 @@ function go(r){if(location.hash==='#'+r)render();else location.hash=r;}
 function notice(s,error=false){status.textContent=s;status.classList.toggle('pd-error',error);status.hidden=false;clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>status.hidden=true,error?9000:2600);}
 function nav(space){header.innerHTML=`<a href="#home" class="pd-brand" aria-label="BM//MD ${t('首页','home')}">BM<span>//</span>MD</a><nav aria-label="${t('主要方向','Primary navigation')}"><a href="#train/plans" ${space==='train'?'aria-current="page"':''}>${t('训练','Train')}</a><a href="#learn" ${space==='learn'?'aria-current="page"':''}>${t('学习','Learn')}</a><button type="button" class="pd-nav-interact" data-pd-explore aria-haspopup="dialog" aria-expanded="false">${t('互动','Interact')}</button></nav><div><a href="#settings">${t('设置','Settings')}</a><button type="button" data-pd-language aria-label="${t('Switch to English','切换到中文')}">${en()?'中':'EN'}</button></div>`;}
 function page(title,html,space='learn'){nav(space);const supplied=html.match(/^\s*<a\s+[^>]*href=["']#([^"']+)["'][^>]*>\s*←[\s\S]*?<\/a>/),fallback=supplied?supplied[1]:B.Navigation.parent(route);if(supplied)html=html.slice(supplied[0].length);const backTarget=pageNavigation.target(fallback);root.innerHTML=`${space==='train'?`<nav class="pd-subnav" aria-label="${t('训练页面','Training pages')}">${[['train/plans','我的计划','My plans'],['train/session','正在训练','Training now'],['train/history','训练记录','History']].map(([r,z,e])=>`<a href="#${r}" ${route===r?'aria-current="page"':''}>${t(z,e)}</a>`).join('')}</nav>`:''}<main class="pd-main"><div class="pd-return-bar"><a class="pd-page-back" href="#${E(backTarget)}" data-pd-back>← ${t('返回上一页','Back')}</a></div><header class="pd-page-heading"><p>${space==='train'?t('训练','TRAIN'):space==='settings'?t('设置','SETTINGS'):t('学习','LEARN')}</p><h1 tabindex="-1">${title}</h1></header>${(space==='train'||space==='settings')?(B.LocalVault?.statusHTML()||''):''}${B.store.exportData().storage.loadError?`<p class="pd-warning" role="alert">${t('原训练库读取有问题，原文恢复副本已保留。请先到备份页核对；不要用新数据覆盖。','The previous database could not be read. Its original recovery copy is retained. Check Backup before replacing data.')} <a href="#settings/data">${t('查看备份','View backups')}</a></p>`:''}${B.store.hasUnsavedDraft()?`<p class="pd-warning" role="alert">${t('有输入尚未写入本机，请重试保存或下载备份。','Some input is not yet saved locally. Retry or download a backup.')} <button type="button" data-pd="retry-store">${t('重试保存','Retry save')}</button> <a href="#settings/data">${t('下载备份','Download backup')}</a></p>`:''}<div id="pd-content">${html}${(route==='train/plans'||route.startsWith('train/summary/'))?(B.LocalVault?.reminderHTML()||''):''}</div></main>`;B.Product.content=root.querySelector('#pd-content');document.title=(typeof title==='string'?title.replace(/<[^>]+>/g,''):'BM//MD')+' · BM//MD';B.LocalVault?.mount();window.dispatchEvent(new CustomEvent('bm:page-ready',{detail:{route}}));}
+function fitnessOverview(active,actions){
+ const state=F.state(),performed=session=>B.TrainingData.executed(session),ended=state.sessions.filter(x=>x.endedAt&&performed(x).length),key=value=>{const d=new Date(value);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
+ const today=new Date(),days=Array.from({length:7},(_,i)=>{const d=new Date(today);d.setHours(0,0,0,0);d.setDate(d.getDate()-6+i);const sessions=ended.filter(x=>key(x.endedAt)===key(d));return {date:d,sessions,sets:sessions.reduce((n,x)=>n+performed(x).length,0)};});
+ const recent=days.flatMap(d=>d.sessions),sets=days.reduce((n,d)=>n+d.sets,0),families=new Set(state.plans.map(p=>p.familyId||p.id));
+ const count=(value,label)=>`<div><dt>${label}</dt><dd><span data-fit-count="${value}">${value}</span></dd></div>`;
+ const weekday=d=>new Intl.DateTimeFormat(en()?'en':'zh-CN',{weekday:'short'}).format(d);
+ const rows=day=>day.sessions.length?day.sessions.map(x=>`<a class="fit-history-row" href="#train/summary/${E(x.id)}"><span><strong>${E(x.planSnapshot.title)}</strong><small>${E(x.planSnapshot.days.find(d=>d.id===x.dayId)?.title||'')}</small></span><span>${performed(x).length} ${t('组','sets')} <span aria-hidden="true">↗</span></span></a>`).join(''):`<p class="fit-day-empty">${t('这一天还没有完成的训练记录。','No completed session on this day.')}</p>`;
+ return `<section class="fit-training-panel" aria-labelledby="fit-plan-title" data-ui>
+  <div class="fit-panel-top"><p>${active?t('正在进行','In progress'):t('你的下一次训练','Your next session')}</p><a href="#train/plans">${t('我的计划','My plans')} ↗</a></div>
+  <h2 id="fit-plan-title">${active?E(active.planSnapshot.title):families.size?t('按自己的计划，继续。','Keep your plan moving.'):t('先安排一个训练日。','Make room for your first session.')}</h2>
+  <p class="fit-plan-note">${active?t('输入、已完成组与休息计时都已保留。','Your input, saved sets and rest timer are retained.'):t('看懂动作，记下重量与次数。每一次进步，都从真实记录开始。','Understand the movement. Record the load and reps. Build on what you actually do.')}</p>
+  <dl class="fit-metrics">${count(recent.length,t('近 7 天训练','Sessions · 7 days'))}${count(sets,t('近 7 天完成组','Sets · 7 days'))}${count(families.size,t('我的计划','My plans'))}</dl>
+  <div class="fit-week" data-fit-tabs>
+   <div class="fit-week-heading"><h3>${t('训练日历','Training calendar')}</h3><a href="#train/history">${t('全部记录','All history')} ↗</a></div>
+   <div class="fit-day-tabs" role="tablist" aria-label="${t('最近七天','Last seven days')}"><i class="fit-tab-indicator" aria-hidden="true"></i>${days.map((d,i)=>`<button type="button" role="tab" id="fit-day-${i}" data-fit-tab="${i}" aria-controls="fit-day-panel-${i}" aria-selected="${i===6}" tabindex="${i===6?0:-1}"><span>${weekday(d.date)}</span><strong>${d.date.getDate()}</strong><small aria-label="${d.sessions.length} ${t('次训练','sessions')}">${d.sessions.length?'•':'—'}</small></button>`).join('')}</div>
+   ${days.map((d,i)=>`<div role="tabpanel" id="fit-day-panel-${i}" aria-labelledby="fit-day-${i}" ${i===6?'':'hidden'} tabindex="0">${rows(d)}</div>`).join('')}
+  </div>
+  ${actions}
+ </section>`;
+}
 function home(){
  nav('home');document.title='BM//MD · '+t('动作有迹可循','Movement, understood');
  const s=F.active(),plans=F.state().plans,copy=welcome.querySelector('.apple-hero-copy');
  const train=s?'train/session':'train/plans',trainLabel=s?t('继续训练','Continue training'):plans.length?t('打开我的计划','Open my plans'):t('开始训练','Start training');
  const arrow='<svg width="34" height="34" viewBox="0 0 74 74" fill="none" aria-hidden="true"><circle cx="37" cy="37" r="35.5" stroke="currentColor" stroke-width="3"/><path d="M25 37h23m-9-9 9 9-9 9" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
  const specimens=[['cam','op-le.png','腿屈伸','Leg extension','Life Fitness Axiom · OP-LE'],['arm','op-dap.png','钢索侧平举','Cable lateral raise','Life Fitness Axiom · OP-DAP'],['incline','hsllp.png','倒蹬','Leg press','Hammer Strength · 45°']];
- copy.innerHTML=`<main class="studio-home-main" data-i18n-skip>
+ copy.innerHTML=`<main class="studio-home-main fit-home" data-i18n-skip>
+  <header class="fit-home-heading"><div><h1 id="studio-home-title" class="fit-page-title" data-heading-renderer="studio">${t('训练工作台','Training workspace')}</h1><p>${t('训练、学习、动手探索。在这里连起来。','Your training, learning and exploration, together.')}</p></div><a href="#settings/data" class="fit-backup-link">${t('备份与恢复','Backup and restore')} ↗</a></header>
   <section class="studio-hero" aria-labelledby="studio-home-title">
    <div class="studio-hero-copy">
-    <h1 id="studio-home-title" data-heading-renderer="studio"><span data-studio-arrive>${t('动作，','Movement,')}</span><br><span data-studio-arrive>${t('有迹可循。','understood.')}</span></h1>
-    <p data-studio-arrive>${t('BM//MD 把器械、动作力学和训练记录放在一起。看懂怎么练，留下每一次。','BM//MD brings equipment, movement mechanics and your training record together. Understand each movement. Keep every session.')}</p>
-    <div class="studio-actions" data-studio-arrive><a class="studio-arrow-button" href="#${train}"><span>${trainLabel}</span>${arrow}</a><a class="studio-link" href="#learn">${t('先学一个动作','Learn a movement')}</a></div>
+    ${fitnessOverview(s,`<div class="studio-actions"><a class="studio-arrow-button" href="#${train}"><span>${trainLabel}</span>${arrow}</a><a class="studio-link" href="#learn">${t('先学一个动作','Learn a movement')}</a></div>`)}
    </div>
    <div class="studio-specimen" data-studio-arrive>
     <div class="studio-specimen-stage" role="img" aria-label="${t('可切换的器械实物展示','Switchable equipment photographs')}">
