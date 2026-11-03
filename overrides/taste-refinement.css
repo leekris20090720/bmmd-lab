@@ -1,0 +1,158 @@
+/* Taste refinement of the approved dark Fitness workspace. */
+body.bm-studio{--st-pad:max(20px,min(4vw,64px),calc((100vw - 1328px)/2));--fit-radius:16px}
+body.bm-studio .pd-main{max-width:none;width:100%;margin:0;padding-inline:var(--st-pad);font-size:15px;line-height:1.65}
+body.bm-studio .fit-home-heading{padding-top:24px;padding-bottom:24px;align-items:end}
+body.bm-studio #portal-welcome-stage .fit-home-heading h1#studio-home-title{font-size:28px!important;font-weight:600!important;letter-spacing:-.035em!important;margin-bottom:8px!important}
+body.bm-studio .fit-home-heading p{font-size:14px!important}
+body.bm-studio .fit-backup-link{font-size:13px!important}
+body.bm-studio #portal-welcome-stage .studio-hero{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:40px;align-items:stretch;padding-bottom:28px}
+body.bm-studio .fit-training-panel{background:transparent;padding:0;border-radius:0;display:flex;flex-direction:column}
+body.bm-studio .fit-panel-top{min-height:36px}
+body.bm-studio .fit-panel-top p,body.bm-studio .fit-panel-top a{font-size:13px!important}
+body.bm-studio .fit-training-panel h2{font-size:28px!important;line-height:1.45!important;font-weight:550!important;letter-spacing:-.035em!important;margin:12px 0!important}
+body.bm-studio .fit-training-panel .fit-plan-note{font-size:14px!important;line-height:1.75!important;max-width:38em}
+body.bm-studio .fit-home .studio-hero-copy .studio-actions{margin-top:20px;margin-bottom:0;gap:24px}
+body.bm-studio .fit-home .studio-arrow-button{min-height:48px;padding:9px 16px;font-size:14px;font-weight:600}
+body.bm-studio .fit-home .studio-arrow-button>svg{width:26px;height:26px}
+body.bm-studio .fit-metrics{margin:26px 0 24px;padding:0;border:0;gap:24px}
+body.bm-studio .fit-metrics dt{font-size:12px;line-height:1.5;margin-bottom:8px}
+body.bm-studio .fit-metrics dd{font-size:24px;line-height:1.2;font-weight:500}
+body.bm-studio .fit-week{background:#121714;padding:18px 20px 12px;border-radius:16px;min-width:0;margin-top:auto}
+body.bm-studio .fit-week-heading{gap:12px}
+body.bm-studio .fit-week-heading h3{font-size:14px!important}
+body.bm-studio .fit-calendar-range{font-size:12px!important;line-height:1.5!important;color:var(--pd-muted)!important;margin:4px 0 12px!important}
+body.bm-studio .fit-day-tabs{margin:0 -4px 10px;gap:4px}
+body.bm-studio .fit-day-tabs button{min-height:76px;padding:8px 2px;gap:5px;border-radius:10px!important}
+body.bm-studio .fit-day-tabs button>strong{font-size:19px;line-height:1.2}
+body.bm-studio .fit-day-tabs button>small{height:10px;min-height:10px;font-size:12px;line-height:10px}
+body.bm-studio .fit-tab-indicator{background:#252e29;border-radius:10px}
+body.bm-studio .fit-tab-indicator::after{height:2px;width:16px;left:calc(50% - 8px);bottom:7px}
+body.bm-studio .fit-day-empty{font-size:12px!important;line-height:1.6!important;padding-top:10px;padding-bottom:6px;min-height:38px}
+body.bm-studio .fit-home .studio-specimen{padding:20px;background:var(--pd-paper);border-radius:16px;justify-content:start;gap:0}
+body.bm-studio .fit-equipment-heading{font-size:13px!important;line-height:20px!important;color:var(--pd-muted)!important;margin-bottom:12px!important}
+body.bm-studio .fit-home .studio-specimen-stage{background:#1b231e;border-radius:10px;min-height:350px;height:390px;flex:1}
+body.bm-studio .fit-home .studio-specimen-image{inset:2% auto auto -23%;width:146%;height:96%}
+body.bm-studio .fit-home .studio-specimen-meta{font-size:12px;margin-top:14px;align-items:center;line-height:1.6}
+body.bm-studio .fit-home .studio-specimen-tabs{gap:0;flex-wrap:nowrap;margin-top:16px;border-bottom:1px solid var(--pd-line)}
+body.bm-studio .fit-home .studio-specimen-tabs button{position:relative;flex:1;min-width:0;min-height:44px;padding:10px 6px;font-size:13px;background:transparent!important;color:var(--pd-muted)!important;border-radius:0}
+body.bm-studio .fit-home .studio-specimen-tabs button[aria-pressed=true]{background:transparent!important;color:var(--pd-ink)!important}
+body.bm-studio .fit-home .studio-specimen-tabs button::after{content:"";position:absolute;left:18px;right:18px;bottom:-1px;height:2px;background:var(--pd-ink);transform:scaleX(0);transform-origin:center;transition:transform .25s}
+body.bm-studio .fit-home .studio-specimen-tabs button[aria-pressed=true]::after{transform:scaleX(1)}
+body.bm-studio .fit-home .studio-quick{background:transparent;padding-top:8px;padding-bottom:18px;gap:24px}
+body.bm-studio .fit-home .studio-quick :is(a,button){padding:20px 0 18px;border-radius:0;border-top:1px solid var(--pd-line);transition:color .2s;background:transparent!important;transform:none!important}
+body.bm-studio .fit-home .studio-quick strong{font-size:20px;font-weight:550;line-height:1.4}
+body.bm-studio .fit-home .studio-quick small{font-size:13px;margin-top:6px}
+body.bm-studio .fit-home .studio-intro{padding-top:84px;padding-bottom:84px}
+body.bm-studio #portal-welcome-stage .studio-intro h2{font-size:44px;letter-spacing:-.045em}
+body.bm-studio .studio-intro p{font-size:22px;line-height:1.75;max-width:28em}
+body.bm-studio .studio-chapter{min-height:560px;padding:36px;gap:28px}
+body.bm-studio #portal-welcome-stage .studio-chapter h3{font-size:40px;line-height:1.2;letter-spacing:-.04em}
+body.bm-studio .studio-chapter-copy p{font-size:16px;line-height:1.75;max-width:31em}
+body.bm-studio .fit-home .studio-cta{background:var(--pd-paper);padding-block:40px;transition:background-color .25s}
+body.bm-studio .fit-home .studio-cta:hover{background:#1e2922}
+body.bm-studio #portal-welcome-stage .studio-home-main .studio-cta h2{font-size:60px!important;font-weight:600;letter-spacing:-.045em}
+body.bm-studio .fit-home .studio-cta p{font-size:15px!important;color:var(--pd-muted);margin-top:18px;margin-bottom:0}
+/* Working screens share one scale and clear control surfaces. */
+body.bm-studio #product-root .pd-page-heading{margin:12px 0 24px!important}
+body.bm-studio #product-root .pd-page-heading>p{display:none}
+body.bm-studio #product-root .pd-page-heading h1{font-size:28px!important;line-height:1.35!important;font-weight:600;letter-spacing:-.035em}
+body.bm-studio #product-root .pd-return-bar{position:relative;top:auto;margin:0 0 12px;background:var(--pd-bg)!important}
+body.bm-studio #product-root .pd-page-back{background:transparent!important;border-radius:8px}
+body.bm-studio #product-root :is(.pd-plan,.pd-empty,.pd-current,.pd-rest,.fit-session-progress){border-radius:16px!important}
+body.bm-studio #product-root .pd-main :is(button,.pd-button){border-radius:8px;font-size:14px;min-height:44px}
+body.bm-studio #product-root .pd-main :is(button,.pd-button):hover{background:#2b352e!important}
+body.bm-studio #product-root .pd-main :is(.pd-primary,button[type=submit]):hover{background:#43fa96!important;color:#03190d!important}
+body.bm-studio #product-root .pd-main button:is([aria-pressed=true],[aria-selected=true]){background:#25332a!important;border-color:#516558!important}
+body.bm-studio #product-root .pd-main :is(input,select,textarea){background:#101612!important;border-color:#435047!important;border-radius:8px!important;font-size:15px}
+body.bm-studio #product-root .pd-main :is(input,select,textarea):focus{border-color:var(--pd-accent)!important}
+/* The teaching preview keeps its actual model and gains room for course entry. */
+body.bm-studio #product-root .pd-learn-intro{padding:0!important;margin:0 0 24px!important;gap:12px;align-items:start}
+body.bm-studio #product-root .pd-learn-intro .pd-lead{font-size:21px!important;line-height:1.55!important}
+body.bm-studio #product-root .pd-learn-discover{padding:0!important;margin:0 0 24px!important;background:transparent!important}
+body.bm-studio #product-root .pd-section-head{margin-bottom:14px!important}
+body.bm-studio #product-root .pd-section-head h2{font-size:19px;line-height:1.4;letter-spacing:-.025em}
+body.bm-studio #product-root .pd-learn-tools{gap:12px}
+body.bm-studio #product-root .pd-learn-tools :is(a,button){padding:16px 18px;background:#161d18!important;border-radius:12px!important;text-align:left}
+body.bm-studio #product-root .pd-learn-tools strong{font-size:15px;line-height:1.5;font-weight:550}
+body.bm-studio #product-root .pd-learn-tools small{font-size:13px;line-height:1.6}
+body.bm-studio #product-root .pd-live-lab{margin:0 0 28px;border-radius:16px!important}
+body.bm-studio #product-root .pd-live-top{padding:14px 20px;min-height:0}
+body.bm-studio #product-root .pd-live-grid{padding:20px;gap:24px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:center;min-height:0}
+body.bm-studio #product-root .pd-live-copy{padding:0;min-height:0;gap:12px}
+body.bm-studio #product-root .pd-live-topics{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+body.bm-studio #product-root .pd-live-topics button{width:auto;min-width:0;flex:0 0 auto;padding:8px 12px;white-space:nowrap;font-size:13px;line-height:1.4}
+body.bm-studio #product-root #pd-live-title{font-size:23px!important;line-height:1.45;letter-spacing:-.035em;margin:0 0 12px}
+body.bm-studio #product-root #pd-live-copy{font-size:14px;line-height:1.7;margin:0 0 12px}
+body.bm-studio #product-root #pd-live-formula{font-size:28px;line-height:1.3;margin:12px 0}
+body.bm-studio #product-root .pd-live-stage{padding-left:24px;min-height:0;align-self:center}
+body.bm-studio #product-root #pd-live-svg{height:220px!important;width:100%;max-height:none}
+body.bm-studio #product-root .pd-live-values strong{font-size:26px}
+body.bm-studio #product-root .pd-live-bottom{padding:12px 20px;font-size:12px;line-height:1.5}
+body.bm-studio #product-root .pd-learn-feature{padding:24px;border-radius:16px!important}
+body.bm-studio #product-root .pd-learn-feature h3{font-size:26px;line-height:1.4;letter-spacing:-.035em}
+body.bm-studio #product-root .pd-learn-feature p{font-size:14px;line-height:1.7}
+body.bm-studio #product-root .pd-learn-eyebrow{font-size:12px;letter-spacing:0;text-transform:none}
+body.bm-studio #product-root .pd-learn-shelf h3,body.bm-studio #product-root .pd-learn-questions h3{font-size:16px;line-height:1.5}
+@media(max-width:1000px){
+ body.bm-studio #portal-welcome-stage .studio-hero{gap:24px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ body.bm-studio .fit-training-panel{padding:0}
+ body.bm-studio .fit-training-panel h2{font-size:24px!important}
+ body.bm-studio .fit-week{padding:16px 12px 10px}
+ body.bm-studio .fit-home .studio-specimen{padding:18px}
+ body.bm-studio .fit-home .studio-specimen-stage{min-height:300px;height:350px}
+ body.bm-studio .fit-home .studio-specimen-meta{flex-direction:column;align-items:start;gap:6px}
+ body.bm-studio .fit-home .studio-specimen-meta>span{max-width:100%}
+ body.bm-studio .fit-home .studio-specimen-tabs button{flex:1 1 0;min-width:0;padding-inline:2px;font-size:12px}
+ body.bm-studio .fit-metrics{gap:12px}
+ body.bm-studio .fit-metrics dt{font-size:11px}
+ body.bm-studio #product-root .pd-live-grid{grid-template-columns:1fr;gap:20px}
+ body.bm-studio #product-root .pd-live-stage{padding:0;border-left:0}
+ body.bm-studio #product-root #pd-live-svg{height:230px!important}
+ body.bm-studio #product-root #pd-live-svg text{font-size:19px}
+}
+@media(max-width:650px){
+ body.bm-studio .fit-home-heading{padding:24px var(--st-pad);align-items:start}
+ body.bm-studio #portal-welcome-stage .fit-home-heading h1#studio-home-title{font-size:25px!important}
+ body.bm-studio .fit-home-heading p{font-size:13px!important}
+ body.bm-studio #portal-welcome-stage .studio-hero{grid-template-columns:1fr;gap:26px;padding-top:0}
+ body.bm-studio .fit-training-panel h2{font-size:25px!important;margin-top:10px!important}
+ body.bm-studio .fit-home .studio-hero-copy .studio-actions{justify-content:start;gap:24px;flex-wrap:wrap;margin-top:18px}
+ body.bm-studio .fit-metrics{margin:24px 0 22px;gap:12px}
+ body.bm-studio .fit-metrics dd{font-size:24px}
+ body.bm-studio .fit-week{padding:16px 16px 10px}
+ body.bm-studio .fit-day-tabs button{min-height:72px}
+ body.bm-studio .fit-day-tabs button>strong{font-size:18px}
+ body.bm-studio .fit-day-tabs button>span:not(.studio-sr){font-size:11px!important}
+ body.bm-studio .fit-home .studio-specimen-stage{height:310px;min-height:280px}
+ body.bm-studio .fit-home .studio-specimen-meta{flex-direction:row;align-items:center;gap:12px}
+ body.bm-studio .fit-home .studio-specimen-meta>span{max-width:58%}
+ body.bm-studio .fit-home .studio-specimen-tabs button{font-size:13px;padding-inline:4px}
+ body.bm-studio .fit-home .studio-quick{gap:0;padding-block:0}
+ body.bm-studio .fit-home .studio-quick :is(a,button){flex-direction:row;align-items:center;justify-content:space-between;text-align:left;min-height:72px;padding:16px 0;border-bottom:0;gap:20px}
+ body.bm-studio .fit-home .studio-quick strong{white-space:nowrap}
+ body.bm-studio .fit-home .studio-quick small{margin-top:0;max-width:15em}
+ body.bm-studio .fit-home .studio-intro{padding-block:64px}
+ body.bm-studio #portal-welcome-stage .studio-intro h2{font-size:36px}
+ body.bm-studio .studio-intro p{font-size:18px;line-height:1.8}
+ body.bm-studio .studio-chapter{min-height:0;padding:24px;gap:24px}
+ body.bm-studio #portal-welcome-stage .studio-chapter h3{font-size:30px}
+ body.bm-studio .fit-home .studio-cta{padding-block:28px}
+ body.bm-studio #portal-welcome-stage .studio-home-main .studio-cta h2{font-size:40px!important}
+ body.bm-studio #product-root .pd-page-heading h1{font-size:25px!important}
+ body.bm-studio #product-root .pd-learn-intro{display:block}
+ body.bm-studio #product-root .pd-learn-intro .pd-lead{font-size:18px!important;margin-bottom:12px}
+ body.bm-studio #product-root .pd-learn-tools{display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--pd-line)}
+ body.bm-studio #product-root .pd-learn-tools :is(a,button){display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;gap:16px;min-height:64px;padding:12px 0;background:transparent!important;border-radius:0!important;border-bottom:1px solid var(--pd-line)!important}
+ body.bm-studio #product-root .pd-learn-tools strong{display:flex;align-items:center;justify-content:space-between;gap:8px}
+ body.bm-studio #product-root .pd-learn-tools small{margin:0;line-height:1.5}
+ body.bm-studio #product-root .pd-live-grid{padding:18px;gap:18px}
+ body.bm-studio #product-root .pd-live-top,body.bm-studio #product-root .pd-live-bottom{padding:12px 18px}
+ body.bm-studio #product-root #pd-live-title{font-size:21px!important}
+ body.bm-studio #product-root .pd-live-topics{gap:6px}
+ body.bm-studio #product-root .pd-live-topics button{padding:8px 10px;font-size:12px}
+ body.bm-studio #product-root #pd-live-svg{height:190px!important}
+ body.bm-studio #product-root #pd-live-svg text{font-size:23px}
+ body.bm-studio #product-root .pd-live-bottom{align-items:start;gap:8px}
+}
+@media(prefers-reduced-motion:reduce){body.bm-studio .fit-home .studio-specimen-tabs button::after{transition:none}}
+html.pd-reduced body.bm-studio .fit-home .studio-specimen-tabs button::after{transition:none}

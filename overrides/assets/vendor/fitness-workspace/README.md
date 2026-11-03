@@ -37,3 +37,12 @@ records; reference artwork and reference numbers are not used as product data.
 
 `fitness-workspace.js` only changes presentation. It does not fetch data, write
 records, modify storage, convert load units or generate training prescriptions.
+
+## Taste refinement
+
+The existing True-black flat direction (seed 433844848), dark palette, local
+typeface and routes are retained. The next action precedes history, summary
+figures have quieter proportions, the calendar names its real date range, and
+empty activity markers no longer resemble an equals sign under selection.
+Equipment framing, shared gutters, learning-preview density, typography and
+form surfaces are refined. The original GSAP controllers and data owners remain.
