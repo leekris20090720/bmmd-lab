@@ -131,5 +131,10 @@ body.bm-studio [role=tabpanel][hidden]{display:none!important}
  body.bm-studio #product-root .pd-page-heading h1{font-size:25px!important}
 }
 @media(max-width:360px){body.bm-studio .fit-training-panel{padding:16px}body.bm-studio .fit-metrics dt{font-size:11px}body.bm-studio .fit-home .studio-actions .studio-link{font-size:12px}}
-@media(prefers-reduced-motion:reduce){body.bm-studio .fit-tab-indicator,body.bm-studio .fit-home .studio-quick :is(a,button){transition:none!important;transform:none!important}}
-html.pd-reduced body.bm-studio .fit-tab-indicator,html.pd-reduced body.bm-studio .fit-home .studio-quick :is(a,button){transition:none!important;transform:none!important}
+@media(prefers-reduced-motion:reduce){body.bm-studio .fit-tab-indicator,body.bm-studio .fit-home .studio-quick :is(a,button){transition:none!important}}
+html.pd-reduced body.bm-studio .fit-tab-indicator,html.pd-reduced body.bm-studio .fit-home .studio-quick :is(a,button){transition:none!important}
+
+html[data-fitness-engine=gsap] body.bm-studio .fit-tab-indicator{transition:none!important}
+body.bm-studio .fit-progress-heading strong{display:inline-block}
+@media(prefers-reduced-motion:reduce){body.bm-studio .fit-home .studio-quick :is(a,button):hover{transform:none!important}}
+html.pd-reduced body.bm-studio .fit-home .studio-quick :is(a,button):hover{transform:none!important}

@@ -1,5 +1,6 @@
 /* BM//MD movement journal.
- * ScrollReveal's piece interpolation is adapted from React Bits (David Haz).
+ * GSAP timelines and ScrollTrigger drive the existing movement-journal layout.
+ * Readable character staging follows the earlier React Bits adaptation.
  * See assets/vendor/studio-redesign/README.md and the retained licence notices.
  * This module changes presentation only. No persistence, training writes or networking.
  */
@@ -10,9 +11,10 @@
   const fine = matchMedia('(hover:hover) and (pointer:fine)');
   const clamp = x => Math.min(1, Math.max(0, x));
   const reduced = () => media.matches || document.documentElement.classList.contains('pd-reduced');
-  let frame = 0, queued = 0, home = null, reveal = null, words = [], pictures = [], animations = [];
-  let stage = null, scrollRotation = 0, targetRotation = 0, lastTime = 0;
-  let pointerX = 0, pointerY = 0, aimX = 0, aimY = 0;
+  const G = window.gsap, ST = window.ScrollTrigger;
+  if (G && ST) G.registerPlugin(ST);
+  let queued = 0, home = null, stage = null, mm = null, context = null, pointerTilt = null, swapImage = null;
+  let words = [], paused = [];
   const shadowHosts = new WeakSet();
   const shadowObservers = new Set();
   const shadowCSS = `
@@ -51,23 +53,9 @@
     host.shadowRoot.append(style);
   }
   function cleanup() {
-    cancelAnimationFrame(frame); frame = 0; lastTime = 0;
-    reveal?.disconnect(); reveal = null;
-    animations.forEach(animation => animation.cancel()); animations = [];
-    words = []; pictures = []; stage = null;
-    scrollRotation = targetRotation = pointerX = pointerY = aimX = aimY = 0;
+    mm?.revert(); mm = null; context = null; pointerTilt = null; swapImage = null;
+    words = []; paused = []; stage = null;
   }
-  function arrive(element, delay = 0, horizontal = false) {
-    if (!element?.animate || reduced()) return;
-    const move = horizontal ? 'translateX(24px)' : 'translateY(24px)';
-    const animation = element.animate([{ opacity: .55, transform: move }, { opacity: 1, transform: 'none' }], {
-      duration: 820, delay, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards'
-    });
-    animations.push(animation);
-    animation.finished.then(() => { animations = animations.filter(a => a !== animation); }, () => {});
-  }
-  // React Bits ScrollReveal: same clamped stagger, cubic rise and alpha interpolation.
-  // Chinese is segmented as characters; the sentence's accessible name remains intact.
   function split(element) {
     const text = element.textContent;
     element.setAttribute('aria-label', text);
@@ -77,113 +65,111 @@
     });
     element.replaceChildren(...pieces); words.push({ element, pieces });
   }
-  function drawWords() {
-    for (const { element, pieces } of words) {
-      const rect = element.getBoundingClientRect();
-      const p = reduced() ? 1 : clamp((innerHeight * .88 - rect.top) / (innerHeight * .48 + rect.height));
-      const gap = .014, span = .5, at = p * (span + Math.max(0, pieces.length - 1) * gap);
-      pieces.forEach((piece, i) => {
-        const t = clamp((at - i * gap) / span), rise = 1 - Math.pow(1 - t, 3);
-        piece.style.opacity = String(.62 + .38 * t);
-        piece.style.transform = t === 1 ? '' : `translateY(${(1 - rise) * 12}px)`;
-      });
-    }
-  }
-  function wake() { if (!frame && home && !document.hidden) frame = requestAnimationFrame(tick); }
-  function tick(now) {
-    frame = 0;
-    if (!home?.isConnected || document.hidden) return;
-    const dt = lastTime ? Math.min((now - lastTime) / 1000, .05) : 1 / 60;
-    lastTime = now;
-    const rest = reduced() || document.body.hasAttribute('data-explore-open');
-    const r = stage?.getBoundingClientRect();
-    targetRotation = rest || !r || innerWidth < 651 ? 0 : 6 * (1 - clamp(scrollY / (innerHeight * .65)));
-    const follow = 1 - Math.exp(-dt / .14);
-    scrollRotation += (targetRotation - scrollRotation) * follow;
-    pointerX += ((rest ? 0 : aimX) - pointerX) * follow;
-    pointerY += ((rest ? 0 : aimY) - pointerY) * follow;
-    if (stage) {
-      stage.style.setProperty('--st-rotate', (rest ? 0 : scrollRotation + pointerY).toFixed(3) + 'deg');
-      stage.style.setProperty('--st-scale', rest ? '1' : (1 - Math.abs(scrollRotation) * .002).toFixed(4));
-      stage.style.rotate = rest ? '' : `y ${pointerX.toFixed(3)}deg`;
-    }
-    drawWords();
-    pictures.forEach(picture => {
-      const box = picture.getBoundingClientRect();
-      if (box.bottom < 0 || box.top > innerHeight) return;
-      picture.style.setProperty('--st-parallax', rest ? '0px' : `${((innerHeight / 2 - box.top - box.height / 2) * .035).toFixed(2)}px`);
-    });
-    if (Math.abs(targetRotation - scrollRotation) + Math.abs(aimX - pointerX) + Math.abs(aimY - pointerY) > .015 && !rest) wake();
-  }
   function mount() {
     queued = 0; cleanup(); skinShadow();
-    home = document.querySelector('.studio-home-main');
-    if (document.body.dataset.bmRoute !== 'home' || !home) { home = null; return; }
-    stage = home.querySelector('.studio-specimen-stage');
-    pictures = [...home.querySelectorAll('.studio-chapter figure img')];
-    home.querySelectorAll('[data-studio-words]').forEach(element => split(element));
-    if (!reduced()) {
-      home.querySelectorAll('[data-studio-arrive]').forEach((element, i) => arrive(element, Math.min(i, 4) * 75));
-      reveal = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (!entry.isIntersecting) return;
-          const targets = entry.target.querySelectorAll('[data-studio-reveal]');
-          targets.forEach((element, i) => arrive(element, i * 75, element.tagName === 'FIGURE'));
-          reveal.unobserve(entry.target);
-        });
-      }, { threshold: .13 });
-      home.querySelectorAll('.studio-intro,.studio-chapter,.studio-cta,.studio-footer').forEach(element => reveal.observe(element));
-    }
-    document.documentElement.dataset.studioMotion = 'react-bits-scroll-reveal specimen-crossfade scroll-perspective chapter-stack uiverse-arrow';
+    home = document.body.dataset.bmRoute === 'home' ? document.querySelector('.studio-home-main') : null;
     document.documentElement.dataset.studioReduced = String(reduced());
-    wake();
+    document.documentElement.dataset.studioEngine = G && ST ? 'gsap' : 'static';
+    if (!home || !G || !ST) return;
+    stage = home.querySelector('.studio-specimen-stage');
+    home.querySelectorAll('[data-studio-words]').forEach(split);
+    mm = G.matchMedia();
+    mm.add({ all: 'all', desktop: '(min-width:651px)', reduce: '(prefers-reduced-motion:reduce)' }, ctx => {
+      context = ctx; pointerTilt = null; swapImage = null;
+      if (ctx.conditions.reduce || reduced() || document.body.hasAttribute('data-explore-open')) return;
+      const images = [...home.querySelectorAll('.studio-specimen-image')];
+      G.set(images, { autoAlpha: 0 });
+      G.set(images.filter(image => image.dataset.active === 'true'), { autoAlpha: 1 });
+      ctx.add('swapImage', next => {
+        const others = images.filter(image => image !== next);
+        G.killTweensOf(images);
+        const tl = G.timeline({ defaults: { ease: 'power3.out', overwrite: 'auto' } });
+        tl.to(others, { autoAlpha: 0, x: -28, duration: .35 }, 0)
+          .fromTo(next, { autoAlpha: 0, x: 38, y: 10, scale: .98 }, { autoAlpha: 1, x: 0, y: 0, scale: 1.04, duration: .72 }, 0);
+      });
+      swapImage = ctx.swapImage;
+      if (stage && ctx.conditions.desktop) {
+        G.set(stage, { transformPerspective: 1400, rotationX: 6, rotationY: 0, scale: .988, transformOrigin: '50% 65%' });
+        G.to(stage, { rotationX: 0, scale: 1, ease: 'none', scrollTrigger: {
+          id: 'bm-studio-specimen', trigger: home, start: 0, end: () => Math.max(1, innerHeight * .65), scrub: .65, invalidateOnRefresh: true
+        } });
+        pointerTilt = G.quickTo(stage, 'rotationY', { duration: .45, ease: 'power3.out' });
+      }
+      for (const { element, pieces } of words) {
+        G.fromTo(pieces, { opacity: .62, y: 12 }, { opacity: 1, y: 0, stagger: .012, duration: .5, ease: 'none', scrollTrigger: {
+          id: 'bm-studio-words', trigger: element, start: 'top 88%', end: 'bottom 40%', scrub: .6
+        } });
+      }
+      const intro = home.querySelector('.studio-intro');
+      if (intro) G.fromTo(intro.querySelector('h2'), { y: 36, opacity: .72 }, { y: 0, opacity: 1, ease: 'none', scrollTrigger: {
+        id: 'bm-studio-intro', trigger: intro, start: 'top 88%', end: 'top 35%', scrub: .65
+      } });
+      home.querySelectorAll('.studio-chapter').forEach((chapter, i) => {
+        const heading = chapter.querySelector('h3'), photos = chapter.querySelectorAll('figure img,.studio-chapter-gallery img');
+        const tl = G.timeline({ defaults: { ease: 'none' }, scrollTrigger: {
+          id: 'bm-studio-chapter-' + i, trigger: chapter, start: 'top 88%', end: 'top 20%', scrub: .8
+        } });
+        if (heading) tl.fromTo(heading, { y: 30, opacity: .72 }, { y: 0, opacity: 1 }, 0);
+        if (photos.length) tl.fromTo(photos, { y: 30, scale: 1.10 }, { y: -30, scale: 1.02, stagger: .06 }, 0);
+      });
+      home.querySelectorAll('.studio-cta,.studio-footer').forEach((section, i) => {
+        const heading = section.querySelector('h2');
+        if (heading) G.fromTo(heading, { y: 32, scale: .97, opacity: .72 }, { y: 0, scale: 1, opacity: 1, ease: 'none', scrollTrigger: {
+          id: 'bm-studio-close-' + i, trigger: section, start: 'top 92%', end: 'top 45%', scrub: .6
+        } });
+      });
+    }, home);
+    document.documentElement.dataset.studioMotion = 'gsap-scrolltrigger gsap-timeline gsap-quickto specimen-crossfade chapter-parallax uiverse-arrow';
   }
   function schedule() { if (!queued) queued = requestAnimationFrame(mount); }
   document.addEventListener('click', event => {
     if (home && document.body.dataset.bmRoute === 'home' && event.target.closest?.('a[href="#home"]')) {
-      event.preventDefault();
-      window.scrollTo({ top: 0, behavior: reduced() ? 'instant' : 'smooth' });
-      return;
+      event.preventDefault(); window.scrollTo({ top: 0, behavior: reduced() ? 'instant' : 'smooth' }); return;
     }
     const button = event.target.closest?.('[data-studio-specimen]');
     if (!button || !home) return;
     const index = button.dataset.studioSpecimen;
+    const next = home.querySelector(`.studio-specimen-image[data-specimen="${index}"]`);
+    if (button.getAttribute('aria-pressed') !== 'true' && next && !reduced()) swapImage?.(next);
     home.querySelectorAll('[data-studio-specimen]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     home.querySelectorAll('.studio-specimen-image').forEach(image => image.dataset.active = String(image.dataset.specimen === index));
-    const label = home.querySelector('[data-studio-caption]');
-    if (label) label.textContent = button.dataset.caption;
-    const course = home.querySelector('[data-studio-course]');
-    if (course) course.href = '#course/' + button.dataset.course;
-    const status = home.querySelector('[data-studio-announcement]');
-    if (status) status.textContent = button.dataset.caption;
+    const label = home.querySelector('[data-studio-caption]'); if (label) label.textContent = button.dataset.caption;
+    const course = home.querySelector('[data-studio-course]'); if (course) course.href = '#course/' + button.dataset.course;
+    const status = home.querySelector('[data-studio-announcement]'); if (status) status.textContent = button.dataset.caption;
   });
   document.addEventListener('pointermove', event => {
-    if (!stage || !fine.matches || reduced() || event.buttons) return;
-    const r = stage.getBoundingClientRect();
+    if (!stage || !pointerTilt || !fine.matches || reduced() || event.buttons) return;
     const inside = event.target.closest?.('.studio-specimen-stage');
-    aimX = inside ? (clamp((event.clientX - r.left) / r.width) - .5) * 5 : 0;
-    aimY = inside ? (.5 - clamp((event.clientY - r.top) / r.height)) * 4 : 0;
-    wake();
+    const r = stage.getBoundingClientRect();
+    pointerTilt(inside ? (clamp((event.clientX - r.left) / r.width) - .5) * 7 : 0);
   }, { passive: true });
-  document.addEventListener('pointerleave', () => { aimX = aimY = 0; wake(); });
-  document.addEventListener('scroll', wake, { passive: true, capture: true });
-  window.addEventListener('resize', wake, { passive: true });
+  document.addEventListener('pointerleave', () => pointerTilt?.(0));
   window.addEventListener('bm:page-ready', schedule);
   window.addEventListener('hashchange', schedule);
   document.addEventListener('bm:language-change', schedule);
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { cancelAnimationFrame(frame); frame = 0; animations.forEach(a => a.pause()); }
-    else { animations.forEach(a => a.play()); wake(); }
+    if (document.hidden) { paused = context?.getTweens().filter(t => t.isActive()) || []; paused.forEach(t => t.pause()); }
+    else { paused.forEach(t => t.play()); paused = []; }
   });
   media.addEventListener('change', schedule);
-  const routeObserver = new MutationObserver(schedule);
+  const routeObserver = new MutationObserver(records => {
+    if (records.some(record => record.type === 'attributes')) schedule();
+    else skinShadow();
+  });
   routeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-bm-route', 'data-explore-open'], childList: true });
   const preferenceObserver = new MutationObserver(() => {
-    const next = String(reduced());
-    if (document.documentElement.dataset.studioReduced !== next) schedule();
+    if (document.documentElement.dataset.studioReduced !== String(reduced())) schedule();
   });
   preferenceObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('pagehide', () => { cleanup(); routeObserver.disconnect(); preferenceObserver.disconnect(); shadowObservers.forEach(observer => observer.disconnect()); });
-  B.StudioAppearance = { refresh: schedule, get reduced() { return reduced(); } };
+  window.addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    routeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-bm-route', 'data-explore-open'], childList: true });
+    preferenceObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    const root = document.getElementById('bm-explore-root')?.shadowRoot;
+    if (root) shadowObservers.forEach(observer => observer.observe(root, { childList: true }));
+    schedule();
+  });
+  B.StudioAppearance = { refresh: schedule, get reduced() { return reduced(); }, get engine() { return G && ST ? 'gsap' : 'static'; }, get triggers() { return ST?.getAll().filter(t => String(t.vars.id || '').startsWith('bm-studio-')).length || 0; } };
   schedule();
 })();
