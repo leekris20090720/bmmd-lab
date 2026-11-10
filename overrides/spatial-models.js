@@ -5,18 +5,18 @@
   B.buildSpatialStudio = ({THREE: T, RoundedBoxGeometry}) => {
     const world = new T.Group();
     const standard = (color, roughness = .54, metalness = .18) => new T.MeshStandardMaterial({color, roughness, metalness});
-    const steel = standard(0x909da1, .33, .55);
-    const edge = standard(0x394548, .42, .48);
-    const rubber = standard(0x181e20, .91, .02);
-    const slab = standard(0x364040, .88, .04);
-    const wall = standard(0x212a2b, .83, .07);
-    const ivory = standard(0xc1c8b8, .53, .31);
-    const mint = standard(0x79e2ac, .48, .20);
-    const pads = standard(0x2b3837, .96, 0);
-    const line = new T.MeshBasicMaterial({color:0x475950});
-    const lamp = new T.MeshBasicMaterial({color:0xc4efe4});
-    const active = new T.MeshBasicMaterial({color:0x77f7a9});
-    const black = new T.MeshBasicMaterial({color:0x111718});
+    const steel = standard(0x9aaabe, .33, .55);
+    const edge = standard(0x33415c, .42, .48);
+    const rubber = standard(0x101728, .91, .02);
+    const slab = standard(0x222f48, .88, .04);
+    const wall = standard(0x182235, .83, .07);
+    const ivory = standard(0xabb5ca, .53, .31);
+    const mint = standard(0xeaa557, .48, .20);
+    const pads = standard(0x252d41, .96, 0);
+    const line = new T.MeshBasicMaterial({color:0x566581});
+    const lamp = new T.MeshBasicMaterial({color:0x8caed0});
+    const active = new T.MeshBasicMaterial({color:0xffbd73});
+    const black = new T.MeshBasicMaterial({color:0x0b121e});
     const unitBox = new T.BoxGeometry(1,1,1);
     const unitCylinder = new T.CylinderGeometry(1,1,1,32);
     const mesh = (parent, geometry, material, x, y, z) => {
@@ -52,7 +52,7 @@
     const shadowCanvas = document.createElement('canvas'); shadowCanvas.width=shadowCanvas.height=96;
     const brush = shadowCanvas.getContext('2d');
     const gradient = brush.createRadialGradient(48,48,4,48,48,47);
-    gradient.addColorStop(0,'#030606'); gradient.addColorStop(.5,'#030606a0'); gradient.addColorStop(1,'#03060600');
+    gradient.addColorStop(0,'#050917'); gradient.addColorStop(.5,'#050917a0'); gradient.addColorStop(1,'#05091700');
     brush.fillStyle=gradient; brush.fillRect(0,0,96,96);
     const shadow = new T.MeshBasicMaterial({map:new T.CanvasTexture(shadowCanvas),transparent:true,depthWrite:false,opacity:.85});
     const plane = new T.PlaneGeometry(1,1);
@@ -62,7 +62,7 @@
     function label(parent, text, x,y,z,w,h, floor=false) {
       const canvas = document.createElement('canvas'); canvas.width=384; canvas.height=128;
       const ctx = canvas.getContext('2d');
-      ctx.font='600 76px monospace'; ctx.fillStyle='#cedfd8'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.font='600 76px monospace'; ctx.fillStyle='#d5e2f3'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(text,192,67);
       const texture = new T.CanvasTexture(canvas); texture.colorSpace=T.SRGBColorSpace;
       const material = new T.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false});
@@ -208,15 +208,27 @@
       {id:'lab',x:-3.50,z:-2.51,number:'03',build:testStand},
       {id:'interact',x:3.50,z:-2.51,number:'04',build:gallery}
     ];
-    shade(world,0,-.62,0,21,17);
-    soft(world,rubber,0,-.44,0,14.47,.34,10.55);
-    soft(world,edge,0,-.24,0,14.31,.31,10.39);
-    box(world,wall,0,-.054,0,.43,.13,10.09);
-    box(world,wall,0,-.050,0,14.0,.13,.44);
+    // Each room rests on separate suspension beams around the central rotor.
+    shade(world,0,-1.20,0,24,19);
+    for(const x of [-6.1,0,6.1]){
+      box(world,edge,x,-.54,0,.28,.19,10.88);
+      for(const z of [-4.38,4.38]){
+        box(world,rubber,x,-.77,z,.48,.43,.69);
+        box(world,lamp,x,-.69,z+.36,.24,.045,.024);
+      }
+    }
+    for(const z of [-4.7,0,4.7]){
+      box(world,wall,0,-.61,z,14.04,.17,.34);
+      box(world,steel,0,-.48,z,13.94,.045,.09);
+    }
     const anchors = {}, strips = {}, tiles = {}, bays = {};
     for(const room of rooms) {
       const bay=group(world,room.x,0,room.z); bays[room.id]=bay;
-      soft(bay,edge,0,-.235,0,6.55,.19,4.62);
+      soft(bay,edge,0,-.235,0,6.55,.24,4.62);
+      for(const x of [-2.70,2.70]){
+        box(bay,rubber,x,-.31,0,.34,.29,3.68);
+        for(let n=0;n<4;n++)box(bay,steel,x,-.315,-1.1+n*.72,.39,.12,.15);
+      }
       const tile=soft(bay,slab,0,-.09,0,6.52,.18,4.58);
       tile.name=room.id;
       tiles[room.id]=tile;
@@ -230,19 +242,33 @@
       if(room.id==='lab')terminal(bay,2.60,.57);
       anchors[room.id]=new T.Vector3(room.x,1.0,room.z+2.12);
     }
-    box(world,wall,0,.51,-5.08,14.15,1.08,.22);
-    box(world,edge,0,1.075,-5.08,14.22,.08,.27);
-    for(const x of [-6.85,-.22,.22,6.85]){
-      box(world,edge,x,1.38,-5.03,.17,2.79,.21);
-      box(world,lamp,x,1.63,-4.91,.023,1.82,.023);
+    const rotor=group(world,0,-.01,0);
+    cylinder(rotor,edge,0,.27,0,1.48,.58);
+    cylinder(rotor,rubber,0,.58,0,1.30,.14);
+    cylinder(rotor,steel,0,1.07,0,.50,.98);
+    const axis=group(rotor,0,2.65,0);
+    axis.rotation.y=.26;
+    cylinder(axis,rubber,0,0,0,1.17,.48,'z');
+    cylinder(axis,edge,0,0,.24,1.10,.16,'z');
+    cylinder(axis,ivory,0,0,.36,.34,.09,'z');
+    cylinder(axis,steel,0,0,.42,.24,.10,'z');
+    for(const [radius,tube,z,material] of [[1.21,.075,.34,steel],[1.29,.039,-.19,active],[.81,.033,.36,mint],[.46,.022,.372,steel]]){
+      mesh(axis,new T.TorusGeometry(radius,tube,14,96),material,0,0,z);
     }
-    for (const x of [-3.50,3.50]) {
-      box(world,wall,x,2.68,-5.02,5.97,.15,.25);
-      box(world,lamp,x,2.59,-4.87,4.72,.034,.045);
+    for(let i=0;i<12;i++){
+      const angle=i*Math.PI/6;
+      const spoke=box(axis,i%3===0?mint:edge,Math.cos(angle)*.74,Math.sin(angle)*.74,.381,.39,.075,.055);
+      spoke.rotation.z=angle;
+      cylinder(axis,steel,Math.cos(angle)*1.035,Math.sin(angle)*1.035,.366,.028,.04,'z');
     }
-    box(world,edge,0,.1,-.18,13.76,.11,.056);
-    for(const x of [-6.78,6.78])box(world,edge,x,.035,0,.135,.08,9.91);
-    label(world,'BM // MD',0,.66,-4.955,2.5,.54);
+    for(const x of [-7.02,7.02]){
+      box(world,edge,x,1.5,-4.86,.24,4.1,.27);
+      box(world,lamp,x,1.50,-4.70,.036,3.10,.032);
+      box(world,wall,x,3.49,-3.39,.31,.23,3.15);
+    }
+    box(world,wall,0,3.53,-4.9,14.45,.27,.32);
+    box(world,active,0,3.41,-4.73,9.84,.032,.032);
+    label(world,'BM // MD',0,3.15,-4.69,2.5,.54);
     const shell=world.children.filter(object=>!Object.values(bays).includes(object));
     const exhibit = group(world,0,0,0);
     soft(exhibit,edge,0,-.18,0,5.65,.35,3.86);
@@ -264,7 +290,7 @@
   };
   B.buildSpatialTrace = T => {
     const world = new T.Group();
-    const ground = new T.Mesh(new T.BoxGeometry(6.6,.12,2.5),new T.MeshStandardMaterial({color:0x283735,roughness:.79}));
+    const ground = new T.Mesh(new T.BoxGeometry(6.6,.12,2.5),new T.MeshStandardMaterial({color:0x27334b,roughness:.79}));
     ground.position.y=-.11; world.add(ground);
     const gridPoints=[];
     for(const z of [-.72,.72]){
@@ -277,7 +303,7 @@
         gridPoints.push(new T.Vector3(-2.9,y,z),new T.Vector3(2.9,y,z));
       }
     }
-    const grid=new T.LineSegments(new T.BufferGeometry().setFromPoints(gridPoints),new T.LineBasicMaterial({color:0x546b63,transparent:true,opacity:.49}));
+    const grid=new T.LineSegments(new T.BufferGeometry().setFromPoints(gridPoints),new T.LineBasicMaterial({color:0x587195,transparent:true,opacity:.49}));
     world.add(grid);
     function createPlot(color,z) {
       const line=new T.Line(new T.BufferGeometry(),new T.LineBasicMaterial({color}));
@@ -286,8 +312,8 @@
       world.add(line,ribbon);
       return {line,ribbon};
     }
-    const live=createPlot(0x88fcb1,.72), reference=createPlot(0xb8c3e7,-.72);
-    const marker=new T.Mesh(new T.SphereGeometry(.082,18,12),new T.MeshBasicMaterial({color:0xf1fff4}));
+    const live=createPlot(0xffbc75,.72), reference=createPlot(0xb8c3e7,-.72);
+    const marker=new T.Mesh(new T.SphereGeometry(.082,18,12),new T.MeshBasicMaterial({color:0xffe2bd}));
     world.add(marker);
     let prevRows, prevReference, mapX, mapY;
     function points(series, plot) {

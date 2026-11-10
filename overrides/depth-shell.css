@@ -1,0 +1,220 @@
+/* Motion Deck. Controls and type occupy the fronts of the WebGL chassis. */
+:root[data-theme=dark] body.bm-deck {
+  --pd-bg:#0a101b;--pd-paper:#142035;--pd-wash:#263651;--pd-ink:#eff4ff;--pd-muted:#b7c8e0;
+  --pd-line:#4a607f;--pd-accent:#ffc285;--deck-face:#182337;--deck-edge:#50688a;--deck-deep:#070c14;
+  --ui-bg:var(--pd-bg);--ui-surface:var(--pd-paper);--ui-surface-subtle:var(--pd-wash);--ui-text:var(--pd-ink);
+  --ui-muted:var(--pd-muted);--ui-line:var(--pd-line);--ui-accent:var(--pd-accent);--ui-focus:#ffd6ac;
+  --ui-primary-bg:var(--pd-accent);--ui-primary-text:#27190b;--ui-primary-hover:#ffd8b1;
+  --st-pad:clamp(23px,4.3vw,72px);
+  background:var(--pd-bg)!important;color:var(--pd-ink)!important;
+}
+body.bm-deck > #bm-depth-canvas {
+  position:fixed;inset:0;display:block;z-index:0;width:100vw;height:100dvh;pointer-events:none;
+}
+body.bm-deck > #bm-depth-canvas[hidden] {display:none;}
+body.bm-studio.bm-deck :is(#product-root,#engineering-root),
+body.bm-studio.bm-deck.pd-home :is(#portal-hub-overlay,#portal-welcome-stage) {background:transparent!important;}
+body.bm-studio.bm-deck.pd-home #portal-hub-overlay {padding-top:82px!important;}
+body.bm-studio.bm-deck #pd-header {
+  height:72px;
+  top:6px;
+  inset-inline:var(--st-pad);
+  width:auto;
+  border:1px solid var(--deck-edge)!important;
+  padding-inline:clamp(14px,2.3vw,38px);
+  background:var(--deck-face)!important;
+  box-shadow:0 5px 0 var(--deck-deep)!important;
+  border-radius:2px;
+  gap:22px;
+}
+body.bm-studio.bm-deck #pd-header .pd-brand {font-size:clamp(21px,2.2vw,31px);letter-spacing:-.07em;}
+body.bm-studio.bm-deck #pd-header nav {gap:12px;}
+body.bm-studio.bm-deck #pd-header nav :is(a,button) {
+  background:#23334b!important;
+  border:1px solid #4b6384!important;
+  border-bottom:3px solid #101c2d!important;
+  padding:0 17px;
+  border-radius:2px;
+}
+body.bm-studio.bm-deck #pd-header nav [aria-current=page] {background:var(--pd-accent)!important;color:#251609!important;}
+body.bm-studio.bm-deck #pd-header nav :is(a,button)::after {display:none;}
+body.bm-studio.bm-deck :is(#product-root,#engineering-root) {top:82px;}
+body.bm-studio.bm-deck.pd-app.eng-active>#engineering-root {height:calc(100dvh - 82px);}
+body.bm-studio.bm-deck .pd-main {max-width:1560px;padding:26px var(--st-pad) 104px;}
+body.bm-studio.bm-deck .pd-subnav {background:var(--deck-face)!important;border-bottom:1px solid var(--deck-edge)!important;position:relative;z-index:2;}
+body.bm-studio.bm-deck .pd-return-bar {margin:0 0 15px;padding-inline:2px;}
+body.bm-studio.bm-deck .pd-page-heading {
+  display:block;
+  margin:0 0 24px;
+  padding:20px 23px 23px!important;
+  border:1px solid var(--deck-edge)!important;
+  background:var(--deck-face)!important;
+  border-radius:2px;
+}
+body.bm-studio.bm-deck .pd-page-heading > p {
+  display:block!important;
+  color:#ffc58d;
+  font:600 11px/1.3 var(--pd-font);
+  letter-spacing:.12em;
+  margin:0 0 7px;
+}
+body.bm-studio.bm-deck .pd-page-heading h1 {font-size:clamp(32px,4.1vw,58px)!important;line-height:1.12;margin:0!important;}
+body.bm-studio.bm-deck .deck-workspace {display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:24px;}
+body.bm-studio.bm-deck .deck-workspace:has(.deck-observatory) {grid-template-columns:minmax(0,1fr) minmax(265px,.49fr);}
+body.bm-studio.bm-deck .deck-operation {min-width:0;}
+body.bm-studio.bm-deck .deck-observatory {position:sticky;top:18px;min-width:0;border:1px solid var(--deck-edge);border-radius:2px;padding:8px;background:var(--deck-face);}
+body.bm-studio.bm-deck .deck-observatory .spatial-stage {height:clamp(190px,26vw,345px);}
+body.bm-studio.bm-deck .deck-observatory [data-spatial-view=trace] .spatial-stage {height:clamp(150px,17vw,220px);}
+body.bm-studio.bm-deck .deck-observatory .spatial-caption {gap:4px;flex-wrap:wrap;justify-content:space-between;}
+body.bm-studio.bm-deck .deck-observatory .spatial-instructions {display:none;}
+body.bm-studio.bm-deck .deck-observatory:has([data-spatial-view=trace][data-spatial-unavailable]) {display:none;}
+body.bm-studio.bm-deck .deck-workspace:has([data-spatial-view=trace][data-spatial-unavailable]) {grid-template-columns:minmax(0,1fr);}
+
+body.bm-studio.bm-deck .deck-hub {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(245px,.31fr);
+  grid-template-areas:"model title" "model bays" "model footer";
+  grid-template-rows:auto 1fr auto;
+  align-content:center;
+  gap:22px 28px;
+  padding:28px var(--st-pad) 45px;
+  min-height:calc(100svh - 82px);
+}
+body.bm-studio.bm-deck .deck-hub-title {
+  grid-area:title;align-self:start;text-align:left;
+  padding:22px 18px 20px;border:1px solid var(--deck-edge);
+  background:var(--deck-face);border-radius:2px;
+}
+body.bm-studio.bm-deck #portal-welcome-stage .deck-hub-title .deck-label {font-size:12px;font-weight:680;letter-spacing:.08em;color:#ffc58d;margin-bottom:12px;}
+body.bm-studio.bm-deck #portal-welcome-stage .studio-home-main .deck-hub-title h1 {
+  font-size:clamp(40px,4.45vw,79px)!important;line-height:1.03!important;letter-spacing:-.057em!important;
+  color:var(--pd-ink)!important;margin:0 0 13px!important;text-align:left!important;white-space:normal!important;
+  max-width:none!important;
+}
+body.bm-studio.bm-deck #portal-welcome-stage .deck-hub-title > p:last-child {font-size:14px;color:var(--pd-muted);line-height:1.6;}
+body.bm-studio.bm-deck .deck-hub-model {
+  grid-area:model;min-width:0;align-self:start;
+  border:1px solid var(--deck-edge);border-radius:2px;
+  background:var(--deck-face);padding:10px;
+}
+body.bm-studio.bm-deck .spatial-view {background:#0b121d;}
+body.bm-studio.bm-deck .spatial-stage {background:#0b121d;}
+body.bm-studio.bm-deck .deck-hub-model .spatial-stage {height:clamp(340px,72svh,830px);}
+body.bm-studio.bm-deck .deck-bays {grid-area:bays;align-self:start;gap:14px;grid-template-columns:minmax(0,1fr);}
+body.bm-studio.bm-deck .deck-bays > :is(a,button) {
+  grid-template-columns:35px minmax(0,1fr) auto;
+  background:var(--deck-face)!important;
+  border:1px solid var(--deck-edge)!important;
+  border-radius:2px;
+  padding:10px 14px;
+  min-height:65px;
+}
+body.bm-studio.bm-deck .deck-bays :is(a,button):hover,
+body.bm-studio.bm-deck .spatial-stage .spatial-marker:hover {border-color:var(--pd-accent)!important;color:var(--pd-accent)!important;}
+body.bm-studio.bm-deck .deck-bays .spatial-number {color:#ffc58d!important;font-variant-numeric:tabular-nums;opacity:1;}
+body.bm-studio.bm-deck .deck-bays .spatial-door-text small {color:#b7c8e0;}
+body.bm-studio.bm-deck .spatial-stage .spatial-marker {
+  background:#172641!important;color:#eff4ff!important;
+  border-color:#8aa6cc!important;border-radius:2px;
+  box-shadow:0 4px 0 #070d18!important;
+}
+body.bm-studio.bm-deck .spatial-stage .spatial-marker .spatial-number {color:#ffc285!important;}
+body.bm-studio.bm-deck .spatial-caption {border-color:#496180;color:#c5d3e8;}
+body.bm-studio.bm-deck .deck-hub-footer {grid-area:footer;display:flex;flex-wrap:wrap;gap:6px 18px;color:#a9bdd9;font-size:12px;align-self:end;}
+body.bm-studio.bm-deck .deck-hub-footer a {color:var(--pd-ink);}
+body.bm-studio.bm-deck .bm-lab-image,
+body.bm-studio.bm-deck .pd-learn-equipment>img,
+body.bm-studio.bm-deck .pd-learn-shelf>a>img {display:none;}
+body.bm-studio.bm-deck .ex-library-intro {display:block;}
+body.bm-studio.bm-deck .ex-library-controls > .ex-library-mobile-filter {display:none;}
+
+body.bm-studio.bm-deck :is(.pd-main,#engineering-root) :is(
+.pd-plan,.pd-learn-discover,.pd-learn-feature,.pd-learn-shelf>a,.pd-course-directory>a,.pd-doors>a,
+.pd-ex-theme,.pd-ex-panel,.pd-live-lab,.pd-course-aside,.pd-course-stage,.pd-learn-questions li>a,
+.pd-course-card,.pd-research-card,.pd-ex-controls,.pd-ex-observe,.pd-plot,.pd-ex-layout,.pd-auto-bar,.fit-training-panel,
+.eng-stage,.eng-panel,.eng-graph,.eng-top,.eng-hero
+) {
+  background:var(--deck-face)!important;
+  border-color:var(--deck-edge)!important;
+  border-radius:2px!important;
+}
+body.bm-studio.bm-deck #pd-content > section:not(.pd-course-workspace):not(.pd-ex-layout) {padding-inline:clamp(10px,1.25vw,19px);}
+body.bm-studio.bm-deck #pd-content > .pd-ex-layout {background:transparent!important;border:0!important;}
+body.bm-studio.bm-deck #pd-content :is(.pd-course-stage,.pd-course-demo,.sphere-stage) {min-width:0;}
+body.bm-studio.bm-deck .pd-learn-feature:has(.pd-learn-equipment>img) {grid-template-columns:minmax(0,1fr);}
+body.bm-studio.bm-deck .pd-learn-equipment:has(>img) {display:none;}
+body.bm-studio.bm-deck .pd-learn-shelf>a:has(>img) {grid-template-columns:minmax(0,1fr);}
+body.bm-studio.bm-deck .pd-ex-controls {min-width:0;}
+body.bm-studio.bm-deck .pd-ex-controls input[type=range] {accent-color:var(--pd-accent);}
+body.bm-studio.bm-deck :is(.pd-main,#engineering-root) :is(button,.pd-button,select,input:not([type=range],[type=checkbox],[type=radio]),textarea) {
+  background:#263651!important;color:var(--pd-ink)!important;border:1px solid #566d8d!important;
+  border-bottom:3px solid #111b2d!important;border-radius:2px!important;
+}
+body.bm-studio.bm-deck :is(.pd-main,#engineering-root) :is(.pd-primary,.eng-primary,button[type=submit],button[aria-pressed=true],button[aria-selected=true]) {
+  background:var(--pd-accent)!important;color:#27190b!important;border-color:#ffd6a6!important;border-bottom-color:#915c35!important;
+}
+body.bm-studio.bm-deck :is(.pd-main,#engineering-root) :is(button,.pd-button):not(:disabled):hover {border-color:var(--pd-accent)!important;}
+body.bm-studio.bm-deck :is(.pd-main,#engineering-root) :is(button,.pd-button):active {translate:0 2px;}
+body.bm-studio.bm-deck :focus-visible {outline-color:#ffd2a2!important;outline-offset:2px!important;}
+body.bm-studio.bm-deck :is(.deck-hub-title,.deck-hub-model,.deck-observatory,.deck-bays>*,.pd-page-heading):not([data-deck-active]) {
+  box-shadow:0 5px 0 var(--deck-deep),0 6px 0 var(--deck-edge)!important;
+}
+body.bm-studio.bm-deck [data-deck-active],
+body.bm-studio.bm-deck :is(#pd-header,#product-root,#engineering-root,#portal-welcome-stage) [data-deck-active],
+body.bm-studio.bm-deck #pd-header[data-deck-active] {
+  background:transparent!important;box-shadow:none!important;
+  transform:var(--deck-transform,none)!important;
+  transform-origin:center;
+}
+body.bm-studio.bm-deck[data-deck-measuring] [data-deck-active],
+body.bm-studio.bm-deck[data-deck-measuring] :is(#pd-header,#product-root,#engineering-root,#portal-welcome-stage) [data-deck-active],
+body.bm-studio.bm-deck[data-deck-measuring] #pd-header[data-deck-active] {transform:none!important;}
+@media(max-width:1100px){
+  body.bm-studio.bm-deck .deck-workspace:has(.deck-observatory) {grid-template-columns:minmax(0,1fr);}
+  body.bm-studio.bm-deck .deck-observatory {position:relative;top:auto;grid-row:1;}
+  body.bm-studio.bm-deck .deck-observatory .spatial-stage {height:clamp(150px,24vw,240px);}
+}
+@media(max-width:700px){
+  :root[data-theme=dark] body.bm-deck {--st-pad:15px;}
+  body.bm-studio.bm-deck #pd-header {height:58px;gap:7px;padding-inline:9px;}
+  body.bm-studio.bm-deck #pd-header .pd-brand {font-size:19px;}
+  body.bm-studio.bm-deck #pd-header nav {gap:4px;}
+  body.bm-studio.bm-deck #pd-header nav :is(a,button) {font-size:12px;min-height:40px;padding-inline:7px;}
+  body.bm-studio.bm-deck #pd-header>div {gap:4px;}
+  body.bm-studio.bm-deck #pd-header>div button {font-size:12px;}
+  body.bm-studio.bm-deck :is(#product-root,#engineering-root) {top:69px;}
+  body.bm-studio.bm-deck.pd-app.eng-active>#engineering-root {height:calc(100dvh - 69px);}
+  body.bm-studio.bm-deck.pd-home #portal-hub-overlay {padding-top:69px!important;}
+  body.bm-studio.bm-deck .pd-main {padding-top:17px;}
+  body.bm-studio.bm-deck .pd-page-heading {padding:15px 13px!important;margin-bottom:17px;}
+  body.bm-studio.bm-deck .deck-hub {grid-template-columns:minmax(0,1fr);grid-template-areas:"title" "model" "bays" "footer";grid-template-rows:auto;gap:14px;padding-top:17px;}
+  body.bm-studio.bm-deck .deck-hub-title {padding:14px;}
+  body.bm-studio.bm-deck #portal-welcome-stage .studio-home-main .deck-hub-title h1 {font-size:clamp(37px,10vw,62px)!important;margin-bottom:8px!important;}
+  body.bm-studio.bm-deck .deck-hub-model {padding:5px;}
+  body.bm-studio.bm-deck .deck-hub-model .spatial-stage {height:clamp(220px,69vw,330px);}
+  body.bm-studio.bm-deck .deck-bays {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  body.bm-studio.bm-deck .deck-bays > :is(a,button) {grid-template-columns:19px minmax(0,1fr) auto;gap:5px;padding:7px 8px;min-height:47px;}
+  body.bm-studio.bm-deck .deck-bays .spatial-door-text small {display:none;}
+  body.bm-studio.bm-deck .deck-hub .spatial-caption .spatial-instructions {display:none;}
+  body.bm-studio.bm-deck .ex-library-controls > .ex-library-mobile-filter {display:block;}
+  body.bm-studio.bm-deck .ex-library-mobile-filter select {width:100%;min-width:0;}
+}
+@media(prefers-reduced-motion:reduce){
+  body.bm-deck :is(.deck-hub,.pd-main,#pd-header) * {scroll-behavior:auto!important;animation-duration:.001ms!important;transition-duration:.001ms!important;}
+}
+body.bm-studio.bm-deck #product-root .pd-main .pd-page-heading[data-deck-plate] h1 {font-size:clamp(33px,4.4vw,61px)!important;}
+body.bm-studio.bm-deck .deck-hub-footer,
+body.bm-studio.bm-deck #pd-content > .ex-library-intro,
+body.bm-studio.bm-deck #pd-content > .pd-learn-intro {padding:12px 16px;border:1px solid var(--deck-edge);background:var(--deck-face);}
+body.bm-studio.bm-deck #pd-content > :is(.pd-plan,.fit-training-panel,.ex-library-controls) {margin-block:17px;}
+body.bm-studio.bm-deck .ex-topic {padding:12px;border:1px solid var(--deck-edge);background:var(--deck-face);border-radius:2px;}
+body.bm-studio.bm-deck #engineering-root .eng-shell {background:transparent!important;}
+body.bm-studio.bm-deck #engineering-root .eng-shell::before {display:none!important;}
+body.bm-studio.bm-deck #engineering-root :is(.eng-heading,.eng-models,.eng-parameters,.eng-position,.did-detailed-readouts) {
+  background:var(--deck-face)!important;
+  border-color:var(--deck-edge)!important;
+  border-radius:2px!important;
+  padding:clamp(10px,1.3vw,20px);
+}
+body.bm-studio.bm-deck #engineering-root :is(.eng-heading,.eng-models,.eng-parameters,.eng-position,.did-detailed-readouts)[data-deck-active] {background:transparent!important;}
+body.bm-studio.bm-deck #engineering-root .eng-models button[aria-pressed=true] :is(strong,small) {color:#27190b!important;}

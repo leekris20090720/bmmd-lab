@@ -16,8 +16,8 @@ let modelReady=null;async function models(){if(!modelReady){preloadModels();mode
 function go(r){if(location.hash==='#'+r)render();else location.hash=r;}
 function notice(s,error=false){status.textContent=s;status.classList.toggle('pd-error',error);status.hidden=false;clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>status.hidden=true,error?9000:2600);}
 function nav(space){header.innerHTML=`<a href="#home" class="pd-brand" aria-label="BM//MD ${t('首页','home')}">BM<span>//</span>MD</a><nav aria-label="${t('主要方向','Primary navigation')}"><a href="#train/plans" ${space==='train'?'aria-current="page"':''}>${t('训练','Train')}</a><a href="#learn" ${space==='learn'?'aria-current="page"':''}>${t('学习','Learn')}</a><button type="button" class="pd-nav-interact" data-pd-explore aria-haspopup="dialog" aria-expanded="false">${t('互动','Interact')}</button></nav><div><a href="#settings">${t('设置','Settings')}</a><button type="button" data-pd-language aria-label="${t('Switch to English','切换到中文')}">${en()?'中':'EN'}</button></div>`;}
-function page(title,html,space='learn'){nav(space);const supplied=html.match(/^\s*<a\s+[^>]*href=["']#([^"']+)["'][^>]*>\s*←[\s\S]*?<\/a>/),fallback=supplied?supplied[1]:B.Navigation.parent(route);if(supplied)html=html.slice(supplied[0].length);const backTarget=pageNavigation.target(fallback);root.innerHTML=`${space==='train'?`<nav class="pd-subnav" aria-label="${t('训练页面','Training pages')}">${[['train/plans','我的计划','My plans'],['train/session','正在训练','Training now'],['train/history','训练记录','History']].map(([r,z,e])=>`<a href="#${r}" ${route===r?'aria-current="page"':''}>${t(z,e)}</a>`).join('')}</nav>`:''}<main class="pd-main"><div class="pd-return-bar"><a class="pd-page-back" href="#${E(backTarget)}" data-pd-back>← ${t('返回上一页','Back')}</a></div><header class="pd-page-heading"><p>${space==='train'?t('训练','TRAIN'):space==='settings'?t('设置','SETTINGS'):t('学习','LEARN')}</p><h1 tabindex="-1">${title}</h1>${B.SpatialStudio?.header(route)||''}</header>${(space==='train'||space==='settings')?(B.LocalVault?.statusHTML()||''):''}${B.store.exportData().storage.loadError?`<p class="pd-warning" role="alert">${t('原训练库读取有问题，原文恢复副本已保留。请先到备份页核对；不要用新数据覆盖。','The previous database could not be read. Its original recovery copy is retained. Check Backup before replacing data.')} <a href="#settings/data">${t('查看备份','View backups')}</a></p>`:''}${B.store.hasUnsavedDraft()?`<p class="pd-warning" role="alert">${t('有输入尚未写入本机，请重试保存或下载备份。','Some input is not yet saved locally. Retry or download a backup.')} <button type="button" data-pd="retry-store">${t('重试保存','Retry save')}</button> <a href="#settings/data">${t('下载备份','Download backup')}</a></p>`:''}<div id="pd-content">${html}${(route==='train/plans'||route.startsWith('train/summary/'))?(B.LocalVault?.reminderHTML()||''):''}</div></main>`;B.Product.content=root.querySelector('#pd-content');document.title=(typeof title==='string'?title.replace(/<[^>]+>/g,''):'BM//MD')+' · BM//MD';B.LocalVault?.mount();window.dispatchEvent(new CustomEvent('bm:page-ready',{detail:{route}}));}
-function fitnessOverview(active,actions){
+function page(title,html,space='learn'){nav(space);const supplied=html.match(/^\s*<a\s+[^>]*href=["']#([^"']+)["'][^>]*>\s*←[\s\S]*?<\/a>/),fallback=supplied?supplied[1]:B.Navigation.parent(route);if(supplied)html=html.slice(supplied[0].length);const backTarget=pageNavigation.target(fallback),view=B.SpatialStudio?.header(route);root.innerHTML=`${space==='train'?`<nav class="pd-subnav" aria-label="${t('训练页面','Training pages')}">${[['train/plans','我的计划','My plans'],['train/session','正在训练','Training now'],['train/history','训练记录','History']].map(([r,z,e])=>`<a href="#${r}" ${route===r?'aria-current="page"':''}>${t(z,e)}</a>`).join('')}</nav>`:''}<main class="pd-main"><div class="pd-return-bar"><a class="pd-page-back" href="#${E(backTarget)}" data-pd-back>← ${t('返回上一页','Back')}</a></div><header class="pd-page-heading" data-deck-plate><p>${space==='train'?t('训练','TRAIN'):space==='settings'?t('设置','SETTINGS'):t('学习','LEARN')}</p><h1 tabindex="-1">${title}</h1></header><div class="deck-workspace"><div class="deck-operation">${(space==='train'||space==='settings')?(B.LocalVault?.statusHTML()||''):''}${B.store.exportData().storage.loadError?`<p class="pd-warning" role="alert">${t('原训练库读取有问题，原文恢复副本已保留。请先到备份页核对；不要用新数据覆盖。','The previous database could not be read. Its original recovery copy is retained. Check Backup before replacing data.')} <a href="#settings/data">${t('查看备份','View backups')}</a></p>`:''}${B.store.hasUnsavedDraft()?`<p class="pd-warning" role="alert">${t('有输入尚未写入本机，请重试保存或下载备份。','Some input is not yet saved locally. Retry or download a backup.')} <button type="button" data-pd="retry-store">${t('重试保存','Retry save')}</button> <a href="#settings/data">${t('下载备份','Download backup')}</a></p>`:''}<div id="pd-content">${html}${route==='train/plans'?fitnessOverview(F.active()):''}${(route==='train/plans'||route.startsWith('train/summary/'))?(B.LocalVault?.reminderHTML()||''):''}</div></div>${view?`<aside class="deck-observatory" data-deck-plate>${view}</aside>`:''}</div></main>`;B.Product.content=root.querySelector('#pd-content');document.title=(typeof title==='string'?title.replace(/<[^>]+>/g,''):'BM//MD')+' · BM//MD';B.LocalVault?.mount();window.dispatchEvent(new CustomEvent('bm:page-ready',{detail:{route}}));}
+function fitnessOverview(active){
  const state=F.state(),performed=session=>B.TrainingData.executed(session),ended=state.sessions.filter(x=>x.endedAt&&performed(x).length),key=value=>{const d=new Date(value);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
  const today=new Date(),days=Array.from({length:7},(_,i)=>{const d=new Date(today);d.setHours(0,0,0,0);d.setDate(d.getDate()-6+i);const sessions=ended.filter(x=>key(x.endedAt)===key(d));return {date:d,sessions,sets:sessions.reduce((n,x)=>n+performed(x).length,0)};});
  const recent=days.flatMap(d=>d.sessions),sets=days.reduce((n,d)=>n+d.sets,0),families=new Set(state.plans.map(p=>p.familyId||p.id));
@@ -29,7 +29,6 @@ function fitnessOverview(active,actions){
   <div class="fit-panel-top"><p>${active?t('正在进行','In progress'):t('你的下一次训练','Your next session')}</p><a href="#train/plans">${t('我的计划','My plans')} ↗</a></div>
   <h2 id="fit-plan-title">${active?E(active.planSnapshot.title):families.size?t('按自己的计划，继续。','Keep your plan moving.'):t('先安排一个训练日。','Make room for your first session.')}</h2>
   <p class="fit-plan-note">${active?t('输入、已完成组与休息计时都已保留。','Your input, saved sets and rest timer are retained.'):t('安排动作和组次，训练时记录实际重量与次数。','Plan your exercises and sets. Record the load and reps you actually complete.')}</p>
-  ${actions}
   <dl class="fit-metrics">${count(recent.length,t('近 7 天训练','Sessions · 7 days'))}${count(sets,t('近 7 天完成组','Sets · 7 days'))}${count(families.size,t('我的计划','My plans'))}</dl>
   <div class="fit-week" data-fit-tabs>
    <div class="fit-week-heading"><h3>${t('训练日历','Training calendar')}</h3><a href="#train/history">${t('全部记录','All history')} ↗</a></div>
@@ -39,99 +38,18 @@ function fitnessOverview(active,actions){
   </div>
  </section>`;
 }
-function motionStory(train,trainLabel,arrow){
- const scenes=[
-  {photo:'stack',width:1120,height:1991,alt:t('带有刻度和黄色插销的器械配重','Machine weight stack with numbered plates and selector pin'),label:t('载荷','Load'),title:t('先看重量。','Start with the load.'),copy:t('同样大小的力，作用线离转轴越远，力矩越大。','The same load creates a different moment when its line of action changes.'),href:'#experiment/lever',action:t('比较有效力臂','Compare moment arms')},
-  {photo:'pulley',width:1120,height:1495,alt:t('钢索训练器的滑轮和绳柄','Pulleys and rope attachment on a cable machine'),label:t('传动','Transmission'),title:t('再看力怎么走。','Follow the force.'),copy:t('钢索经过滑轮，改变手柄拉力与行程的关系。用同一个提升任务对比机械效率。','Pulleys change the relationship between handle force and travel. Compare efficiency for the same lift.'),href:'#experiment/pulley-efficiency',action:t('打开滑轮效率实验','Open the pulley efficiency experiment')},
-  {photo:'lift',width:1500,height:1000,alt:t('硬拉训练中的杠铃片和运动员双脚','A loaded barbell plate and an athlete’s feet during a deadlift'),label:t('训练','Training'),title:t('把每组练习记下来。','Make every set count.'),copy:t('选定动作和重量，记下真正完成的次数。下一次训练从这些记录出发。','Choose a movement and load, then record the reps you actually finish. Start your next session from that record.'),href:'#'+train,action:trainLabel}
- ];
- const photo=(scene,cls)=>`<img class="${cls}" src="assets/motion-story/${scene.photo}.webp" width="${scene.width}" height="${scene.height}" alt="${E(scene.alt)}" loading="lazy" decoding="async">`;
- return {
-  hero:`<section class="bm-product-intro" aria-labelledby="bm-story-title">
-   <div class="bm-product-viewport">
-    <header class="bm-product-copy">
-     <p class="bm-product-kicker">${t('BM//MD 动作力学','BM//MD Movement Mechanics')}</p>
-     <h2 id="bm-story-title" data-heading-renderer="studio"><span class="bm-product-mask"><span class="bm-product-line">${t('沿着一根钢索。','Follow the cable.')}</span></span></h2>
-     <p class="bm-product-lead">${t('看清器械怎样传递力量，记下你真正完成的每一组。','See how equipment transmits force. Record every set you complete.')}</p>
-    </header>
-    <figure class="bm-product-visual">
-     <img src="assets/motion-story/pulley-poster.webp" width="1440" height="960" alt="${t('钢索绕过带绿色轴承环的金属滑轮，结构示意','A steel cable wrapped around a metal pulley with a green bearing ring. Concept render.')}" fetchpriority="high" decoding="async">
-     <canvas width="600" height="400" aria-hidden="true"></canvas>
-    </figure>
-    <div class="bm-product-controls" role="group" aria-label="${t('滑轮观察角度','Pulley viewpoints')}" hidden>
-     <button type="button" data-film-progress="0" aria-pressed="true">${t('整体','Overview')}</button>
-     <button type="button" data-film-progress="0.66" aria-pressed="false">${t('轮槽','Groove')}</button>
-     <button type="button" data-film-progress="1" aria-pressed="false">${t('走线','Cable path')}</button>
-    </div>
-    <div class="bm-story-actions"><a class="studio-arrow-button" href="#${train}"><span>${trainLabel}</span>${arrow}</a><a class="studio-link" href="#learn/experiments">${t('进入力学实验室','Open the mechanics lab')} ↗</a></div>
-   </div>
-  </section>`,
-  sequence:`<section class="bm-story-sequence" id="bm-story-sequence" tabindex="-1" aria-labelledby="bm-story-sequence-title">
-   <header class="bm-story-heading"><h2 id="bm-story-sequence-title">${t('力，如何变成一个动作。','How force becomes movement.')}</h2><p>${t('从配重、钢索到你完成的一组训练。','From the stack and cable to the set you finish.')}</p></header>
-   <div class="bm-story-rail">
-    <div class="bm-story-steps">${scenes.map((s,i)=>`<article class="bm-story-step">
-     <figure class="bm-story-step-media">${photo(s,'bm-story-step-photo')}</figure>
-     <div class="bm-story-step-copy"><p class="bm-story-step-label">0${i+1} <span>${s.label}</span></p><h3>${s.title}</h3><p>${s.copy}</p><a class="studio-link" href="${s.href}">${s.action} ↗</a></div>
-    </article>`).join('')}</div>
-    <div class="bm-story-stage" aria-hidden="true"><div class="bm-story-stage-media">${scenes.map(s=>photo(s,'bm-story-frame')).join('')}<div class="bm-story-progress"><span></span></div></div></div>
-   </div>
-  </section>`
- };
-}
 function home(){
- nav('home');document.title='BM//MD · '+t('动作有迹可循','Movement, understood');
- const s=F.active(),plans=F.state().plans,copy=welcome.querySelector('.apple-hero-copy');
- const train=s?'train/session':'train/plans',trainLabel=s?t('继续训练','Continue training'):plans.length?t('打开我的计划','Open my plans'):t('开始训练','Start training');
- const arrow='<svg width="34" height="34" viewBox="0 0 74 74" fill="none" aria-hidden="true"><circle cx="37" cy="37" r="35.5" stroke="currentColor" stroke-width="3"/><path d="M25 37h23m-9-9 9 9-9 9" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
- const specimens=[['cam','op-le.png','腿屈伸','Leg extension','Life Fitness Axiom · OP-LE'],['arm','op-dap.png','钢索侧平举','Cable lateral raise','Life Fitness Axiom · OP-DAP'],['incline','hsllp.png','倒蹬','Leg press','Hammer Strength · 45°']];
- const story=motionStory(train,trainLabel,arrow);
- copy.innerHTML=`<main class="studio-home-main fit-home" data-i18n-skip>
-  ${B.SpatialStudio?.home()||story.hero}
-  <header class="fit-home-heading"><div><h2 id="studio-home-title" class="fit-page-title">${t('训练工作台','Training workspace')}</h2><p>${t('安排训练、查动作、记录每一组。','Plan a session. Understand a movement. Keep your record.')}</p></div><a href="#settings/data" class="fit-backup-link">${t('备份与恢复','Backup and restore')} ↗</a></header>
-  <section class="studio-hero" aria-labelledby="studio-home-title">
-   <div class="studio-hero-copy">
-    ${fitnessOverview(s,`<div class="studio-actions"><a class="studio-arrow-button" href="#${train}"><span>${trainLabel}</span>${arrow}</a><a class="studio-link" href="#learn">${t('先学一个动作','Learn a movement')}</a></div>`)}
-   </div>
-   <div class="studio-specimen" data-studio-arrive>
-    <p class="fit-equipment-heading">${t('器械观察','Equipment study')}</p>
-    <div class="studio-specimen-stage" role="img" aria-label="${t('可切换的器械实物展示','Switchable equipment photographs')}">
-     ${specimens.map(([id,image,z,e],i)=>`<img class="studio-specimen-image" data-specimen="${i}" data-active="${i===0}" src="assets/equipment-reference/${image}" alt="${E(t(z,e))}" width="1200" height="630" decoding="async" ${i===0?'fetchpriority="high"':''}>`).join('')}
-    </div>
-    <div class="studio-specimen-meta"><span data-studio-caption>${specimens[0][4]}</span><a data-studio-course href="#course/cam">${t('观察这个动作','Study this movement')}</a></div>
-    <div class="studio-specimen-tabs" role="group" aria-label="${t('选择器械','Choose equipment')}">${specimens.map(([id,image,z,e,caption],i)=>`<button type="button" data-studio-specimen="${i}" data-caption="${E(caption)}" data-course="${id}" aria-pressed="${i===0}">${t(z,e)}</button>`).join('')}</div>
-    <p class="studio-sr" data-studio-announcement aria-live="polite"></p>
-   </div>
-  </section>
-  <nav class="studio-quick" aria-label="${t('训练、学习与互动','Training, learning and interaction')}">
-   <a href="#${train}"><strong>${t('训练','Train')}</strong><small>${t('安排计划，记录每一组','Your plan. Every set recorded.')}</small></a>
-   <a href="#learn"><strong>${t('学习','Learn')}</strong><small>${t('从一个动作，看懂力学','Start with a movement.')}</small></a>
-   <button type="button" data-pd-explore aria-haspopup="dialog"><strong>${t('互动','Explore')}</strong><small>${t('转动器械，动手试试看','Turn it. Try it. Understand it.')}</small></button>
-  </nav>
-  <section class="studio-intro" aria-labelledby="studio-intro-title">
-   <h2 id="studio-intro-title" data-studio-reveal>${t('先看懂，<br>再练好。','Understand it.<br>Then make it yours.')}</h2>
-   <p data-studio-words>${t('配重怎样传到身体？哪个位置更吃力？把动作慢下来，让器械、结构和受力一起回答。','How does the load reach your body? Where is the movement hardest? Slow it down. Let the equipment, structure and forces answer together.')}</p>
-  </section>
-  ${B.SpatialStudio?story.hero:''}
-  ${story.sequence}
-  <section class="studio-chapters" aria-labelledby="studio-chapters-title">
-   <h2 id="studio-chapters-title" class="studio-chapters-title">${t('按你的节奏，开始。','Find your way in.')}</h2>
-   <article class="studio-chapter" aria-labelledby="studio-chapter-train">
-    <div class="studio-chapter-copy"><h3 id="studio-chapter-train" data-studio-reveal>${t('每一组，都算数。','Every set counts.')}</h3><div><p data-studio-reveal>${t('自己安排训练计划，记下重量、次数与完成情况。下次回来，从上次真实做过的地方继续。','Build your own plan. Record weight, reps and completion. Come back to what you actually did.')}</p><a class="studio-link" data-studio-reveal href="#${train}">${trainLabel}</a><br><a class="studio-link" data-studio-reveal href="#train/history">${t('查看训练记录','View training history')}</a></div></div>
-    <figure class="bm-training-photo" data-studio-reveal><img src="assets/motion-story/chalk.webp" alt="${t('运动员训练前整理护腕的黑白特写','Black-and-white close-up of an athlete adjusting their wrist wraps')}" width="1400" height="933" loading="lazy" decoding="async"></figure>
-   </article>
-   <article class="studio-chapter" aria-labelledby="studio-chapter-learn">
-    <div class="studio-chapter-copy"><h3 id="studio-chapter-learn" data-studio-reveal>${t('看见力的走向。','Follow the force.')}</h3><div><p data-studio-reveal>${t('从人体演示到器械结构，再到受力与曲线。改变一个参数，观察同一个动作怎样回应。','From the body to the mechanism, then forces and curves. Change one parameter and see the same movement respond.')}</p><a class="studio-link" data-studio-reveal href="#learn/courses">${t('进入动作课程','Explore the courses')}</a><br><a class="studio-link" data-studio-reveal href="#learn/experiments">${t('打开力学实验','Open the mechanics lab')}</a></div></div>
-    <figure data-studio-reveal><img src="assets/equipment-reference/op-dap.png" alt="${t('Life Fitness 双塔可调滑轮训练器','Life Fitness dual adjustable pulley')}" width="1200" height="630" loading="lazy" decoding="async"></figure>
-   </article>
-   <article class="studio-chapter" aria-labelledby="studio-chapter-explore">
-    <div class="studio-chapter-copy"><h3 id="studio-chapter-explore" data-studio-reveal>${t('动手，比猜更近。','Try it for yourself.')}</h3><div><p data-studio-reveal>${t('转动器械展厅，辨认不同结构，在节奏实验里感受变化。也可以直接搜索你想学的动作。','Turn the equipment gallery, recognise its structures and explore timing through rhythm. Or search for a movement you want to learn.')}</p><button type="button" class="studio-link" data-studio-reveal data-pd-explore aria-haspopup="dialog" style="background:none;border:0;padding:0">${t('进入探索空间','Enter the playground')}</button><br><button type="button" class="studio-link" data-studio-reveal data-pd-search style="background:none;border:0;padding:0">${t('搜索动作','Search movements')}</button></div></div>
-    <div class="studio-chapter-gallery" data-studio-reveal><img src="assets/equipment-reference/op-fly.png" alt="${t('胸飞鸟训练器','Pectoral fly machine')}" width="600" height="630" loading="lazy" decoding="async"><img src="assets/equipment-reference/op-sp.png" alt="${t('肩部推举训练器','Shoulder press machine')}" width="600" height="630" loading="lazy" decoding="async"></div>
-   </article>
-  </section>
-  <a class="studio-cta" href="#${train}"><h2 data-studio-reveal>${trainLabel}</h2><p data-studio-reveal>${t('从一个适合自己的计划开始。','Start with a plan of your own.')}</p></a>
-  <footer class="studio-footer"><h2 data-studio-reveal><a href="#home" aria-label="BM//MD ${t('首页','home')}">BM//MD</a></h2><div data-studio-reveal><p>${t('动作力学与训练记录。训练数据保存在你的浏览器，记得定期备份。','Movement mechanics and training records. Your training data stays in your browser. Keep a backup.')}</p><nav aria-label="${t('更多入口','More destinations')}"><a href="#learn">${t('学习','Learn')}</a><a href="#settings/data">${t('备份与恢复','Backup and restore')}</a><a href="#settings">${t('设置','Settings')}</a></nav></div></footer>
+ nav('home');
+ document.title='BM//MD · '+t('动作力学舱','Motion deck');
+ const copy=welcome.querySelector('.apple-hero-copy');
+ const train=F.active()?'train/session':'train/plans';
+ copy.innerHTML=`<main class="studio-home-main deck-home" data-i18n-skip>
+  ${B.SpatialStudio?.home(train)||`<section class="deck-no-module" data-deck-plate><h1>BM//MD</h1><nav><a href="#${train}">${t('训练','Train')}</a><a href="#learn">${t('动作学习','Movement')}</a><a href="#learn/experiments">${t('力学实验','Mechanics')}</a><button type="button" data-pd-explore>${t('互动','Explore')}</button></nav></section>`}
  </main>`;
- welcome.querySelectorAll('.apple-welcome-footer,.bm-text-explore-down,#bm-home-intro,.bm-text-brand-footer').forEach(e=>e.hidden=true);welcome.querySelector('.apple-welcome-header').hidden=true;welcome.classList.add('portal-stage-active');portal.style.display='';portal.style.pointerEvents='auto';portal.inert=false;portal.scrollTop=0;root.hidden=true;
+ welcome.querySelectorAll('.apple-welcome-footer,.bm-text-explore-down,#bm-home-intro,.bm-text-brand-footer').forEach(e=>e.hidden=true);
+ welcome.querySelector('.apple-welcome-header').hidden=true;
+ welcome.classList.add('portal-stage-active');
+ portal.style.display='';portal.style.pointerEvents='auto';portal.inert=false;portal.scrollTop=0;root.hidden=true;
  window.dispatchEvent(new CustomEvent('bm:page-ready',{detail:{route:'home'}}));
 }
 function learning(){
