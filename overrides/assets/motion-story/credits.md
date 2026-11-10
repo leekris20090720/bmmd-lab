@@ -9,3 +9,11 @@ The photographs are distributed under the [Pexels License](https://www.pexels.co
 
 Product photography and storytelling references: [Apple Fitness+](https://www.apple.com/apple-fitness-plus/) and [MacBook Pro](https://www.apple.com/macbook-pro/).
 Motion implementation reference: [GSAP ScrollTrigger](https://gsap.com/docs/v3/Plugins/ScrollTrigger/).
+
+## Pulley study and training photographs
+
+- `lift.webp` — Victor Freitas. [Person Lifting Barbell](https://www.pexels.com/photo/person-lifting-barbell-949128/).
+- `chalk.webp` — Alexa Popovich. [Black and White Closeup Photo of an Athlete](https://www.pexels.com/photo/black-and-white-closeup-photo-of-an-athlete-14762138/).
+- `pulley-poster.webp` and `pulley-film.webp` — original BM//MD Three.js concept render. The viewpoints illustrate the assembly, groove and cable path.
+
+References for the pulley sequence: [Apple AirPods Pro](https://www.apple.com/airpods-pro/), [MotionSites Performance Eyewear](https://motionsites.org/prompts/performance-eyewear), and [React Bits Split Text](https://reactbits.dev/text-animations/split-text).

@@ -65,14 +65,69 @@
     });
     element.replaceChildren(...pieces); words.push({ element, pieces });
   }
+  function mountProductFilm(ctx) {
+    const intro = home.querySelector('.bm-product-intro');
+    if (!intro) return;
+    const title = intro.querySelector('.bm-product-line');
+    if (window.scrollY < 60) G.from(title, { yPercent: 100, duration: .8, ease: 'power3.out', clearProps: 'transform' });
+    if (!ctx.conditions.filmDesktop) return;
+
+    const sheet = new Image();
+    const canvas = intro.querySelector('canvas');
+    const surface = canvas.getContext('2d', { alpha: false });
+    if (!surface) return;
+    const controls = intro.querySelector('.bm-product-controls');
+    const buttons = [...controls.querySelectorAll('button')];
+    const stops = buttons.map(button => Number(button.dataset.filmProgress));
+    const frameCount = 28, columns = 7;
+    let active = true, frame = -1, chapter = -1, trigger;
+    function draw(progress) {
+      const next = Math.round(clamp(progress) * (frameCount - 1));
+      if (next !== frame) {
+        const { width, height } = canvas;
+        surface.drawImage(sheet, (next % columns) * width, Math.floor(next / columns) * height, width, height, 0, 0, width, height);
+        canvas.dataset.frame = String(next);
+        frame = next;
+      }
+      const nearest = stops.reduce((best, stop, index) =>
+        Math.abs(stop - progress) < Math.abs(stops[best] - progress) ? index : best, 0);
+      if (nearest !== chapter) {
+        buttons.forEach((button, index) => button.setAttribute('aria-pressed', String(index === nearest)));
+        chapter = nearest;
+      }
+    }
+    function seek(event) {
+      const button = event.target.closest('[data-film-progress]');
+      if (!trigger || !button) return;
+      const progress = Number(button.dataset.filmProgress);
+      window.scrollTo({ top: trigger.start + progress * (trigger.end - trigger.start), behavior: 'smooth' });
+    }
+    sheet.src = 'assets/motion-story/pulley-film.webp';
+    const ready = ctx.add(null, () => {
+      if (!active || !intro.isConnected) return;
+      const angle = { progress: 0 };
+      draw(0);
+      intro.classList.add('is-film-ready');
+      controls.hidden = false;
+      controls.addEventListener('click', seek);
+      const tween = G.to(angle, { progress: 1, ease: 'none', onUpdate: () => draw(angle.progress),
+        scrollTrigger: { id: 'bm-product-film', trigger: intro, start: 'top 80px', end: 'bottom bottom', scrub: .35 }
+      });
+      trigger = tween.scrollTrigger;
+      ST.refresh();
+    });
+    sheet.decode().then(ready, () => {});
+    return () => {
+      active = false;
+      controls.removeEventListener('click', seek);
+      controls.hidden = true;
+      intro.classList.remove('is-film-ready');
+      delete canvas.dataset.frame;
+    };
+  }
   function mountStory(ctx) {
-    const hero = home.querySelector('.bm-story-hero');
     const rail = home.querySelector('.bm-story-rail');
     const desktop = ctx.conditions.storyDesktop;
-    if (hero) G.fromTo(hero.querySelector('img'), { yPercent: -2, scale: 1.13 }, {
-      yPercent: desktop ? 16 : 8, scale: 1.05, ease: 'none',
-      scrollTrigger: { id: 'bm-story-hero', trigger: hero, start: 'clamp(top top)', end: 'bottom top', scrub: .45 }
-    });
     if (!rail) return;
     if (!desktop) {
       rail.querySelectorAll('.bm-story-step-media').forEach((frame, index) => {
@@ -112,7 +167,7 @@
     stage = home?.querySelector('.studio-specimen-stage');
     home?.querySelectorAll('[data-studio-words]').forEach(split);
     mm = G.matchMedia();
-    mm.add({ all: 'all', desktop: '(min-width:651px)', storyDesktop: '(min-width:950px)', reduce: '(prefers-reduced-motion:reduce)' }, ctx => {
+    mm.add({ all: 'all', desktop: '(min-width:651px)', storyDesktop: '(min-width:950px)', filmDesktop: '(min-width:950px) and (min-height:690px)', reduce: '(prefers-reduced-motion:reduce)' }, ctx => {
       context = ctx; pointerTilt = null; swapImage = null;
       if (ctx.conditions.reduce || reduced() || document.body.hasAttribute('data-explore-open')) return;
       if (lab) {
@@ -122,6 +177,7 @@
         return;
       }
       const revertStory = mountStory(ctx);
+      const revertFilm = mountProductFilm(ctx);
       const images = [...home.querySelectorAll('.studio-specimen-image')];
       G.set(images, { autoAlpha: 0 });
       G.set(images.filter(image => image.dataset.active === 'true'), { autoAlpha: 1 });
@@ -163,19 +219,12 @@
           id: 'bm-studio-close-' + i, trigger: section, start: 'top 92%', end: 'top 45%', scrub: .6
         } });
       });
-      return revertStory;
+      return () => { revertStory?.(); revertFilm?.(); };
     }, home || lab);
-    document.documentElement.dataset.studioMotion = 'gsap-scrolltrigger gsap-timeline gsap-quickto specimen-crossfade chapter-parallax uiverse-arrow';
+    document.documentElement.dataset.studioMotion = 'gsap-scrolltrigger gsap-timeline gsap-quickto specimen-crossfade chapter-parallax product-film uiverse-arrow';
   }
   function schedule() { if (!queued) queued = requestAnimationFrame(mount); }
   document.addEventListener('click', event => {
-    const jump = event.target.closest?.('[data-studio-jump]');
-    if (jump && home) {
-      const destination = document.getElementById(jump.dataset.studioJump);
-      destination?.focus({ preventScroll: true });
-      destination?.scrollIntoView({ behavior: reduced() ? 'instant' : 'smooth' });
-      return;
-    }
     if (home && document.body.dataset.bmRoute === 'home' && event.target.closest?.('a[href="#home"]')) {
       event.preventDefault(); window.scrollTo({ top: 0, behavior: reduced() ? 'instant' : 'smooth' }); return;
     }

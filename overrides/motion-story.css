@@ -1,66 +1,103 @@
-/* Photographic story, within the existing dark workspace. */
-body.bm-studio .bm-story-hero {
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  align-items: center;
-  min-height: clamp(570px, 86svh, 940px);
-  overflow: clip;
+/* Product sequence and photography, within the existing dark workspace. */
+body.bm-studio .bm-product-intro {
+  --film-top: 80px;
   background: #090b0a;
 }
-body.bm-studio .bm-story-hero-media {
-  position: absolute;
-  z-index: -1;
-  inset: 0 0 0 24%;
-  overflow: hidden;
+body.bm-studio .bm-product-viewport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100svh - var(--film-top));
+  padding: clamp(24px, 5.5svh, 64px) var(--st-pad) 27px;
+  text-align: center;
 }
-body.bm-studio .bm-story-hero-media img {
-  position: absolute;
-  inset: -12% 0;
-  width: 100%;
-  height: 124%;
-  object-fit: cover;
-  object-position: 47% 52%;
-  filter: brightness(1.18) saturate(.75);
+body.bm-studio .bm-product-intro.is-film-ready {min-height: calc(200svh - var(--film-top));}
+body.bm-studio .is-film-ready .bm-product-viewport {
+  position: sticky;
+  top: var(--film-top);
+  height: calc(100svh - var(--film-top));
 }
-body.bm-studio .bm-story-hero-media::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, #090b0a 0%, #090b0ab3 19%, #090b0a00 54%),
-              linear-gradient(0deg, #090b0a 0%, #090b0a00 30%);
+body.bm-studio .bm-product-copy {align-self: stretch;}
+body.bm-studio #portal-welcome-stage .bm-product-copy .bm-product-kicker {
+  margin-bottom: 10px;
+  color: #b6c1ba;
+  font-size: 13px;
+  font-weight: 550;
+  letter-spacing: .055em;
 }
-body.bm-studio .bm-story-hero-copy {padding: 80px var(--st-pad) 110px;}
-body.bm-studio .bm-story-hero .bm-story-overline {color: #c8d2cc; font-size: 14px; margin-bottom: 22px;}
-body.bm-studio #portal-welcome-stage .studio-home-main .bm-story-hero h1 {
-  font-size: clamp(57px, 6.3vw, 106px) !important;
-  line-height: 1.02 !important;
+body.bm-studio #portal-welcome-stage .studio-home-main .bm-product-copy h1 {
+  font-size: clamp(49px, 7vw, 107px) !important;
   font-weight: 680 !important;
-  letter-spacing: -.065em !important;
-  text-align: left !important;
+  line-height: 1.09 !important;
+  letter-spacing: -.062em !important;
   white-space: normal !important;
-  margin: 0 0 26px !important;
+  text-align: center !important;
+  width: 100%;
+  max-width: none !important;
+  margin: 0 0 10px !important;
   background: none !important;
   color: #f4f6f4 !important;
   -webkit-text-fill-color: currentColor !important;
 }
-body.bm-studio .bm-story-hero .bm-story-hero-lead {max-width: 30em; color: #d1d8d3; font-size: 17px; line-height: 1.7;}
-body.bm-studio .bm-story-actions {display: flex; flex-wrap: wrap; gap: 22px; align-items: center; margin-top: 30px;}
-body.bm-studio .bm-story-hero .bm-story-scroll {
+body.bm-studio .bm-product-copy :is(.bm-product-mask,.bm-product-line) {display: block; max-width: none;}
+body.bm-studio .bm-product-mask {overflow: hidden; padding: 0 .06em .06em;}
+body.bm-studio #portal-welcome-stage .bm-product-copy .bm-product-lead {
+  color: #bbc5bf;
+  font-size: clamp(14px, 1.45vw, 20px);
+  line-height: 1.55;
+  max-width: 32em;
+  margin-inline: auto;
+}
+body.bm-studio .bm-product-viewport .bm-product-visual {
+  position: relative;
+  width: min(100%, 960px, max(480px, calc((100svh - 365px) * 1.5)));
+  aspect-ratio: 3 / 2;
+  margin-top: 10px;
+  flex: none;
+}
+body.bm-studio .is-film-ready .bm-product-visual {
+  flex: 1 1 0;
+  min-height: 0;
+  width: min(100%, 960px);
+  aspect-ratio: auto;
+}
+body.bm-studio .bm-product-visual :is(img,canvas) {
   position: absolute;
-  bottom: 26px;
-  left: var(--st-pad);
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+body.bm-studio .bm-product-visual canvas {display: none;}
+body.bm-studio .is-film-ready .bm-product-visual canvas {display: block;}
+body.bm-studio .is-film-ready .bm-product-visual img {opacity: 0;}
+body.bm-studio .bm-product-controls {
+  display: flex;
+  gap: 8px;
+  margin: 0 auto 4px;
+}
+body.bm-studio .bm-product-controls[hidden] {display: none;}
+body.bm-studio .bm-product-controls button {
   min-height: 44px;
-  padding: 0;
-  border: 0;
+  padding: 0 14px;
   background: transparent;
-  color: #c3cac6;
+  border: 0;
+  border-bottom: 1px solid #404944;
+  color: #b6c1ba;
   font-size: 13px;
 }
-body.bm-studio .bm-story-scroll:hover {color: var(--pd-accent);}
+body.bm-studio .bm-product-controls button[aria-pressed=true] {color: #f1f5f2; border-color: var(--pd-accent);}
+body.bm-studio .bm-story-actions {display: flex; justify-content: center; flex-wrap: wrap; gap: 22px; align-items: center; margin-top: 12px;}
+body.bm-studio .bm-story-actions .studio-arrow-button {min-height: 44px; padding: 6px 13px; font-size: 15px; gap: 9px;}
+body.bm-studio .bm-story-actions .studio-arrow-button svg {width: 27px; height: 27px;}
+body.bm-studio .studio-chapter .bm-training-photo {border-radius: 12px; background: #181e1b;}
+body.bm-studio .studio-chapter .bm-training-photo img {
+  inset: -10% 0;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  object-position: 49% 56%;
+}
 body.bm-studio #portal-welcome-stage .fit-home-heading #studio-home-title {
   font-size: 28px !important;
   line-height: 1.2;
@@ -68,7 +105,7 @@ body.bm-studio #portal-welcome-stage .fit-home-heading #studio-home-title {
   letter-spacing: -.035em;
   margin-bottom: 8px !important;
 }
-body.bm-studio .bm-story-hero + .fit-home-heading {padding-top: 46px;}
+body.bm-studio .bm-product-intro + .fit-home-heading {padding-top: 46px;}
 body.bm-studio .bm-story-sequence {padding: 0 var(--st-pad) 86px; scroll-margin-top: 110px;}
 body.bm-studio .bm-story-heading {margin-bottom: 40px;}
 body.bm-studio #portal-welcome-stage .bm-story-heading h2 {
@@ -110,21 +147,13 @@ body.bm-studio .ex-library-intro .pd-lead {margin: 0 0 14px !important;}
 body.bm-studio .bm-lab-image {margin: 0; aspect-ratio: 2.8 / 1; position: relative; overflow: hidden; border-radius: 12px; background: #171e1a;}
 body.bm-studio .bm-lab-image img {position: absolute; inset: -12% 0; width: 100%; height: 124%; object-fit: cover; object-position: 50% 60%; filter: saturate(.7) brightness(.84);}
 body.bm-studio .ex-library-controls > .ex-library-mobile-filter {display: none;}
-@media (max-width: 949px) {
-  body.bm-studio .bm-story-hero-media {inset-inline-start: 12%;}
-}
 @media (max-width: 650px) {
-  body.bm-studio .bm-story-hero {min-height: clamp(600px, 86svh, 750px); align-items: end;}
-  body.bm-studio .bm-story-hero-media {inset: 0 0 8%;}
-  body.bm-studio .bm-story-hero-media img {object-position: 39% 36%;}
-  body.bm-studio .bm-story-hero-media::after {background: linear-gradient(0deg, #090b0a 0%, #090b0ae6 22%, #090b0a26 72%);}
-  body.bm-studio .bm-story-hero-copy {padding: 115px var(--st-pad) 92px;}
-  body.bm-studio #portal-welcome-stage .studio-home-main .bm-story-hero h1 {font-size: clamp(43px, 9.8vw, 61px) !important; margin-bottom: 16px !important;}
-  body.bm-studio .bm-story-hero .bm-story-overline {font-size: 12px; margin-bottom: 14px;}
-  body.bm-studio .bm-story-hero .bm-story-hero-lead {font-size: 14px;}
-  body.bm-studio .bm-story-actions {gap: 16px; margin-top: 22px;}
+  body.bm-studio .bm-product-intro {--film-top: 68px;}
+  body.bm-studio .bm-product-viewport {min-height: auto; padding-top: 44px; padding-bottom: 37px;}
+  body.bm-studio #portal-welcome-stage .studio-home-main .bm-product-copy h1 {font-size: clamp(35px, 10.5vw, 62px) !important;}
+  body.bm-studio .bm-product-viewport .bm-product-visual {width: calc(100% + var(--st-pad) * 2); margin-top: 23px;}
+  body.bm-studio .bm-story-actions {gap: 12px 17px; margin-top: 10px;}
   body.bm-studio .bm-story-actions .studio-link {font-size: 14px;}
-  body.bm-studio .bm-story-hero .bm-story-scroll {bottom: 16px;}
   body.bm-studio .bm-story-sequence {padding-bottom: 54px; scroll-margin-top: 88px;}
   body.bm-studio .bm-story-heading {margin-bottom: 25px;}
   body.bm-studio #portal-welcome-stage .bm-story-heading h2 {font-size: 36px;}

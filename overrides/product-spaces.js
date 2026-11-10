@@ -43,19 +43,28 @@ function motionStory(train,trainLabel,arrow){
  const scenes=[
   {photo:'stack',width:1120,height:1991,alt:t('带有刻度和黄色插销的器械配重','Machine weight stack with numbered plates and selector pin'),label:t('载荷','Load'),title:t('先看重量。','Start with the load.'),copy:t('同样大小的力，作用线离转轴越远，力矩越大。','The same load creates a different moment when its line of action changes.'),href:'#experiment/lever',action:t('比较有效力臂','Compare moment arms')},
   {photo:'pulley',width:1120,height:1495,alt:t('钢索训练器的滑轮和绳柄','Pulleys and rope attachment on a cable machine'),label:t('传动','Transmission'),title:t('再看力怎么走。','Follow the force.'),copy:t('钢索经过滑轮，改变手柄拉力与行程的关系。用同一个提升任务对比机械效率。','Pulleys change the relationship between handle force and travel. Compare efficiency for the same lift.'),href:'#experiment/pulley-efficiency',action:t('打开滑轮效率实验','Open the pulley efficiency experiment')},
-  {photo:'rack',width:1120,height:747,alt:t('训练馆的哑铃架','A rack of dumbbells in a training gym'),label:t('训练','Training'),title:t('把每组练习记下来。','Make every set count.'),copy:t('选定动作和重量，记下真正完成的次数。下一次训练从这些记录出发。','Choose a movement and load, then record the reps you actually finish. Start your next session from that record.'),href:'#'+train,action:trainLabel}
+  {photo:'lift',width:1500,height:1000,alt:t('硬拉训练中的杠铃片和运动员双脚','A loaded barbell plate and an athlete’s feet during a deadlift'),label:t('训练','Training'),title:t('把每组练习记下来。','Make every set count.'),copy:t('选定动作和重量，记下真正完成的次数。下一次训练从这些记录出发。','Choose a movement and load, then record the reps you actually finish. Start your next session from that record.'),href:'#'+train,action:trainLabel}
  ];
  const photo=(scene,cls)=>`<img class="${cls}" src="assets/motion-story/${scene.photo}.webp" width="${scene.width}" height="${scene.height}" alt="${E(scene.alt)}" loading="lazy" decoding="async">`;
  return {
-  hero:`<section class="bm-story-hero" aria-labelledby="bm-story-title">
-   <div class="bm-story-hero-media"><img src="assets/motion-story/plate.webp" width="1680" height="1118" alt="" fetchpriority="high" decoding="async"></div>
-   <div class="bm-story-hero-copy">
-    <p class="bm-story-overline">${t('动作力学与训练记录','Movement mechanics and training')}</p>
-    <h1 id="bm-story-title" data-heading-renderer="studio">${t('看懂力，<br>练得明白。','Understand force.<br>Train with purpose.')}</h1>
-    <p class="bm-story-hero-lead">${t('看清器械怎样传递力量，再把每一次训练变成可回看的记录。','See how equipment transmits force. Keep a record of the training you complete.')}</p>
+  hero:`<section class="bm-product-intro" aria-labelledby="bm-story-title">
+   <div class="bm-product-viewport">
+    <header class="bm-product-copy">
+     <p class="bm-product-kicker">${t('BM//MD 动作力学','BM//MD Movement Mechanics')}</p>
+     <h1 id="bm-story-title" data-heading-renderer="studio"><span class="bm-product-mask"><span class="bm-product-line">${t('让力，有迹可循。','Follow the force.')}</span></span></h1>
+     <p class="bm-product-lead">${t('看清器械怎样传递力量，记下你真正完成的每一组。','See how equipment transmits force. Record every set you complete.')}</p>
+    </header>
+    <figure class="bm-product-visual">
+     <img src="assets/motion-story/pulley-poster.webp" width="1440" height="960" alt="${t('钢索绕过带绿色轴承环的金属滑轮，结构示意','A steel cable wrapped around a metal pulley with a green bearing ring. Concept render.')}" fetchpriority="high" decoding="async">
+     <canvas width="600" height="400" aria-hidden="true"></canvas>
+    </figure>
+    <div class="bm-product-controls" role="group" aria-label="${t('滑轮观察角度','Pulley viewpoints')}" hidden>
+     <button type="button" data-film-progress="0" aria-pressed="true">${t('整体','Overview')}</button>
+     <button type="button" data-film-progress="0.66" aria-pressed="false">${t('轮槽','Groove')}</button>
+     <button type="button" data-film-progress="1" aria-pressed="false">${t('走线','Cable path')}</button>
+    </div>
     <div class="bm-story-actions"><a class="studio-arrow-button" href="#${train}"><span>${trainLabel}</span>${arrow}</a><a class="studio-link" href="#learn/experiments">${t('进入力学实验室','Open the mechanics lab')} ↗</a></div>
    </div>
-   <button class="bm-story-scroll" type="button" data-studio-jump="bm-story-sequence">${t('滚动探索','Explore the story')} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 4v15m-6-6 6 6 6-6"/></svg></button>
   </section>`,
   sequence:`<section class="bm-story-sequence" id="bm-story-sequence" tabindex="-1" aria-labelledby="bm-story-sequence-title">
    <header class="bm-story-heading"><h2 id="bm-story-sequence-title">${t('力，如何变成一个动作。','How force becomes movement.')}</h2><p>${t('从配重、钢索到你完成的一组训练。','From the stack and cable to the set you finish.')}</p></header>
@@ -107,7 +116,7 @@ function home(){
    <h2 id="studio-chapters-title" class="studio-chapters-title">${t('按你的节奏，开始。','Find your way in.')}</h2>
    <article class="studio-chapter" aria-labelledby="studio-chapter-train">
     <div class="studio-chapter-copy"><h3 id="studio-chapter-train" data-studio-reveal>${t('每一组，都算数。','Every set counts.')}</h3><div><p data-studio-reveal>${t('自己安排训练计划，记下重量、次数与完成情况。下次回来，从上次真实做过的地方继续。','Build your own plan. Record weight, reps and completion. Come back to what you actually did.')}</p><a class="studio-link" data-studio-reveal href="#${train}">${trainLabel}</a><br><a class="studio-link" data-studio-reveal href="#train/history">${t('查看训练记录','View training history')}</a></div></div>
-    <figure data-studio-reveal><img src="assets/equipment-reference/il-row.png" alt="${t('Hammer Strength 划船训练器','Hammer Strength rowing machine')}" width="1200" height="630" loading="lazy" decoding="async"></figure>
+    <figure class="bm-training-photo" data-studio-reveal><img src="assets/motion-story/chalk.webp" alt="${t('运动员训练前整理护腕的黑白特写','Black-and-white close-up of an athlete adjusting their wrist wraps')}" width="1400" height="933" loading="lazy" decoding="async"></figure>
    </article>
    <article class="studio-chapter" aria-labelledby="studio-chapter-learn">
     <div class="studio-chapter-copy"><h3 id="studio-chapter-learn" data-studio-reveal>${t('看见力的走向。','Follow the force.')}</h3><div><p data-studio-reveal>${t('从人体演示到器械结构，再到受力与曲线。改变一个参数，观察同一个动作怎样回应。','From the body to the mechanism, then forces and curves. Change one parameter and see the same movement respond.')}</p><a class="studio-link" data-studio-reveal href="#learn/courses">${t('进入动作课程','Explore the courses')}</a><br><a class="studio-link" data-studio-reveal href="#learn/experiments">${t('打开力学实验','Open the mechanics lab')}</a></div></div>
