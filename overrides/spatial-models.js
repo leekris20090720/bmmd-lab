@@ -1,296 +1,281 @@
-/* BM//MD cutaway studio. These presentation models have no role in calculations. */
+/* BM//MD contour gallery. The fixtures are visual studies, separate from calculation geometry. */
 (() => {
   'use strict';
-  const B = window.BM = window.BM || {};
-  B.buildSpatialStudio = ({THREE: T, RoundedBoxGeometry}) => {
-    const world = new T.Group();
-    const standard = (color, roughness = .54, metalness = .18) => new T.MeshStandardMaterial({color, roughness, metalness});
-    const steel = standard(0x9aaabe, .33, .55);
-    const edge = standard(0x33415c, .42, .48);
-    const rubber = standard(0x101728, .91, .02);
-    const slab = standard(0x222f48, .88, .04);
-    const wall = standard(0x182235, .83, .07);
-    const ivory = standard(0xabb5ca, .53, .31);
-    const mint = standard(0xeaa557, .48, .20);
-    const pads = standard(0x252d41, .96, 0);
-    const line = new T.MeshBasicMaterial({color:0x566581});
-    const lamp = new T.MeshBasicMaterial({color:0x8caed0});
-    const active = new T.MeshBasicMaterial({color:0xffbd73});
-    const black = new T.MeshBasicMaterial({color:0x0b121e});
-    const unitBox = new T.BoxGeometry(1,1,1);
-    const unitCylinder = new T.CylinderGeometry(1,1,1,32);
-    const mesh = (parent, geometry, material, x, y, z) => {
-      const object = new T.Mesh(geometry, material);
-      object.position.set(x,y,z); parent.add(object);
-      return object;
-    };
-    const box = (parent, material, x,y,z,w,h,d) => {
-      const object = mesh(parent,unitBox,material,x,y,z);
-      object.scale.set(w,h,d);
-      return object;
-    };
-    const soft = (parent, material, x,y,z,w,h,d) =>
-      mesh(parent, new RoundedBoxGeometry(w,h,d,2,Math.min(w,h,d)*.23),material,x,y,z);
-    const cylinder = (parent, material, x,y,z,r,h,axis='y') => {
-      const object = mesh(parent,unitCylinder,material,x,y,z);
-      object.scale.set(r,h,r);
-      if (axis==='x') object.rotation.z=Math.PI/2;
-      if (axis==='z') object.rotation.x=Math.PI/2;
-      return object;
-    };
-    const yAxis = new T.Vector3(0,1,0);
-    const rod = (parent, material, from, to, radius) => {
-      const a = new T.Vector3(...from), b = new T.Vector3(...to);
-      const center = a.clone().lerp(b,.5), delta = b.sub(a);
-      const object = cylinder(parent,material,...center,radius,delta.length());
-      object.quaternion.setFromUnitVectors(yAxis,delta.normalize());
-      return object;
-    };
-    const group = (parent,x,y,z) => {
-      const object = new T.Group(); object.position.set(x,y,z); parent.add(object); return object;
-    };
-    const shadowCanvas = document.createElement('canvas'); shadowCanvas.width=shadowCanvas.height=96;
-    const brush = shadowCanvas.getContext('2d');
-    const gradient = brush.createRadialGradient(48,48,4,48,48,47);
-    gradient.addColorStop(0,'#050917'); gradient.addColorStop(.5,'#050917a0'); gradient.addColorStop(1,'#05091700');
-    brush.fillStyle=gradient; brush.fillRect(0,0,96,96);
-    const shadow = new T.MeshBasicMaterial({map:new T.CanvasTexture(shadowCanvas),transparent:true,depthWrite:false,opacity:.85});
-    const plane = new T.PlaneGeometry(1,1);
-    const shade = (parent,x,y,z,w,d) => {
-      const object = mesh(parent,plane,shadow,x,y,z); object.scale.set(w,d,1); object.rotation.x=-Math.PI/2; return object;
-    };
-    function label(parent, text, x,y,z,w,h, floor=false) {
-      const canvas = document.createElement('canvas'); canvas.width=384; canvas.height=128;
-      const ctx = canvas.getContext('2d');
-      ctx.font='600 76px monospace'; ctx.fillStyle='#d5e2f3'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(text,192,67);
-      const texture = new T.CanvasTexture(canvas); texture.colorSpace=T.SRGBColorSpace;
-      const material = new T.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false});
-      const mark = mesh(parent,plane,material,x,y,z); mark.scale.set(w,h,1);
-      if(floor)mark.rotation.x=-Math.PI/2;
+  const B=window.BM=window.BM||{};
+  B.buildSpatialStudio=({THREE:T,RoundedBoxGeometry})=>{
+    const world=new T.Group();
+    const make=(color,metalness,roughness)=>new T.MeshStandardMaterial({color,metalness,roughness});
+    const chrome=make(0xb8becb,.82,.25), graphite=make(0x44444e,.72,.29);
+    const ceramic=make(0x484552,.24,.46), rubber=make(0x15161e,.04,.78);
+    const bronze=make(0xc68a60,.67,.29), platform=make(0x292835,.55,.36);
+    const ink=new T.MeshBasicMaterial({color:0x191821}), glow=new T.MeshBasicMaterial({color:0xe0a67e});
+    const softLight=new T.MeshBasicMaterial({color:0x6a627f}), selected=new T.MeshBasicMaterial({color:0xffd1a3});
+    const unitCylinder=new T.CylinderGeometry(1,1,1,32);
+    const plane=new T.PlaneGeometry(1,1);
+    const shadowCanvas=document.createElement('canvas');shadowCanvas.width=shadowCanvas.height=96;
+    const ctx=shadowCanvas.getContext('2d'),fill=ctx.createRadialGradient(48,48,5,48,48,47);
+    fill.addColorStop(0,'#020307');fill.addColorStop(.48,'#020307a0');fill.addColorStop(1,'#02030700');
+    ctx.fillStyle=fill;ctx.fillRect(0,0,96,96);
+    const shadow=new T.MeshBasicMaterial({map:new T.CanvasTexture(shadowCanvas),transparent:true,opacity:.85,depthWrite:false});
+    function mesh(parent,geometry,material,x=0,y=0,z=0){
+      const result=new T.Mesh(geometry,material);result.position.set(x,y,z);parent.add(result);return result;
     }
-    function wheel(parent,x,y,z,r,axis='z') {
-      cylinder(parent,edge,x,y,z,r,.20,axis);
-      const shift = axis==='z'?[0,0,.105]:[.105,0,0];
-      const center = [x+shift[0],y,z+shift[2]];
-      const ring = mesh(parent,new T.TorusGeometry(r*.76,r*.08,10,32),steel,...center);
-      if(axis==='x')ring.rotation.y=Math.PI/2;
-      cylinder(parent,mint,...center,r*.22,.09,axis);
+    function group(parent,x=0,y=0,z=0){
+      const result=new T.Group();result.position.set(x,y,z);parent.add(result);return result;
     }
-    function bench(parent) {
-      const frame = group(parent,-.22,0,.24);
-      shade(frame,0,.018,0,5.1,3.6);
-      for (const x of [-1.7,1.7]) {
-        box(frame,edge,x,.11,-.32,.21,.22,2.3);
-        box(frame,steel,x,1.52,-.87,.18,2.98,.18);
-        box(frame,steel,x,1.52,.86,.15,2.98,.15);
-        box(frame,edge,x,2.95,0,.23,.19,1.95);
-        for(let y=.69;y<2.78;y+=.26)box(frame,rubber,x,y,.946,.076,.074,.018);
+    function soft(parent,material,x,y,z,w,h,d){
+      return mesh(parent,new RoundedBoxGeometry(w,h,d,2,Math.min(w,h,d)*.43),material,x,y,z);
+    }
+    function cylinder(parent,material,x,y,z,r,h,axis='y'){
+      const result=mesh(parent,unitCylinder,material,x,y,z);result.scale.set(r,h,r);
+      if(axis==='z')result.rotation.x=Math.PI/2;
+      if(axis==='x')result.rotation.z=Math.PI/2;
+      return result;
+    }
+    const v=(x,y,z)=>new T.Vector3(x,y,z), yAxis=v(0,1,0);
+    function rod(parent,material,a,b,r){
+      const start=v(...a),end=v(...b),delta=end.clone().sub(start),middle=start.lerp(end,.5);
+      const result=cylinder(parent,material,middle.x,middle.y,middle.z,r,delta.length());
+      result.quaternion.setFromUnitVectors(yAxis,delta.normalize());return result;
+    }
+    function tube(parent,material,points,r,segments=28){
+      const path=new T.CatmullRomCurve3(points.map(p=>v(...p)));
+      return mesh(parent,new T.TubeGeometry(path,segments,r,8,false),material);
+    }
+    function turned(parent,material,profile,x=0,y=0,z=0,axis='y',segments=72){
+      const result=mesh(parent,new T.LatheGeometry(profile.map(([r,a])=>new T.Vector2(r,a)),segments),material,x,y,z);
+      if(axis==='z')result.rotation.x=Math.PI/2;
+      if(axis==='x')result.rotation.z=Math.PI/2;
+      return result;
+    }
+    function shade(parent,x,y,z,w,d){
+      const result=mesh(parent,plane,shadow,x,y,z);result.rotation.x=-Math.PI/2;result.scale.set(w,d,1);
+    }
+    function band(parent,material,r,radius,y=0,sx=1,sz=1){
+      const result=mesh(parent,new T.TorusGeometry(r,radius,8,96),material,0,y,0);
+      result.rotation.x=-Math.PI/2;result.scale.set(sx,sz,1);return result;
+    }
+    function capsule(parent,r,w,d){
+      const plinth=group(parent);
+      const tile=turned(plinth,platform,[[0,-.27],[r-.21,-.27],[r-.10,-.24],[r-.035,-.16],[r,-.09],[r-.015,-.035],[r-.11,0],[0,0]]);
+      const mark=band(plinth,softLight,r-.07,.018,-.09);
+      plinth.scale.set(w,1,d);
+      return {tile,mark};
+    }
+    function wheel(parent,x,y,z,r,axis='z'){
+      const hub=group(parent,x,y,z);
+      if(axis==='x')hub.rotation.y=Math.PI/2;
+      turned(hub,graphite,[[0,-.13],[r*.82,-.13],[r*.95,-.11],[r,-.075],[r*.96,-.037],[r*.86,0],[r*.96,.037],[r,.075],[r*.95,.11],[r*.82,.13],[0,.13]],0,0,0,'z',40);
+      turned(hub,chrome,[[r*.38,.13],[r*.40,.16],[r*.71,.16],[r*.79,.13]],0,0,0,'z',40);
+      cylinder(hub,bronze,0,0,.16,r*.24,.055,'z');
+    }
+    function bench(parent){
+      const frame=group(parent,-.22,0,.24);
+      shade(frame,0,.017,0,4.85,3.1);
+      for(const x of [-1.52,1.52]){
+        tube(frame,graphite,[[x,.14,1.0],[x,.15,-.88],[x,.32,-1.13],[x,1.75,-1.13],[x,2.43,-.99],[x,2.66,-.68],[x,2.68,.50],[x,2.42,.86],[x,.38,.86]],.108,40);
+        rod(frame,chrome,[x,.35,.87],[x,2.31,.87],.068);
+        for(let y=.70;y<2.18;y+=.23)cylinder(frame,ink,x,y,.937,.026,.016,'z');
+        rod(frame,bronze,[x,1.57,.88],[x,1.57,1.05],.067);
       }
-      box(frame,steel,0,2.94,-.87,3.6,.18,.18);
-      box(frame,edge,0,.36,.48,.20,.22,1.75);
-      for(const z of [-.12,1.16])box(frame,steel,0,.29,z,.72,.26,.18);
-      soft(frame,pads,0,.58,.44,.74,.22,1.78);
-      rod(frame,steel,[-2.27,1.63,.90],[2.27,1.63,.90],.052);
-      for(const x of [-1.82,1.82]) {
-        cylinder(frame,rubber,x,1.63,.9,.49,.16,'x');
-        cylinder(frame,ivory,x+Math.sign(x)*.089,1.63,.9,.37,.045,'x');
-        cylinder(frame,steel,x+Math.sign(x)*.12,1.63,.9,.14,.09,'x');
+      rod(frame,graphite,[-1.5,2.68,-.48],[1.5,2.68,-.48],.107);
+      for(const z of [-.13,1.15]){
+        rod(frame,chrome,[0,.13,z],[0,.52,z],.077);
+        rod(frame,graphite,[-.38,.11,z],[.38,.11,z],.071);
+      }
+      soft(frame,rubber,0,.58,.49,.67,.20,1.72);
+      soft(frame,ceramic,0,.64,.50,.61,.082,1.62);
+      rod(frame,chrome,[-2.18,1.62,1.02],[2.18,1.62,1.02],.048);
+      for(const side of [-1,1]){
+        for(let i=0;i<3;i++){
+          const r=.45-i*.027,x=side*(1.67+i*.115);
+          turned(frame,rubber,[[0,-.049],[r-.034,-.049],[r,-.028],[r,.028],[r-.034,.049],[0,.049]],x,1.62,1.02,'x',48);
+        }
+        cylinder(frame,chrome,side*2.04,1.62,1.02,.14,.080,'x');
       }
     }
-    function cableMachine(parent) {
-      const frame = group(parent,-.18,0,.05);
-      shade(frame,0,.018,0,5.15,3.3);
-      box(frame,edge,0,.11,.12,4.3,.22,1.95);
-      for(const x of [-1.73,1.73]){
-        soft(frame,edge,x,1.40,-.05,.68,2.78,.65);
-        box(frame,steel,x+(x<0?.28:-.28),1.43,.38,.13,2.83,.17);
-        for(let n=0;n<11;n++) box(frame,n===4?mint:rubber,x+(x<0?.28:-.28),.44+n*.19,.48,.066,.071,.041);
-        wheel(frame,x,2.75,.44,.25);
-        rod(frame,steel,[x,2.59,.48],[x*.66,.91,1.02],.024);
-        box(frame,pads,x*.66,.88,1.05,.40,.12,.13);
+    function cableMachine(parent){
+      const frame=group(parent,-.18,0,.05);
+      shade(frame,0,.015,0,5.1,3.2);
+      tube(frame,graphite,[[-1.71,.12,1.0],[-1.71,.12,-.64],[-1.71,.43,-.91],[-1.71,2.52,-.83],[-1.48,2.92,-.72],[0,2.97,-.73],[1.48,2.92,-.72],[1.71,2.52,-.83],[1.71,.43,-.91],[1.71,.12,-.64],[1.71,.12,1.0]],.136,72);
+      for(const x of [-1.66,1.66]){
+        soft(frame,graphite,x,1.29,-.48,.53,2.33,.45);
+        for(const dx of [-.11,.11])rod(frame,chrome,[x+dx,.21,-.20],[x+dx,2.57,-.20],.032);
+        for(let n=0;n<8;n++)soft(frame,n===4?bronze:rubber,x,.36+n*.135,-.15,.34,.102,.28);
+        wheel(frame,x,2.57,-.03,.25);
+        tube(frame,chrome,[[x,2.65,.09],[x*.88,2.14,.26],[x*.67,1.02,.92]],.019,16);
+        rod(frame,rubber,[x*.67-.17,.98,.94],[x*.67+.17,.98,.94],.048);
       }
-      box(frame,steel,0,2.78,-.05,3.81,.17,.42);
-      box(frame,black,0,2.65,.18,2.92,.13,.15);
-      soft(frame,rubber,0,.17,.62,2.38,.16,1.28);
-      box(frame,line,0,.254,.64,1.92,.018,.047);
+      soft(frame,ceramic,0,.082,.49,2.18,.12,1.36);
     }
-    function testStand(parent) {
-      shade(parent,0,.016,.0,5.65,3.45);
-      box(parent,edge,0,.30,-.28,4.52,.6,2.46);
-      box(parent,ivory,0,.63,-.28,4.64,.13,2.57);
-      box(parent,rubber,0,.75,-.34,3.56,.13,1.6);
-      for (const x of [-1.42,1.42]){
-        box(parent,steel,x,1.50,-.50,.145,1.65,.15);
-        box(parent,steel,x,.79,-.50,.39,.19,.55);
-      }
-      box(parent,steel,0,2.34,-.50,3.13,.16,.16);
-      wheel(parent,.25,1.87,-.13,.57);
-      rod(parent,steel,[.25,1.87,.05],[-1.14,1.22,.05],.10);
-      cylinder(parent,mint,-1.16,1.20,.06,.17,.31,'z');
-      rod(parent,mint,[.74,1.87,-.05],[.74,1.02,.36],.025);
-      box(parent,steel,.74,.99,.37,.34,.32,.32);
-      const chart=group(parent,1.64,.89,.59);
-      chart.rotation.x=-.27;
-      box(chart,black,0,.03,.06,.73,.46,.08);
-      let previous=[-.26,-.085,.105];
-      for(let n=1;n<=9;n++){
-        const point=[-.26+n*.057,-.085+.23*Math.pow(n/9,1.65),.105];
-        rod(chart,active,previous,point,.012);
-        previous=point;
-      }
+    function testStand(parent){
+      shade(parent,0,.015,0,4.95,3.4);
+      soft(parent,graphite,0,.27,-.19,3.86,.50,2.04);
+      soft(parent,chrome,0,.53,-.19,3.79,.12,1.98);
+      soft(parent,ceramic,0,.61,-.20,3.59,.09,1.79);
+      tube(parent,graphite,[[-1.47,.61,-.52],[-1.43,1.87,-.52],[-1.16,2.13,-.52],[1.13,2.13,-.52],[1.43,1.89,-.52],[1.47,.61,-.52]],.081,42);
+      wheel(parent,.24,1.80,-.13,.51);
+      rod(parent,chrome,[.24,1.80,.07],[-.99,1.22,.07],.087);
+      cylinder(parent,bronze,-1.02,1.21,.07,.13,.29,'z');
+      rod(parent,chrome,[.70,1.80,-.05],[.70,.93,.36],.019);
+      turned(parent,bronze,[[0,-.14],[.18,-.14],[.20,-.09],[.20,.10],[.16,.16],[0,.16]],.70,.88,.36);
+      const chart=group(parent,1.23,.84,.53);chart.rotation.x=-.36;
+      soft(chart,ink,0,0,0,.56,.35,.10);
+      tube(chart,glow,[[-.20,-.09,.066],[-.06,-.063,.066],[.04,-.015,.066],[.13,.053,.066],[.2,.11,.066]],.008,14);
     }
-    function gallery(parent) {
-      const display=group(parent,0,0,-.18);
-      shade(display,0,.015,0,5.23,3.3);
-      cylinder(display,edge,0,.24,0,1.54,.47);
-      cylinder(display,rubber,0,.51,0,1.46,.12);
-      const ring=mesh(display,new T.TorusGeometry(1.49,.026,10,72),active,0,.48,0);
-      ring.rotation.x=Math.PI/2;
-      const specimen=group(display,0,1.68,0);
-      specimen.rotation.y=-.25;
-      for(const z of [-.43,.43]){
-        rod(specimen,steel,[-.85,-1.06,z],[.66,.87,z],.13);
-        rod(specimen,edge,[.66,.87,z],[1.19,-1.06,z],.12);
+    function gallery(parent){
+      const base=group(parent,0,0,-.2);
+      shade(base,0,.015,0,4.9,3.2);
+      turned(base,graphite,[[0,.08],[1.39,.08],[1.51,.13],[1.54,.25],[1.49,.36],[1.32,.40],[0,.40]]);
+      band(base,glow,1.49,.022,.29);
+      tube(base,chrome,[[-1.1,.41,0],[-.73,1.46,0],[.25,2.52,0],[.76,2.47,0],[1.16,1.71,0],[1.13,.43,0]],.13,48);
+      wheel(base,.48,2.35,.23,.40);wheel(base,-.61,.89,.23,.31);
+      rod(base,bronze,[-.53,1.13,.32],[.62,2.58,.32],.024);
+      soft(base,ceramic,-.09,1.03,.19,.86,.20,1.12).rotation.z=.52;
+    }
+    function inclineMachine(parent){
+      shade(parent,0,.015,0,4.8,3.5);
+      for(const x of [-.74,.74]){
+        tube(parent,graphite,[[x,.11,1.55],[x,.12,-1.23],[x,.37,-1.42],[x,2.32,-1.39]],.095,28);
+        rod(parent,chrome,[x,.27,1.35],[x,2.32,-1.39],.080);
       }
-      wheel(specimen,.48,.65,.61,.43);
-      wheel(specimen,-.64,-.74,.61,.34);
-      rod(specimen,mint,[-.56,-.53,.69],[.65,.93,.69],.031);
-      soft(specimen,pads,-.10,.00,-.12,.71,.22,1.32).rotation.z=.63;
-      for (const x of [-2.02,2.02]){
-        cylinder(display,steel,x,.55,-.91,.045,1.1);
-        cylinder(display,lamp,x,1.14,-.91,.075,.075);
+      soft(parent,rubber,0,.53,.88,.94,.23,1.26).rotation.x=-.38;
+      soft(parent,ceramic,0,.91,1.15,.83,.19,.89).rotation.x=-.74;
+      soft(parent,graphite,0,1.55,-.39,1.67,.85,.20).rotation.x=.61;
+      for(const side of [-1,1]){
+        wheel(parent,side*.91,1.52,-.45,.40,'x');
+        cylinder(parent,chrome,side*1.07,1.52,-.45,.14,.16,'x');
       }
     }
-    function inclineMachine(parent) {
-      shade(parent,0,.018,0,5.4,3.7);
-      for(const x of [-.75,.75]){
-        box(parent,edge,x,.10,0,.19,.2,3.2);
-        rod(parent,steel,[x,.31,1.26],[x,2.29,-1.23],.092);
-        rod(parent,edge,[x,.23,-1.25],[x,2.29,-1.23],.108);
+    function seatedMachine(parent){
+      shade(parent,0,.015,0,4.6,3.25);
+      tube(parent,graphite,[[-1.38,.12,.77],[-1.38,.12,-.69],[-1.08,.19,-.98],[.96,.19,-.98],[1.31,.47,-.92],[1.31,2.12,-.85]],.111,37);
+      soft(parent,graphite,1.05,1.12,-.80,.61,2.02,.52);
+      for(let i=0;i<8;i++)soft(parent,i===3?bronze:rubber,1.03,.39+i*.119,-.50,.44,.084,.22);
+      rod(parent,chrome,[-.34,.16,.22],[-.34,.82,.22],.11);
+      soft(parent,ceramic,-.34,.83,.33,.85,.19,.74);
+      soft(parent,rubber,-.34,1.21,-.16,.75,.78,.18).rotation.x=-.17;
+      for(const x of [-.94,.25]){
+        wheel(parent,x,1.93,-.28,.18);
+        tube(parent,chrome,[[x,1.93,-.28],[x,1.50,.43],[x,1.22,.86]],.073,18);
+        cylinder(parent,rubber,x,1.22,.87,.058,.32,'x');
       }
-      const seat=group(parent,0,.57,.88);
-      soft(seat,pads,0,0,0,1.03,.20,.82).rotation.x=-.26;
-      soft(seat,pads,0,.32,.32,.92,.20,.97).rotation.x=-.73;
-      const sled=group(parent,0,1.63,-.4);
-      soft(sled,edge,0,.10,0,1.70,1.0,.17).rotation.x=.61;
-      for(const x of [-.96,.96]){
-        cylinder(sled,rubber,x,0,.11,.44,.14,'x');
-        cylinder(sled,steel,x+Math.sign(x)*.08,0,.11,.22,.05,'x');
-      }
+      rod(parent,graphite,[-1.03,2.08,-.28],[.40,2.08,-.28],.082);
     }
-    function seatedMachine(parent) {
-      shade(parent,0,.018,0,4.7,3.3);
-      box(parent,edge,0,.11,-.26,3.55,.22,2.29);
-      soft(parent,edge,.93,1.14,-.91,.58,2.25,.51);
-      for(let i=0;i<9;i++)box(parent,i===3?mint:steel,.93,.38+i*.12,-.62,.37,.065,.035);
-      box(parent,steel,-.37,.46,.22,.24,.73,.31);
-      soft(parent,pads,-.37,.85,.34,.88,.20,.76);
-      soft(parent,pads,-.37,1.25,-.15,.79,.83,.18).rotation.x=-.12;
-      for(const x of [-.93,.19]){
-        wheel(parent,x,1.96,-.31,.20);
-        rod(parent,steel,[x,1.96,-.31],[x,1.22,.81],.075);
-        cylinder(parent,pads,x,1.22,.81,.075,.35,'x');
-      }
-      box(parent,steel,-.37,2.06,-.43,1.57,.15,.20);
-    }
-    function terminal(parent,x,z) {
-      box(parent,edge,x,.38,z,.55,.74,.47);
-      const screen=group(parent,x,.81,z);
-      screen.rotation.x=-.23;
-      box(screen,ivory,0,0,0,.56,.34,.08);
-      box(screen,black,0,0,.048,.47,.26,.022);
-      for(let n=0;n<4;n++)box(screen,n===2?active:line,-.086+n*.058,0,.064,.025,.10+n*.013,.013);
+    function terminal(parent,x,z){
+      rod(parent,graphite,[x,.04,z],[x,.83,z],.12);
+      const head=group(parent,x,.90,z);head.rotation.x=-.24;
+      soft(head,chrome,0,0,0,.49,.30,.09);
+      soft(head,ink,0,0,.049,.43,.23,.025);
+      rod(head,glow,[-.14,-.031,.067],[.13,.037,.067],.008);
     }
     const rooms=[
-      {id:'train',x:-3.50,z:2.51,number:'01',build:bench},
-      {id:'learn',x:3.50,z:2.51,number:'02',build:cableMachine},
-      {id:'lab',x:-3.50,z:-2.51,number:'03',build:testStand},
-      {id:'interact',x:3.50,z:-2.51,number:'04',build:gallery}
+      {id:'train',x:-3.62,z:2.54,build:bench,desk:[2.49,.38]},
+      {id:'learn',x:3.62,z:2.54,build:cableMachine,desk:[2.46,.37]},
+      {id:'lab',x:-3.62,z:-2.54,build:testStand,desk:[2.46,.40]},
+      {id:'interact',x:3.62,z:-2.54,build:gallery}
     ];
-    // Each room rests on separate suspension beams around the central rotor.
-    shade(world,0,-1.20,0,24,19);
-    for(const x of [-6.1,0,6.1]){
-      box(world,edge,x,-.54,0,.28,.19,10.88);
-      for(const z of [-4.38,4.38]){
-        box(world,rubber,x,-.77,z,.48,.43,.69);
-        box(world,lamp,x,-.69,z+.36,.24,.045,.024);
-      }
-    }
-    for(const z of [-4.7,0,4.7]){
-      box(world,wall,0,-.61,z,14.04,.17,.34);
-      box(world,steel,0,-.48,z,13.94,.045,.09);
-    }
-    const anchors = {}, strips = {}, tiles = {}, bays = {};
-    for(const room of rooms) {
-      const bay=group(world,room.x,0,room.z); bays[room.id]=bay;
-      soft(bay,edge,0,-.235,0,6.55,.24,4.62);
-      for(const x of [-2.70,2.70]){
-        box(bay,rubber,x,-.31,0,.34,.29,3.68);
-        for(let n=0;n<4;n++)box(bay,steel,x,-.315,-1.1+n*.72,.39,.12,.15);
-      }
-      const tile=soft(bay,slab,0,-.09,0,6.52,.18,4.58);
-      tile.name=room.id;
-      tiles[room.id]=tile;
-      for(const x of [-3.14,3.14])box(bay,line,x,.012,0,.017,.021,4.39);
-      strips[room.id]=box(bay,lamp,0,.024,2.20,6.22,.032,.048);
-      for(let i=0;i<3;i++)box(bay,line,-2.84+i*.14,.016,1.98,.047,.022,.28);
-      label(bay,room.number,-2.48,.025,1.69,1.28,.41,true);
+    const ring=group(world,0,-.29,0);
+    shade(ring,0,-.11,0,20,14);
+    band(ring,graphite,1,.020,.03,7.27,4.91);
+    band(ring,softLight,1,.004,-.004,7.53,5.08);
+    band(ring,softLight,1,.003,-.017,6.88,4.58);
+    const anchors={},tiles={},strips={},bays={};
+    for(const room of rooms){
+      const bay=group(world,room.x,0,room.z);bays[room.id]=bay;
+      const {tile,mark}=capsule(bay,1,3.13,2.10);
+      tile.name=room.id;tiles[room.id]=tile;strips[room.id]=mark;
       room.build(bay);
-      if(room.id==='train')terminal(bay,2.38,.46);
-      if(room.id==='learn')terminal(bay,2.58,.53);
-      if(room.id==='lab')terminal(bay,2.60,.57);
-      anchors[room.id]=new T.Vector3(room.x,1.0,room.z+2.12);
+      if(room.desk)terminal(bay,...room.desk);
+      anchors[room.id]=v(room.x,.65,room.z+1.69);
     }
-    const rotor=group(world,0,-.01,0);
-    cylinder(rotor,edge,0,.27,0,1.48,.58);
-    cylinder(rotor,rubber,0,.58,0,1.30,.14);
-    cylinder(rotor,steel,0,1.07,0,.50,.98);
-    const axis=group(rotor,0,2.65,0);
-    axis.rotation.y=.26;
-    cylinder(axis,rubber,0,0,0,1.17,.48,'z');
-    cylinder(axis,edge,0,0,.24,1.10,.16,'z');
-    cylinder(axis,ivory,0,0,.36,.34,.09,'z');
-    cylinder(axis,steel,0,0,.42,.24,.10,'z');
-    for(const [radius,tube,z,material] of [[1.21,.075,.34,steel],[1.29,.039,-.19,active],[.81,.033,.36,mint],[.46,.022,.372,steel]]){
-      mesh(axis,new T.TorusGeometry(radius,tube,14,96),material,0,0,z);
+    const rotor=group(world,.03,0,-.13);
+    capsule(rotor,1,1.62,1.43);
+    turned(rotor,graphite,[[0,0],[1.27,0],[1.32,.12],[1.28,.34],[1.12,.43],[0,.43]]);
+    tube(rotor,graphite,[[-.9,.35,-.29],[-.55,1.01,-.42],[.02,2.24,-.48],[.57,2.52,-.36]],.18,32);
+    const axis=group(rotor,0,2.46,.05);axis.rotation.set(-.12,.39,-.06);axis.scale.setScalar(1.09);
+    turned(axis,graphite,[[1.51,-.32],[1.75,-.32],[1.85,-.27],[1.90,-.19],[1.90,-.13],[1.85,-.082],[1.72,-.035],[1.70,0],[1.72,.035],[1.85,.082],[1.90,.13],[1.90,.19],[1.85,.27],[1.75,.32],[1.51,.32],[1.51,-.32]],0,0,0,'z',112);
+    for(const side of [-1,1]){
+      turned(axis,chrome,[[1.57,.316*side],[1.73,.317*side],[1.83,.279*side],[1.88,.215*side]],0,0,0,'z',112).material.side=T.DoubleSide;
     }
-    for(let i=0;i<12;i++){
-      const angle=i*Math.PI/6;
-      const spoke=box(axis,i%3===0?mint:edge,Math.cos(angle)*.74,Math.sin(angle)*.74,.381,.39,.075,.055);
-      spoke.rotation.z=angle;
-      cylinder(axis,steel,Math.cos(angle)*1.035,Math.sin(angle)*1.035,.366,.028,.04,'z');
+    const face=new T.Shape();face.absarc(0,0,1.65,0,Math.PI*2,false);
+    for(let n=0;n<6;n++){
+      const theta=n*Math.PI/3+.22;
+      const hole=new T.Path();hole.absarc(Math.cos(theta)*1.07,Math.sin(theta)*1.07,.28,0,Math.PI*2,true);face.holes.push(hole);
     }
-    for(const x of [-7.02,7.02]){
-      box(world,edge,x,1.5,-4.86,.24,4.1,.27);
-      box(world,lamp,x,1.50,-4.70,.036,3.10,.032);
-      box(world,wall,x,3.49,-3.39,.31,.23,3.15);
+    const faceGeometry=new T.ExtrudeGeometry(face,{depth:.35,curveSegments:32,bevelThickness:.037,bevelSize:.034,bevelSegments:3});
+    mesh(axis,faceGeometry,graphite,0,0,-.175);
+    cylinder(axis,chrome,0,0,.225,.57,.135,'z');
+    cylinder(axis,bronze,0,0,.309,.46,.045,'z');
+    cylinder(axis,graphite,0,0,.351,.33,.096,'z');
+    const nut=new T.CylinderGeometry(.20,.24,.125,6);nut.rotateX(Math.PI/2);
+    mesh(axis,nut,chrome,0,0,.430);
+    for(let n=0;n<6;n++){
+      const angle=n*Math.PI/3+.22;
+      cylinder(axis,chrome,Math.cos(angle)*1.48,Math.sin(angle)*1.48,.20,.039,.044,'z');
     }
-    box(world,wall,0,3.53,-4.9,14.45,.27,.32);
-    box(world,active,0,3.41,-4.73,9.84,.032,.032);
-    label(world,'BM // MD',0,3.15,-4.69,2.5,.54);
-    const shell=world.children.filter(object=>!Object.values(bays).includes(object));
-    const exhibit = group(world,0,0,0);
-    soft(exhibit,edge,0,-.18,0,5.65,.35,3.86);
-    box(exhibit,active,0,-.047,1.87,5.24,.023,.028);
-    const variants = {};
+    mesh(axis,new T.TorusGeometry(.81,.008,6,80),chrome,0,0,.216);
+    const cable=group(axis);
+    for(const side of [-1,1]){
+      tube(cable,bronze,[[side*1.734,1.83,0],[side*1.729,1.13,0],[side*1.73,0,0],[side*1.61,-.62,0],[side*1.25,-1.20,0],[side*.65,-1.60,0],[0,-1.73,0]],.046,36);
+    }
+    const shell=world.children.filter(node=>!Object.values(bays).includes(node));
+    const exhibit=group(world);
+    capsule(exhibit,1,2.76,1.91);
+    const variants={};
     for(const [id,build] of Object.entries({rack:bench,cable:cableMachine,incline:inclineMachine,seated:seatedMachine})){
-      const item=group(exhibit,0,0,0);build(item);variants[id]=item;
+      const item=group(exhibit);build(item);variants[id]=item;
     }
-    return {world, anchors, tiles, showExhibit(kind){
+    const reserved=new Set([...Object.values(tiles),...Object.values(strips)]);
+    const retired=new Set();
+    function batch(root){
+      root.updateWorldMatrix(true,true);
+      const inverse=root.matrixWorld.clone().invert(),groups=new Map();
+      root.traverse(node=>{
+        if(!node.isMesh||reserved.has(node)||node.material.transparent)return;
+        if(!groups.has(node.material))groups.set(node.material,[]);
+        groups.get(node.material).push(node);
+      });
+      for(const [material,nodes] of groups){
+        if(nodes.length<2)continue;
+        let verts=0,faces=0;
+        for(const node of nodes){const g=node.geometry;verts+=g.attributes.position.count;faces+=g.index?.count||g.attributes.position.count;}
+        const positions=new Float32Array(verts*3),normals=new Float32Array(verts*3),indices=new Uint32Array(faces);
+        let offset=0,element=0;const point=v(0,0,0),matrix=new T.Matrix4(),normal=new T.Matrix3();
+        for(const node of nodes){
+          const {geometry:g}=node,{position,normal:direction}=g.attributes;
+          matrix.multiplyMatrices(inverse,node.matrixWorld);normal.getNormalMatrix(matrix);
+          for(let i=0;i<position.count;i++){
+            point.fromBufferAttribute(position,i).applyMatrix4(matrix).toArray(positions,3*(offset+i));
+            point.fromBufferAttribute(direction,i).applyNormalMatrix(normal).toArray(normals,3*(offset+i));
+          }
+          for(let j=0;j<(g.index?.count||position.count);j++)indices[element++]=offset+(g.index?g.index.getX(j):j);
+          offset+=position.count;retired.add(g);node.removeFromParent();
+        }
+        const combined=new T.BufferGeometry();
+        combined.setAttribute('position',new T.BufferAttribute(positions,3));
+        combined.setAttribute('normal',new T.BufferAttribute(normals,3));
+        combined.setIndex(new T.BufferAttribute(indices,1));
+        mesh(root,combined,material);
+      }
+    }
+    for(const node of [...shell,...Object.values(bays),...Object.values(variants)])batch(node);
+    world.traverse(node=>{if(node.geometry)retired.delete(node.geometry);});
+    for(const g of retired)g.dispose();
+    return {world,anchors,tiles,showExhibit(kind){
       for(const [id,fixture] of Object.entries(variants))fixture.visible=id===kind;
-    }, show(view){
+    },show(view){
       exhibit.visible=view==='exhibit';
       const all=view==='hall';
-      for(const [id,bay] of Object.entries(bays))bay.visible=all || view===id;
-      for(const object of shell)object.visible=all;
-    }, select(id){
-      for(const [key,strip] of Object.entries(strips))strip.material=key===id?active:lamp;
+      for(const [id,bay] of Object.entries(bays))bay.visible=all||view===id;
+      for(const node of shell)node.visible=all;
+    },select(id){
+      for(const [key,strip] of Object.entries(strips))strip.material=key===id?selected:softLight;
     }};
   };
   B.buildSpatialTrace = T => {
     const world = new T.Group();
-    const ground = new T.Mesh(new T.BoxGeometry(6.6,.12,2.5),new T.MeshStandardMaterial({color:0x27334b,roughness:.79}));
+    const ground = new T.Mesh(new T.BoxGeometry(6.6,.12,2.5),new T.MeshStandardMaterial({color:0x282a33,roughness:.79}));
     ground.position.y=-.11; world.add(ground);
     const gridPoints=[];
     for(const z of [-.72,.72]){
@@ -303,7 +288,7 @@
         gridPoints.push(new T.Vector3(-2.9,y,z),new T.Vector3(2.9,y,z));
       }
     }
-    const grid=new T.LineSegments(new T.BufferGeometry().setFromPoints(gridPoints),new T.LineBasicMaterial({color:0x587195,transparent:true,opacity:.49}));
+    const grid=new T.LineSegments(new T.BufferGeometry().setFromPoints(gridPoints),new T.LineBasicMaterial({color:0x62677b,transparent:true,opacity:.49}));
     world.add(grid);
     function createPlot(color,z) {
       const line=new T.Line(new T.BufferGeometry(),new T.LineBasicMaterial({color}));
@@ -312,7 +297,7 @@
       world.add(line,ribbon);
       return {line,ribbon};
     }
-    const live=createPlot(0xffbc75,.72), reference=createPlot(0xb8c3e7,-.72);
+    const live=createPlot(0xf0b588,.72), reference=createPlot(0xb6a9e8,-.72);
     const marker=new T.Mesh(new T.SphereGeometry(.082,18,12),new T.MeshBasicMaterial({color:0xffe2bd}));
     world.add(marker);
     let prevRows, prevReference, mapX, mapY;

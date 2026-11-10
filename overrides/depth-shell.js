@@ -5,7 +5,7 @@
   const length=1320;
   const rad=Math.PI/180;
   const plateSelectors=[
-    '[data-deck-plate]','.deck-hub-model','.deck-bays > *','#pd-header','.pd-subnav',
+    '[data-deck-plate]','.deck-bays > *','#pd-header','.pd-subnav',
     '#pd-content > :is(section,article,form,.pd-plan,.pd-doors,.pd-course-directory,.ex-library-controls)',
     '.pd-ex-layout > *','.pd-course-workspace > *','.ex-topic',
     '#pd-content > div:not(.pd-ex-layout,.pd-course-workspace,.pd-plot-grid,.ex-library-topics)',
@@ -15,30 +15,27 @@
   ].join(',');
   const keySelectors='button,a.pd-button,nav a,summary,[role=tab],input:not([type=range],[type=checkbox],[type=radio],[type=file]),select,textarea';
   const modalStyle=`
-  :host{--ui-bg:#0b111b;--ui-surface:#182337;--ui-surface-subtle:#1d2a40;--ui-text:#eff4ff;--ui-muted:#b9c9df;--ui-line:#596b89;--ui-accent:#ffc285;--ui-primary-bg:#ffc285;--ui-primary-text:#1b130b;--ui-focus:#ffd0a0;font-family:"BM Inter",Inter,system-ui,sans-serif}
-  .pg-dialog{background:#0b111b!important;border:1px solid #657999!important;border-radius:2px!important;color:#eff4ff!important}
+  :host{--ui-bg:#101017;--ui-surface:#25232d;--ui-surface-subtle:#292631;--ui-text:#f6f2f0;--ui-muted:#c6bdca;--ui-line:#60576b;--ui-accent:#f2bb96;--ui-primary-bg:#f2bb96;--ui-primary-text:#1b130b;--ui-focus:#ffe0cb;font-family:"BM Inter",Inter,system-ui,sans-serif}
+  .pg-dialog{background:#101017!important;border:1px solid #675d70!important;border-radius:14px!important;color:#f6f2f0!important}
   .pg-dialog::backdrop{background:#04070de8!important;backdrop-filter:none!important}
   .pg-shell{position:relative;z-index:1;background:transparent!important}
   .pg-ambient,.ref-light,.ref-edge,.ref-glare,.ref-beam,.pg-gallery-ambient,.pg-gallery-ring{display:none!important}
-  .pg-header,.pg-tabs,.pg-content,.pg-footer,.pg-gallery-display,.pg-gallery-info,.pg-gallery-stage,.pg-game,.pg-choice,.pg-wave-choice,.pg-empty,.pg-result{background:#141f31!important;border-color:#536684!important;border-radius:2px!important;box-shadow:none!important}
-  .pg-gallery-stage{background:#0b121d!important}
-  .pg-dialog button{background:#26344d!important;color:#eff4ff!important;border:1px solid #627596!important;border-radius:2px!important;box-shadow:0 3px 0 #080d16!important}
-  .pg-dialog button:is([aria-selected=true],[aria-pressed=true],.pg-gallery-primary){background:#ffc285!important;color:#23180d!important;border-color:#ffd9aa!important}
-  .pg-dialog :is(button,a,input):focus-visible{outline:2px solid #ffc285!important;outline-offset:2px}
+  .pg-header,.pg-tabs,.pg-content,.pg-footer,.pg-gallery-display,.pg-gallery-info,.pg-gallery-stage,.pg-game,.pg-choice,.pg-wave-choice,.pg-empty,.pg-result{background:#201e28!important;border-color:#5a5164!important;border-radius:14px!important;box-shadow:none!important}
+  .pg-gallery-stage{background:#101017!important}
+  .pg-dialog button{background:#2d2936!important;color:#f6f2f0!important;border:1px solid #62576a!important;border-radius:14px!important;box-shadow:0 3px 0 #121017!important}
+  .pg-dialog button:is([aria-selected=true],[aria-pressed=true],.pg-gallery-primary){background:#f2bb96!important;color:#23180d!important;border-color:#f7d5c0!important}
+  .pg-dialog :is(button,a,input):focus-visible{outline:2px solid #f2bb96!important;outline-offset:2px}
   .pg-dialog .pg-tabs::before{display:none}
   .pg-dialog:has(> #bm-depth-canvas) .pg-content{background:transparent!important}
-  .pg-dialog .pg-footer[data-deck-active]{background:#182337!important}
+  .pg-dialog .pg-footer[data-deck-active]{background:#25232d!important}
   .pg-dialog [data-deck-active]{background:transparent!important;transform:var(--deck-transform,none)!important}
   .pg-dialog[data-deck-measuring] [data-deck-active]{transform:none!important}
   #bm-depth-canvas{position:fixed;inset:0;width:100vw;height:100dvh;pointer-events:none;z-index:0;display:block}
   `;
-  const reduce=matchMedia('(prefers-reduced-motion:reduce)');
   let renderer, scene, camera, canvas, T, boot, frame=0, listed=false, faces=[], modal=null, lost=false, stopped=false;
-  let material, keyMaterial, trimMaterial, frameMaterial, box, boltGeometry, framePool=[], keyPool=[], structure, lastWidth=0,lastHeight=0;
+  let material, physicalKeys, framePool=[], lastWidth=0,lastHeight=0;
   let observer, watched=[], watchedShadow;
-  const G=window.gsap;
-  let animation;
-  const tilt={x:0,y:0};
+
   function create(){
     T=B.ThreeRuntime.THREE;
     renderer=new T.WebGLRenderer({alpha:false,antialias:true,powerPreference:'low-power'});
@@ -52,38 +49,45 @@
     canvas.addEventListener('webglcontextrestored',()=>{
       lost=false;canvas.hidden=false;document.body.dataset.deckEngine='webgl';queue(true);
     });
-    scene=new T.Scene();scene.background=new T.Color(0x0a101b);
-    scene.add(new T.HemisphereLight(0xd4e7ff,0x32405c,1.45));
-    const lamp=new T.DirectionalLight(0xffd9ac,1.15);
+    scene=new T.Scene();scene.background=new T.Color(0x101017);
+    scene.add(new T.HemisphereLight(0xe2d9e9,0x454052,1.27));
+    const lamp=new T.DirectionalLight(0xffe1cc,1.03);
     lamp.position.set(-4,8,11);scene.add(lamp);
-    const rim=new T.DirectionalLight(0x638ff6,1.1);
-    rim.position.set(8,-4,9);scene.add(rim);
+    const rim=new T.DirectionalLight(0xa19ab8,.68);
+    rim.position.set(7,-4,9);scene.add(rim);
     camera=new T.PerspectiveCamera(35,1,5,6500);camera.position.z=length;
-    box=new T.BoxGeometry(1,1,1);
-    boltGeometry=new T.CylinderGeometry(2.2,2.5,1.4,12).rotateX(Math.PI/2);
-    const mat=(color,metalness=.18)=>new T.MeshStandardMaterial({color,roughness:.7,metalness});
-    material=mat(0x111a2b);
-    keyMaterial=mat(0x25344f,.30);
-    frameMaterial=mat(0x344665,.46);
-    trimMaterial=new T.MeshBasicMaterial({color:0xb7794b});
-    structure=new T.Group();scene.add(structure);
-    const rail=mat(0x101d31,.31);
-    for(let i=0;i<7;i++)structure.add(new T.Mesh(box,rail));
+    material=new T.MeshStandardMaterial({color:0x22212c,roughness:.50,metalness:.40});
+    const keyMaterial=new T.MeshStandardMaterial({color:0x332d3b,roughness:.52,metalness:.27});
+    physicalKeys=new T.InstancedMesh(chassis(1,1,1,.21,.07,3),keyMaterial,104);
+    physicalKeys.frustumCulled=false;physicalKeys.count=0;
+    scene.add(physicalKeys);
     document.body.prepend(canvas);
     document.body.dataset.deckEngine='webgl';
   }
-  function plate(index){
-    if(framePool[index])return framePool[index];
-    const group=new T.Group();
-    const body=new T.Mesh(box,material),lip=new T.Mesh(box,frameMaterial),trim=new T.Mesh(box,trimMaterial);
-    const rail=new T.Mesh(box,frameMaterial);
-    const bolts=Array.from({length:4},()=>new T.Mesh(boltGeometry,frameMaterial));
-    group.add(body,lip,trim,rail,...bolts);scene.add(group);
-    return framePool[index]={group,body,lip,trim,rail,bolts};
+  function chassis(w,h,depth,radius,edge=Math.min(2.1,depth*.17),curve=8){
+    const shape=new T.Shape(),x=w/2-edge,y=h/2-edge;
+    const r=Math.min(radius,x,y);
+    shape.moveTo(-x+r,-y);
+    shape.lineTo(x-r,-y);shape.quadraticCurveTo(x,-y,x,-y+r);
+    shape.lineTo(x,y-r);shape.quadraticCurveTo(x,y,x-r,y);
+    shape.lineTo(-x+r,y);shape.quadraticCurveTo(-x,y,-x,y-r);
+    shape.lineTo(-x,-y+r);shape.quadraticCurveTo(-x,-y,-x+r,-y);
+    const geometry=new T.ExtrudeGeometry(shape,{depth:depth-2*edge,bevelEnabled:true,
+      bevelSize:edge,bevelThickness:edge,bevelSegments:2,curveSegments:curve});
+    return geometry.translate(0,0,-depth/2+edge);
   }
-  function key(index){
-    if(keyPool[index])return keyPool[index];
-    const mesh=new T.Mesh(box,keyMaterial);scene.add(mesh);keyPool[index]=mesh;return mesh;
+  function plate(index,width,height,depth,radius){
+    let mesh=framePool[index];
+    const w=Math.round(width),h=Math.round(height),signature=`${w}/${h}/${depth}/${radius}`;
+    if(!mesh){
+      mesh=new T.Mesh(chassis(w,h,depth,radius),material);
+      framePool[index]=mesh;scene.add(mesh);
+    }else if(mesh.userData.size!==signature){
+      mesh.geometry.dispose();
+      mesh.geometry=chassis(w,h,depth,radius);
+    }
+    mesh.userData.size=signature;
+    return mesh;
   }
   function lookupModal(){
     const root=document.getElementById('bm-explore-root')?.shadowRoot;
@@ -120,10 +124,6 @@
     renderer.setPixelRatio(Math.min(devicePixelRatio,1.25,1700/w));
     renderer.setSize(w,h,false);
     camera.aspect=w/h;camera.fov=2*Math.atan(h/(2*length))/rad;camera.updateProjectionMatrix();
-    structure.children.forEach((mesh,i)=>{
-      if(i<5){mesh.position.set((i-2)*(w*.245),0,-170);mesh.scale.set(i%2?6:26,h*1.4,20);}
-      else{mesh.position.set(0,(i===5?-.32:.33)*h,-165);mesh.scale.set(w*1.4,i===5?15:7,22);}
-    });
   }
   function render(){
     frame=0;if(!renderer||lost||stopped||document.hidden)return;
@@ -142,43 +142,36 @@
       return {node,rect,keys,visible:true};
     });
     plane.removeAttribute('data-deck-measuring');
-    const narrow=w<700, motionDisabled=reduce.matches||document.documentElement.classList.contains('pd-reduced');
+    const narrow=w<700;
+    const local=new T.Vector3(), face=new T.Vector3(), key=new T.Object3D();
     let n=0,k=0;
     for(const {node,rect,keys,visible} of frames){
       if(!visible){node.removeAttribute('data-deck-active');continue;}
       const x=rect.left+rect.width/2-w/2,y=rect.top+rect.height/2-h/2;
       const dock=node.id==='pd-header'||node.matches('.pd-subnav,.pg-header,.pg-tabs,.pg-footer');
       const wide=rect.width>w*.73;
-      const rx=dock?-6:narrow?3.8:wide?4.5:7.5;
-      const ry=narrow||dock?0:wide?-1.3:x>0?-5.6:3.1;
-      const scale=Math.min(1,720/rect.height);
-      const ax=(rx+(motionDisabled?0:tilt.y))*scale,ay=ry+(motionDisabled?0:tilt.x);
+      const rx=dock?-2.8:narrow?1.2:wide?2.0:4.0;
+      const ry=narrow||dock?0:wide?-0.65:x>0?-2.6:1.5;
+      const ax=rx*Math.min(1,680/rect.height),ay=ry;
       const transform=`translate(${-x.toFixed(2)}px,${-y.toFixed(2)}px) perspective(${length}px) translate(${x.toFixed(2)}px,${y.toFixed(2)}px) rotateX(${ax.toFixed(3)}deg) rotateY(${ay.toFixed(3)}deg)`;
       if(node.style.getPropertyValue('--deck-transform')!==transform)node.style.setProperty('--deck-transform',transform);
-      node.setAttribute('data-deck-active','true');
-      const {group,body,lip,trim,rail,bolts}=plate(n++);
-      group.visible=true;group.position.set(x,-y,0);group.rotation.set(-ax*rad,ay*rad,0,'XYZ');
-      const depth=dock?28:narrow?29:42;
-      body.position.z=-depth/2;body.scale.set(rect.width,rect.height,depth);
-      lip.position.set(0,0,-.9);lip.scale.set(rect.width+3,rect.height+3,2);
-      trim.position.set(-rect.width/2+22,rect.height/2+1,0);trim.scale.set(29,2.2,2.2);
-      rail.position.set(0,-rect.height/2,-depth*.69);rail.scale.set(rect.width-3,2.1,5.5);
-      for(const [i,bolt] of bolts.entries()){
-        bolt.position.set((i%2?1:-1)*(rect.width/2-5),(i>1?1:-1)*(rect.height/2-5),.12);
-        bolt.visible=rect.height>=44;
-      }
-      // This second plane is a screen, sitting proud of the machined edge.
-      const p=new T.Vector3();
+      if(!node.hasAttribute('data-deck-active'))node.setAttribute('data-deck-active','true');
+      const depth=dock?15:narrow?12:24;
+      const radius=node.id==='pd-header'||node.closest('.deck-bays')?Math.round(rect.height/2-2):14;
+      const surface=plate(n++,rect.width,rect.height,depth,radius);
+      surface.visible=true;
+      surface.rotation.set(-ax*rad,ay*rad,0,'XYZ');
+      face.set(x,-y,0);
+      surface.position.copy(local.set(0,0,-depth/2).applyEuler(surface.rotation).add(face));
       for(const r of keys){
         if(k>=104)break;
-        const item=key(k++);
-        item.visible=true;item.scale.set(r.width+2,r.height+3,7);
-        p.set(r.left+r.width/2-rect.left-rect.width/2,rect.top+rect.height/2-r.top-r.height/2,-1).applyEuler(group.rotation).add(group.position);
-        item.position.copy(p);item.rotation.copy(group.rotation);
+        local.set(r.left+r.width/2-rect.left-rect.width/2,rect.top+rect.height/2-r.top-r.height/2,-2.1).applyEuler(surface.rotation).add(face);
+        key.position.copy(local);key.rotation.copy(surface.rotation);key.scale.set(r.width*.93,r.height*.89,5);
+        key.updateMatrix();physicalKeys.setMatrixAt(k++,key.matrix);
       }
     }
-    framePool.slice(n).forEach(p=>p.group.visible=false);
-    keyPool.slice(k).forEach(p=>p.visible=false);
+    for(let i=n;i<framePool.length;i++)framePool[i].visible=false;
+    physicalKeys.count=k;physicalKeys.instanceMatrix.needsUpdate=true;
     canvas.dataset.deckPlates=String(n);
     canvas.dataset.deckKeys=String(k);
     renderer.render(scene,camera);
@@ -217,14 +210,6 @@
   window.addEventListener('resize',()=>queue(true),{passive:true});
   window.addEventListener('hashchange',()=>queue(true));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)queue(true);});
-  reduce.addEventListener('change',()=>queue(true));
-  document.addEventListener('pointermove',event=>{
-    if(!G||!renderer||reduce.matches||document.documentElement.classList.contains('pd-reduced')||event.pointerType!=='mouse'||event.buttons)return;
-    const x=(event.clientX/innerWidth-.5)*1.7,y=(.5-event.clientY/innerHeight)*1.2;
-    if(Math.abs(x-tilt.x)+Math.abs(y-tilt.y)<.11)return;
-    animation?.kill();
-    animation=G.to(tilt,{x,y,duration:.30,ease:'power2.out',onUpdate:()=>queue()});
-  },{passive:true});
-  window.addEventListener('pagehide',()=>{stopped=true;cancelAnimationFrame(frame);frame=0;animation?.kill();});
+  window.addEventListener('pagehide',()=>{stopped=true;cancelAnimationFrame(frame);frame=0;});
   window.addEventListener('pageshow',()=>{stopped=false;queue(true);});
 })();

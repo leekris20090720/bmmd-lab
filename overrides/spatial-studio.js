@@ -4,27 +4,27 @@
   const B = window.BM = window.BM || {};
   const t = (z,e) => B.i18n?.getLanguage() === 'en' ? e : z;
   const rooms = {
-    train: {number:'01',title:['训练','Train'],note:['计划、重量与每一组','Plans, loads and sets'],route:'train/plans',x:-3.50,z:2.51,yaw:-.42},
-    learn: {number:'02',title:['动作学习','Movement'],note:['人体动作与器械结构','Movement and machine structure'],route:'learn',x:3.50,z:2.51,yaw:.57},
-    lab: {number:'03',title:['力学实验','Mechanics'],note:['改变参数，验证原理','Change a variable and test it'],route:'learn/experiments',x:-3.50,z:-2.51,yaw:-.52},
-    interact: {number:'04',title:['互动展厅','Explore'],note:['转动器械，观察细节','Turn a machine and examine it'],x:3.50,z:-2.51,yaw:1.22}
+    train: {number:'01',title:['训练','Train'],note:['计划、重量与每一组','Plans, loads and sets'],route:'train/plans',x:-3.62,z:2.54,yaw:-.42},
+    learn: {number:'02',title:['动作学习','Movement'],note:['人体动作与器械结构','Movement and machine structure'],route:'learn',x:3.62,z:2.54,yaw:.57},
+    lab: {number:'03',title:['力学实验','Mechanics'],note:['改变参数，验证原理','Change a variable and test it'],route:'learn/experiments',x:-3.62,z:-2.54,yaw:-.52},
+    interact: {number:'04',title:['互动展厅','Explore'],note:['转动器械，观察细节','Turn a machine and examine it'],x:3.62,z:-2.54,yaw:1.22}
   };
   const stations = {
     train: [
       ['训练椅','Train now','train/session',[-3.68,.58,3.35]],
-      ['记录架','History','train/history',[-1.11,.92,2.95]]
+      ['记录台','History','train/history',[-1.13,.94,2.92]]
     ],
     learn: [
       ['观察钢索','Cable course','course/arm',[3.33,1.32,3.63]],
-      ['动作导图','Movement map','learn/map',[6.07,.92,3.03]]
+      ['动作导图','Movement map','learn/map',[6.08,.93,2.91]]
     ],
     lab: [
       ['有效力臂','Moment arm','experiment/lever',[-3.26,1.88,-2.24]],
-      ['滑轮效率','Pulley efficiency','experiment/pulley-efficiency',[-.90,.92,-1.94]]
+      ['滑轮效率','Pulley efficiency','experiment/pulley-efficiency',[-1.16,.96,-2.14]]
     ]
   };
   const roomEntries = {'train/plans':'train','learn':'learn','learn/experiments':'lab'};
-  const cameraHome = {x:0,z:0,yaw:.48};
+  const cameraHome = {x:0,z:0,yaw:.36};
   function door(id, mark=false, trainRoute) {
     const room = rooms[id];
     const attrs = mark ? `class="spatial-marker" data-spatial-marker="${id}" tabindex="-1"` : `data-spatial-door="${id}"`;
@@ -41,7 +41,7 @@
       view==='hall' ? t('力学馆全景','Studio overview') : t(...rooms[view].title);
     return `<figure class="spatial-view ${full?'spatial-view-full':'spatial-view-room'}${entry?' spatial-view-entry':''}" data-spatial-view="${view}" aria-label="${label}">
       <div class="spatial-stage">
-        ${trace?'':`<img class="spatial-poster" src="assets/spatial-studio/${view}.webp" alt="" width="1080" height="720" decoding="async" ${full?'fetchpriority="high"':''}>`}
+        ${trace?'':`<img class="spatial-poster" src="assets/spatial-studio/${view}.webp?v=contour-20261111-1" alt="" width="1080" height="720" decoding="async" ${full?'fetchpriority="high"':''}>`}
         ${full||entry?`<div class="spatial-markers">${full?Object.keys(rooms).map(id=>door(id,true,trainRoute)).join(''):stationLinks(true)}</div>`:''}
       </div>
       <figcaption class="spatial-caption">
@@ -58,10 +58,10 @@
   }
   function home(trainRoute) {
     return `<section class="deck-hub" aria-labelledby="bm-spatial-title">
-      <header class="deck-hub-title" data-deck-plate>
-        <p class="deck-label">BM//MD <span> / MOTION DECK</span></p>
-        <h1 id="bm-spatial-title" data-heading-renderer="studio">${t('动作力学舱','Motion deck')}</h1>
-        <p>${t('转动全舱，在模型上选一个工作区。','Orbit the deck and choose a station on the model.')}</p>
+      <header class="deck-hub-title">
+        <p class="deck-label">BM//MD <span>  / MOTION LAB</span></p>
+        <h1 id="bm-spatial-title" data-heading-renderer="studio">${t('让力，显形。','Force takes form.')}</h1>
+        <p>${t('从一根钢索，到完成的一组动作。转动场景，选择你想观察的部分。','From a steel cable to a completed set. Orbit the scene and choose a station.')}</p>
       </header>
       <div class="deck-hub-model">${stage('hall',true,false,trainRoute)}</div>
       <nav class="deck-bays spatial-doors" aria-label="${t('舱室入口','Deck stations')}">
@@ -84,19 +84,34 @@
   const reduced = () => motion.matches || document.documentElement.classList.contains('pd-reduced');
   const clamp = (n,lo,hi) => Math.min(hi,Math.max(lo,n));
   let graphics, host, pageHost, galleryHost, listeners, resize, visibility, visible = false, load, failed = false, frame = 0;
-  let turn = 0, pitch = 0, previousView, transition, lost = false, traceData;
+  let turn=0,pitch=0,shownTurn=0,shownPitch=0,lastDraw=0,previousView,transition,lost=false,traceData,markers=[];
   const stop = () => { cancelAnimationFrame(frame); frame=0; };
   function createGraphics() {
     const T = B.ThreeRuntime.THREE;
     const renderer = new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});
     renderer.toneMapping = T.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.18;
-    const scene = new T.Scene(); scene.background = new T.Color(0x0b121d);
-    scene.add(new T.HemisphereLight(0xc0dbff,0x343f52,2.0));
-    const key = new T.DirectionalLight(0xffdeb2,3.35);
-    key.position.set(-6,13,9); scene.add(key);
-    const rim = new T.DirectionalLight(0x79b3ff,2.25);
-    rim.position.set(9,9,-8); scene.add(rim);
+    renderer.toneMappingExposure = 1.23;
+    const scene = new T.Scene(); scene.background = new T.Color(0x101017);
+    const envCanvas=document.createElement('canvas');envCanvas.width=512;envCanvas.height=256;
+    const paint=envCanvas.getContext('2d');
+    paint.fillStyle='#333140';paint.fillRect(0,0,512,256);
+    function softbox(x,y,w,h,color){
+      const fade=paint.createLinearGradient(x,y,x+w,y+h);
+      fade.addColorStop(0,'#817b8a');fade.addColorStop(.42,color);fade.addColorStop(1,'#857e8d');
+      paint.fillStyle=fade;paint.fillRect(x,y,w,h);
+    }
+    softbox(25,41,91,106,'#f4e8dc');softbox(187,55,127,54,'#ffffff');
+    softbox(375,60,50,142,'#c3b5eb');softbox(118,160,13,65,'#f6d1af');
+    const panorama=new T.CanvasTexture(envCanvas);
+    panorama.mapping=T.EquirectangularReflectionMapping;panorama.colorSpace=T.SRGBColorSpace;
+    const generator=new T.PMREMGenerator(renderer);
+    scene.environment=generator.fromEquirectangular(panorama).texture;scene.environmentIntensity=1.25;
+    generator.dispose();panorama.dispose();
+    scene.add(new T.HemisphereLight(0xdfd7f1,0x353242,1.45));
+    const key=new T.DirectionalLight(0xffe3c6,2.65);
+    key.position.set(-5,11,7);scene.add(key);
+    const rim=new T.DirectionalLight(0xa9a1db,2.30);
+    rim.position.set(8,6,-7);scene.add(rim);
     const model = B.buildSpatialStudio(B.ThreeRuntime), trace = B.buildSpatialTrace(T);
     scene.add(model.world,trace.world);
     const camera = new T.PerspectiveCamera(34,1,.12,100);
@@ -120,10 +135,10 @@
     const layout = isTrace || isExhibit ? {x:0,z:0,yaw:.42} : rooms[view] || cameraHome;
     const isHall = view==='hall';
     const compact = host.classList.contains('spatial-view-room');
-    const radius = (isHall?(compact?32:22.7):isTrace?8.05:isExhibit?8.15:9.65) * Math.max(1,(isHall?1.46:1.25)/camera.aspect);
-    const angle = layout.yaw+turn;
-    const elevation = clamp((isHall?.57:isTrace?.29:isExhibit?.36:.50)+pitch,.22,1.26);
-    const center = new T.Vector3(layout.x,isHall?.72:isTrace?1.14:.87,layout.z);
+    const radius = (isHall?(compact?30:21.4):isTrace?8.05:isExhibit?7.85:9.2) * Math.max(1,(isHall?1.46:1.25)/camera.aspect);
+    const angle = layout.yaw+shownTurn;
+    const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:.47)+shownPitch,.22,1.26);
+    const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:.89,layout.z);
     const ground = radius*Math.cos(elevation);
     const position = new T.Vector3(center.x+ground*Math.sin(angle),center.y+radius*Math.sin(elevation),center.z+ground*Math.cos(angle));
     return {center,position};
@@ -131,7 +146,12 @@
   function draw(now) {
     frame=0;
     if (!host || !graphics || !visible || document.hidden || lost) return;
-    const {renderer,scene,camera,model,trace,point,look} = graphics;
+    const {renderer,scene,camera,model,trace,point,look}=graphics;
+    const dt=lastDraw?Math.min(45,now-lastDraw):17;
+    lastDraw=now;
+    const relax=reduced()?1:1-Math.exp(-dt/43);
+    shownTurn=Math.abs(turn-shownTurn)<.002?turn:shownTurn+(turn-shownTurn)*relax;
+    shownPitch=Math.abs(pitch-shownPitch)<.002?pitch:shownPitch+(pitch-shownPitch)*relax;
     const isTrace=host.dataset.spatialView==='trace';
     model.world.visible=!isTrace;
     if(isTrace && traceData?.route===document.body.dataset.bmRoute)trace.update(...traceData.args);
@@ -147,17 +167,17 @@
     }
     camera.lookAt(look); camera.updateMatrixWorld();
     renderer.render(scene,camera);
-    for(const marker of host.querySelectorAll('[data-spatial-marker],[data-spatial-station]')){
+    for(const marker of markers){
       const anchor=model.anchors[marker.dataset.spatialMarker];
       if(anchor)point.copy(anchor);
       else point.fromArray(stations[host.dataset.spatialView][Number(marker.dataset.spatialStation)][3]);
       point.project(camera);
-      marker.style.left = `${(point.x+1)*50}%`;
-      marker.style.top = `${(1-point.y)*50}%`;
+      marker.style.setProperty('--spatial-x',`${((point.x+1)*.5*graphics.width).toFixed(1)}px`);
+      marker.style.setProperty('--spatial-y',`${((1-point.y)*.5*graphics.height).toFixed(1)}px`);
       marker.hidden = Math.abs(point.x)>.91 || Math.abs(point.y)>.91 || point.z>1;
     }
     host.setAttribute('data-spatial-ready','true');
-    if(transition)drawSoon();
+    if(transition||shownTurn!==turn||shownPitch!==pitch)drawSoon();
   }
   function drawSoon() {
     if(!frame && host && visible && !document.hidden && !lost) frame=requestAnimationFrame(draw);
@@ -168,9 +188,13 @@
     const width=stage.clientWidth,height=stage.clientHeight;
     if(!width || !height) return;
     const {renderer,camera}=graphics;
-    renderer.setPixelRatio(Math.min(devicePixelRatio,1.55,1400/width));
-    renderer.setSize(width,height,false);
-    camera.aspect=width/height; camera.updateProjectionMatrix(); drawSoon();
+    if(width!==graphics.width||height!==graphics.height){
+      graphics.width=width;graphics.height=height;
+      renderer.setPixelRatio(Math.min(devicePixelRatio,1.40,Math.sqrt(690000/(width*height))));
+      renderer.setSize(width,height,false);
+      camera.aspect=width/height;camera.updateProjectionMatrix();
+    }
+    drawSoon();
   }
   function restoreView() { turn=0; pitch=0; transition=null; drawSoon(); }
   function selectRoom(id) { graphics.model.select(id); drawSoon(); }
@@ -249,7 +273,8 @@
       if(previousView && previousView!==view && ![previousView,view].some(key=>key==='trace'||key==='exhibit')){
         transition={start:performance.now(),position:camera.position.clone(),center:look.clone()};
       }
-      previousView=view; turn=0; pitch=0;
+      previousView=view; turn=shownTurn=0; pitch=shownPitch=0; lastDraw=0;
+      markers=[...next.querySelectorAll('[data-spatial-marker],[data-spatial-station]')];
       model.show(view); model.select(view);
       if(view==='exhibit')model.showExhibit(next.dataset.spatialVariant);
       canvas.setAttribute('aria-label',t('立体视图，方向键转动，Home 键复位','3D view. Arrow keys rotate, Home resets.'));
