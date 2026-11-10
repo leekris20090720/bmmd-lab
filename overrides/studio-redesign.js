@@ -65,18 +65,63 @@
     });
     element.replaceChildren(...pieces); words.push({ element, pieces });
   }
+  function mountStory(ctx) {
+    const hero = home.querySelector('.bm-story-hero');
+    const rail = home.querySelector('.bm-story-rail');
+    const desktop = ctx.conditions.storyDesktop;
+    if (hero) G.fromTo(hero.querySelector('img'), { yPercent: -2, scale: 1.13 }, {
+      yPercent: desktop ? 16 : 8, scale: 1.05, ease: 'none',
+      scrollTrigger: { id: 'bm-story-hero', trigger: hero, start: 'clamp(top top)', end: 'bottom top', scrub: .45 }
+    });
+    if (!rail) return;
+    if (!desktop) {
+      rail.querySelectorAll('.bm-story-step-media').forEach((frame, index) => {
+        G.fromTo(frame.querySelector('img'), { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: {
+          id: 'bm-story-mobile-' + index, trigger: frame, start: 'top bottom', end: 'bottom top', scrub: .35
+        } });
+      });
+      return;
+    }
+    rail.classList.add('is-staged');
+    const steps = [...rail.querySelectorAll('.bm-story-step')];
+    const frames = [...rail.querySelectorAll('.bm-story-frame')];
+    const distance = () => steps.at(-1).getBoundingClientRect().top - steps[0].getBoundingClientRect().top;
+    G.set(frames, { autoAlpha: 0 });
+    G.set(frames[0], { autoAlpha: 1 });
+    const sequence = G.timeline({ defaults: { ease: 'none' }, scrollTrigger: {
+      id: 'bm-story-sequence', trigger: rail, start: 'top 104px', end: () => '+=' + Math.max(1, distance()),
+      scrub: .45, invalidateOnRefresh: true
+    } });
+    sequence.addLabel('load', 0).addLabel('transmission', 1).addLabel('training', 2);
+    sequence.fromTo(frames, { scale: 1.14, yPercent: -4 }, { scale: 1.03, yPercent: 5, duration: 2 }, 'load');
+    sequence.fromTo(rail.querySelector('.bm-story-progress span'), { scaleX: 0 }, { scaleX: 1, duration: 2 }, 'load');
+    for (let index = 1; index < frames.length; index++) {
+      const transition = index === 1 ? 'transmission-=0.35' : 'training-=0.35';
+      sequence.to(frames[index - 1], { autoAlpha: 0, duration: .35 }, transition)
+        .to(frames[index], { autoAlpha: 1, duration: .35 }, transition);
+    }
+    return () => rail.classList.remove('is-staged');
+  }
   function mount() {
     queued = 0; cleanup(); skinShadow();
     home = document.body.dataset.bmRoute === 'home' ? document.querySelector('.studio-home-main') : null;
+    const lab = document.body.dataset.bmRoute === 'learn/experiments' ? document.querySelector('.bm-lab-image') : null;
     document.documentElement.dataset.studioReduced = String(reduced());
     document.documentElement.dataset.studioEngine = G && ST ? 'gsap' : 'static';
-    if (!home || !G || !ST) return;
-    stage = home.querySelector('.studio-specimen-stage');
-    home.querySelectorAll('[data-studio-words]').forEach(split);
+    if ((!home && !lab) || !G || !ST) return;
+    stage = home?.querySelector('.studio-specimen-stage');
+    home?.querySelectorAll('[data-studio-words]').forEach(split);
     mm = G.matchMedia();
-    mm.add({ all: 'all', desktop: '(min-width:651px)', reduce: '(prefers-reduced-motion:reduce)' }, ctx => {
+    mm.add({ all: 'all', desktop: '(min-width:651px)', storyDesktop: '(min-width:950px)', reduce: '(prefers-reduced-motion:reduce)' }, ctx => {
       context = ctx; pointerTilt = null; swapImage = null;
       if (ctx.conditions.reduce || reduced() || document.body.hasAttribute('data-explore-open')) return;
+      if (lab) {
+        if (ctx.conditions.desktop) G.fromTo(lab.querySelector('img'), { yPercent: -7 }, { yPercent: 8, ease: 'none', scrollTrigger: {
+          id: 'bm-story-lab', trigger: lab, scroller: document.getElementById('product-root'), start: 0, end: 360, scrub: .4
+        } });
+        return;
+      }
+      const revertStory = mountStory(ctx);
       const images = [...home.querySelectorAll('.studio-specimen-image')];
       G.set(images, { autoAlpha: 0 });
       G.set(images.filter(image => image.dataset.active === 'true'), { autoAlpha: 1 });
@@ -91,7 +136,7 @@
       if (stage && ctx.conditions.desktop) {
         G.set(stage, { transformPerspective: 1400, rotationX: 6, rotationY: 0, scale: .988, transformOrigin: '50% 65%' });
         G.to(stage, { rotationX: 0, scale: 1, ease: 'none', scrollTrigger: {
-          id: 'bm-studio-specimen', trigger: home, start: 0, end: () => Math.max(1, innerHeight * .65), scrub: .65, invalidateOnRefresh: true
+          id: 'bm-studio-specimen', trigger: stage, start: 'clamp(top bottom)', end: 'top 24%', scrub: .65, invalidateOnRefresh: true
         } });
         pointerTilt = G.quickTo(stage, 'rotationY', { duration: .45, ease: 'power3.out' });
       }
@@ -118,11 +163,19 @@
           id: 'bm-studio-close-' + i, trigger: section, start: 'top 92%', end: 'top 45%', scrub: .6
         } });
       });
-    }, home);
+      return revertStory;
+    }, home || lab);
     document.documentElement.dataset.studioMotion = 'gsap-scrolltrigger gsap-timeline gsap-quickto specimen-crossfade chapter-parallax uiverse-arrow';
   }
   function schedule() { if (!queued) queued = requestAnimationFrame(mount); }
   document.addEventListener('click', event => {
+    const jump = event.target.closest?.('[data-studio-jump]');
+    if (jump && home) {
+      const destination = document.getElementById(jump.dataset.studioJump);
+      destination?.focus({ preventScroll: true });
+      destination?.scrollIntoView({ behavior: reduced() ? 'instant' : 'smooth' });
+      return;
+    }
     if (home && document.body.dataset.bmRoute === 'home' && event.target.closest?.('a[href="#home"]')) {
       event.preventDefault(); window.scrollTo({ top: 0, behavior: reduced() ? 'instant' : 'smooth' }); return;
     }

@@ -1,0 +1,76 @@
+/* The expanded mechanics library uses the existing dark workspace tokens. */
+body.bm-studio .ex-library-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:32px;margin:0 0 28px}
+body.bm-studio .ex-library-intro .pd-lead{font-size:19px!important;max-width:38em;line-height:1.6}
+body.bm-studio .ex-library-count{font-size:13px;color:var(--pd-muted);white-space:nowrap;margin:0!important}
+body.bm-studio .ex-library-count strong{font-size:25px;color:var(--pd-ink);font-weight:500;font-variant-numeric:tabular-nums}
+body.bm-studio .ex-library-controls{padding:20px 0 14px;border-top:1px solid var(--pd-line);border-bottom:1px solid var(--pd-line);margin-bottom:32px}
+body.bm-studio .ex-library-controls>label{display:grid;grid-template-columns:80px minmax(0,440px);align-items:center;gap:16px;font-size:14px}
+body.bm-studio .ex-library-controls input{width:100%;min-width:0;min-height:44px;padding:10px 14px}
+body.bm-studio .ex-library-filters{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+body.bm-studio #product-root .ex-library-filters button{min-height:44px;background:transparent!important;color:var(--pd-muted)!important;padding:8px 14px;border:1px solid transparent!important;border-radius:8px!important;font-size:13px}
+body.bm-studio #product-root .ex-library-filters button[aria-pressed=true]{background:#222c25!important;color:var(--pd-ink)!important;border-color:#435047!important}
+body.bm-studio #ex-library-status{font-size:12px;color:var(--pd-muted);margin:12px 0 0}
+body.bm-studio .ex-library-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 40px}
+body.bm-studio .ex-library-group{min-width:0}
+body.bm-studio .ex-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:16px}
+body.bm-studio #product-root .ex-section-heading h2{font-size:21px;line-height:1.45;margin:0;letter-spacing:-.025em}
+body.bm-studio .ex-section-heading>span{font-size:12px;color:var(--pd-muted);white-space:nowrap}
+body.bm-studio .ex-library-group ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--pd-line)}
+body.bm-studio .ex-library-group li{margin:0;border-bottom:1px solid var(--pd-line)}
+body.bm-studio .ex-library-group a{display:flex;align-items:start;justify-content:space-between;gap:20px;padding:18px 0;min-height:120px;text-decoration:none!important}
+body.bm-studio .ex-library-group a:hover h3{color:var(--pd-accent)!important}
+body.bm-studio #product-root .ex-library-group h3{font-size:16px;font-weight:550;line-height:1.5;margin:0 0 7px;letter-spacing:-.015em}
+body.bm-studio .ex-library-group p{font-size:13px;line-height:1.65;color:var(--pd-muted);margin:0 0 8px;max-width:46em}
+body.bm-studio .ex-library-group small{font-size:12px;color:var(--pd-muted)}
+body.bm-studio .ex-library-group a>span{font-size:20px;line-height:1.5;color:var(--pd-muted)}
+body.bm-studio .ex-library-group[hidden],body.bm-studio [data-ex-card][hidden]{display:none!important}
+body.bm-studio .ex-library-links{margin:32px 0;font-size:14px;line-height:1.7}
+body.bm-studio .ex-library-links a{margin-right:20px}
+body.bm-studio .ex-sources{border-top:1px solid var(--pd-line);margin:24px 0;padding-top:16px}
+body.bm-studio .ex-sources>summary{font-size:15px;min-height:44px;cursor:pointer}
+body.bm-studio .ex-guided{margin:40px 0 32px}
+body.bm-studio .ex-guided>.ex-section-heading{display:block;max-width:54em}
+body.bm-studio .ex-guided>.ex-section-heading p{font-size:14px;line-height:1.65;color:var(--pd-muted);margin-top:10px}
+body.bm-studio .ex-protocols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:0;margin:20px 0;list-style:none;counter-reset:experiment-step}
+body.bm-studio .ex-protocols>li{counter-increment:experiment-step;min-width:0;padding:22px;background:var(--pd-paper);border-radius:16px}
+body.bm-studio .ex-protocols>li::before{content:counter(experiment-step) ".";display:block;font-size:13px;color:var(--pd-muted);margin-bottom:12px}
+body.bm-studio #product-root .ex-protocols h3{font-size:18px;font-weight:550;line-height:1.5;margin:0 0 12px;letter-spacing:-.02em}
+body.bm-studio .ex-task-setting{font-size:12px;line-height:1.65;color:var(--pd-muted);min-height:40px;overflow-wrap:anywhere}
+body.bm-studio .ex-task-measure{font-size:13px;line-height:1.5;margin:16px 0 10px;min-height:20px}
+body.bm-studio .ex-task-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:0 0 18px}
+body.bm-studio .ex-task-values dt{font-size:12px;color:var(--pd-muted);margin-bottom:6px}
+body.bm-studio .ex-task-values dd{font-size:23px;font-variant-numeric:tabular-nums;font-weight:500;margin:0;overflow-wrap:anywhere}
+body.bm-studio .ex-task-values small{font-size:12px;color:var(--pd-muted)}
+body.bm-studio #product-root .ex-protocols button{width:100%;font-size:14px;padding:10px 12px;border-radius:8px}
+body.bm-studio .ex-protocols details{font-size:13px;line-height:1.7;margin-top:16px}
+body.bm-studio .ex-protocols summary{cursor:pointer;min-height:36px;line-height:1.7}
+body.bm-studio .ex-protocols details p{font-size:13px;line-height:1.7;color:var(--pd-muted);margin:8px 0 0}
+body.bm-studio #pd-ex-diagram{scroll-margin-top:20px}
+body.bm-studio #pd-ex-diagram:focus{outline:none}
+body.bm-studio .ex-learn-entry{display:inline-block;min-height:36px;padding-top:8px;color:var(--pd-ink)!important;text-decoration:underline;text-underline-offset:4px;font-size:13px}
+@media(max-width:1000px){
+ body.bm-studio .ex-library-intro{grid-template-columns:1fr;gap:14px}
+ body.bm-studio .ex-library-groups{gap:28px}
+ body.bm-studio .ex-protocols{grid-template-columns:1fr}
+ body.bm-studio .ex-protocols>li{padding:20px}
+ body.bm-studio .ex-task-setting{min-height:0}
+ body.bm-studio .ex-task-values{max-width:360px}
+ body.bm-studio #product-root .ex-protocols button{width:auto;min-width:180px}
+}
+@media(max-width:650px){
+ body.bm-studio .ex-library-intro{margin-bottom:22px}
+ body.bm-studio .ex-library-intro .pd-lead{font-size:17px!important}
+ body.bm-studio .ex-library-count{font-size:12px;white-space:normal}
+ body.bm-studio .ex-library-controls>label{grid-template-columns:1fr;gap:8px}
+ body.bm-studio .ex-library-filters{gap:6px}
+ body.bm-studio #product-root .ex-library-filters button{padding-inline:10px;font-size:12px}
+ body.bm-studio .ex-library-groups{grid-template-columns:1fr;gap:28px}
+ body.bm-studio .ex-library-group a{padding:16px 0;min-height:0}
+ body.bm-studio .ex-section-heading{gap:16px}
+ body.bm-studio #product-root .ex-section-heading h2{font-size:20px}
+ body.bm-studio .ex-guided{margin-top:28px}
+ body.bm-studio .ex-task-values dd{font-size:22px}
+ body.bm-studio .ex-protocols summary{min-height:44px}
+ body.bm-studio #product-root #pd-ex-diagram text{font-size:16px}
+ body.bm-studio #product-root #pd-ex-diagram svg{min-height:250px}
+}
