@@ -1,0 +1,169 @@
+/* The cutaway and the working surfaces use the same graphite palette. */
+body.bm-studio .spatial-entry {
+  display: grid;
+  grid-template-columns: minmax(285px, .70fr) minmax(0, 1.66fr);
+  align-items: center;
+  gap: clamp(20px, 3.1vw, 58px);
+  min-height: calc(100svh - 80px);
+  padding: 32px var(--st-pad) 42px;
+  border-bottom: 1px solid #283331;
+  background: #0b1010;
+}
+body.bm-studio #portal-welcome-stage .spatial-eyebrow {
+  font-size: 13px;
+  font-weight: 650;
+  margin-bottom: 16px;
+  color: #d0ded6;
+}
+body.bm-studio .spatial-eyebrow span {padding-left: 13px; opacity: .68;}
+body.bm-studio #portal-welcome-stage .studio-home-main .spatial-entry h1 {
+  font-size: clamp(63px, 6.6vw, 110px) !important;
+  line-height: 1.005 !important;
+  letter-spacing: -.075em !important;
+  font-weight: 720 !important;
+  margin: 0 0 20px !important;
+  text-align: left !important;
+  white-space: normal !important;
+  background: none !important;
+  color: #eff6f0 !important;
+}
+body.bm-studio #portal-welcome-stage .spatial-lead {
+  color: #bbc9c0;
+  font-size: 16px;
+  line-height: 1.66;
+  max-width: 24em;
+  margin: 0 0 28px;
+}
+body.bm-studio .spatial-doors {display: grid;}
+body.bm-studio .spatial-doors > :is(a,button) {
+  display: grid;
+  grid-template-columns: 34px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 62px;
+  background: transparent !important;
+  border: 0;
+  border-top: 1px solid #34413c;
+  border-radius: 0;
+  padding: 8px 7px 8px 0;
+  text-align: left;
+}
+body.bm-studio .spatial-doors > :last-child {border-bottom: 1px solid #34413c;}
+body.bm-studio .spatial-door-text strong {font-size: 17px; font-weight: 650;}
+body.bm-studio .spatial-door-text small {display: block; color: #aebbb3; font-size: 12px;}
+body.bm-studio .spatial-number {font-variant-numeric: tabular-nums; opacity: .7;}
+body.bm-studio .spatial-arrow {padding-inline: 5px; opacity: .8;}
+body.bm-studio .spatial-doors > :is(a,button):is(:hover,:focus-visible) {color: #9affc0;}
+body.bm-studio .spatial-view {min-width: 0; margin: 0; background: #0b1010;}
+body.bm-studio .spatial-stage {position: relative; overflow: hidden; background: #0b1010;}
+body.bm-studio .spatial-view-full .spatial-stage {height: clamp(420px, 73svh, 800px);}
+body.bm-studio .spatial-stage :is(img,canvas) {position: absolute; inset: 0; width: 100%; height: 100%;}
+body.bm-studio .spatial-poster {object-fit: contain; pointer-events: none;}
+body.bm-studio .spatial-canvas {display: block; touch-action: pan-y; cursor: grab; visibility: hidden;}
+body.bm-studio .spatial-canvas:active {cursor: grabbing;}
+body.bm-studio .spatial-canvas:focus-visible {outline-offset: -4px;}
+body.bm-studio [data-spatial-ready] .spatial-canvas {visibility: visible;}
+body.bm-studio [data-spatial-ready] .spatial-poster {visibility: hidden;}
+body.bm-studio .spatial-markers {display: none; position: absolute; inset: 0; pointer-events: none;}
+body.bm-studio [data-spatial-ready] .spatial-markers {display: block;}
+body.bm-studio .spatial-stage :is(a,button).spatial-marker {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  white-space: nowrap;
+  transform: translate(-50%,-50%);
+  pointer-events: auto;
+  border: 1px solid #667c70;
+  border-radius: 4px;
+  padding: 5px 11px;
+  background: #101917;
+  color: #e7f2ec;
+  font-size: 13px;
+}
+body.bm-studio .spatial-stage .spatial-marker[hidden] {display: none;}
+body.bm-studio .spatial-marker strong {font-weight: 620;}
+body.bm-studio .spatial-marker:hover {border-color: #9affc0;}
+body.bm-studio .spatial-caption {
+  min-height: 49px;
+  border-top: 1px solid #30403a;
+  padding-inline: 4px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  color: #b0c1b7;
+  font-size: 12px;
+}
+body.bm-studio .spatial-controls {display: none; align-items: center; gap: 3px; margin-left: auto !important;}
+body.bm-studio .spatial-instructions {display: none;}
+body.bm-studio [data-spatial-ready] .spatial-controls {display: inline-flex;}
+body.bm-studio [data-spatial-ready] .spatial-instructions {display: inline;}
+body.bm-studio :is(.studio-home-main,.pd-main) .spatial-controls button {
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent !important;
+  color: #e0eee5 !important;
+  border: 1px solid transparent !important;
+  border-radius: 3px;
+  padding: 0 7px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+body.bm-studio :is(.studio-home-main,.pd-main) .spatial-controls button:hover {border-color: #52675b !important;}
+body.bm-studio #portal-welcome-stage .studio-home-main .spatial-caption span {font-size: inherit !important;}
+body.bm-studio .pd-page-heading:has(.spatial-view) {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(275px,.83fr);
+  gap: 20px 24px;
+  align-items: center;
+  border-bottom: 1px solid #30403a !important;
+  min-height: 166px;
+}
+body.bm-studio .pd-page-heading .spatial-view {border-left: 1px solid #30403a; padding-left: 18px;}
+body.bm-studio .spatial-view-room .spatial-stage {height: clamp(126px, 18vh, 215px);}
+body.bm-studio .spatial-view-room .spatial-caption {min-height: 45px; border: 0;}
+body.bm-studio .spatial-view-room .spatial-instructions {display: none;}
+body.bm-studio .spatial-return {text-decoration: none;}
+body.bm-studio .spatial-return:hover {text-decoration: underline;}
+body.bm-studio .bm-product-intro {border-block: 1px solid #283331; margin-bottom: 60px;}
+@media(max-width: 960px) {
+  body.bm-studio .spatial-entry {grid-template-columns: minmax(235px,.75fr) minmax(0,1.2fr); gap: 14px;}
+  body.bm-studio #portal-welcome-stage .studio-home-main .spatial-entry h1 {font-size: clamp(47px,7.25vw,73px) !important;}
+  body.bm-studio .spatial-stage :is(a,button).spatial-marker {padding-inline: 6px; font-size: 12px; gap: 4px;}
+}
+@media(max-width: 650px) {
+  body.bm-studio .spatial-entry {display: flex; flex-direction: column; align-items: stretch; padding-top: 25px; padding-bottom: 25px; gap: 12px;}
+  body.bm-studio #portal-welcome-stage .studio-home-main .spatial-entry h1 {font-size: clamp(43px,12.8vw,64px) !important; margin-bottom: 12px !important;}
+  body.bm-studio .spatial-entry h1 br {display: none;}
+  body.bm-studio #portal-welcome-stage .spatial-lead {font-size: 14px; margin-bottom: 15px;}
+  body.bm-studio #portal-welcome-stage .spatial-eyebrow {margin-bottom: 11px;}
+  body.bm-studio .spatial-doors {grid-template-columns: 1fr 1fr; gap: 0 16px;}
+  body.bm-studio .spatial-doors > :is(a,button) {grid-template-columns: 19px minmax(0,1fr) auto; gap: 5px; min-height: 44px;}
+  body.bm-studio .spatial-doors > :last-child {border-bottom: 0;}
+  body.bm-studio .spatial-doors small {display: none;}
+  body.bm-studio .spatial-door-text strong {font-size: 14px;}
+  body.bm-studio .spatial-number {font-size: 12px;}
+  body.bm-studio .spatial-view-full .spatial-stage {height: clamp(245px,78vw,400px);}
+  body.bm-studio .spatial-marker .spatial-number {display: none;}
+  body.bm-studio .spatial-caption .spatial-instructions {display: none;}
+  body.bm-studio .pd-page-heading:has(.spatial-view) {grid-template-columns: minmax(0,1fr); gap: 4px;}
+  body.bm-studio .pd-page-heading .spatial-view {border-left: 0; padding-left: 0;}
+  body.bm-studio .spatial-view-room .spatial-stage {height: 118px;}
+  body.bm-studio .bm-product-intro {margin-bottom: 35px;}
+}
+body.bm-studio [data-spatial-view="trace"]:not([data-spatial-ready]) {visibility: hidden;}
+body.bm-studio [data-spatial-view="trace"] .spatial-caption {font-size: 11px; gap: 5px;}
+body.bm-studio .pd-page-heading:has(.spatial-view-entry) {grid-template-columns: minmax(0,.72fr) minmax(0,1.20fr);}
+body.bm-studio .spatial-view-entry .spatial-stage {height: clamp(182px, 27vh, 270px);}
+body.bm-studio .spatial-station-links {display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 0 4px 7px; font-size: 12px;}
+body.bm-studio .spatial-station-links a {display: inline-flex; align-items: center; min-height: 34px; text-underline-offset: 3px;}
+body.bm-studio .pd-page-heading:has([data-spatial-view="trace"][data-spatial-unavailable]) {display: block; min-height: 0;}
+body.bm-studio [data-spatial-view="trace"][data-spatial-unavailable] {display: none;}
+@media(max-width: 650px) {
+  body.bm-studio .pd-page-heading:has(.spatial-view-entry) {grid-template-columns: minmax(0,1fr);}
+  body.bm-studio .spatial-view-entry .spatial-stage {height: 167px;}
+  body.bm-studio .spatial-station-links a {min-height: 44px;}
+}
+body.bm-studio .pd-page-heading:has(.spatial-view-entry) h1 {font-size: clamp(31px,4.5vw,62px) !important;}

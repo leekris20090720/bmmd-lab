@@ -25,7 +25,7 @@ body.bm-studio #portal-welcome-stage .bm-product-copy .bm-product-kicker {
   font-weight: 550;
   letter-spacing: .055em;
 }
-body.bm-studio #portal-welcome-stage .studio-home-main .bm-product-copy h1 {
+body.bm-studio #portal-welcome-stage .studio-home-main .bm-product-copy h2 {
   font-size: clamp(49px, 7vw, 107px) !important;
   font-weight: 680 !important;
   line-height: 1.09 !important;
@@ -105,7 +105,7 @@ body.bm-studio #portal-welcome-stage .fit-home-heading #studio-home-title {
   letter-spacing: -.035em;
   margin-bottom: 8px !important;
 }
-body.bm-studio .bm-product-intro + .fit-home-heading {padding-top: 46px;}
+body.bm-studio .spatial-entry + .fit-home-heading {padding-top: 46px;}
 body.bm-studio .bm-story-sequence {padding: 0 var(--st-pad) 86px; scroll-margin-top: 110px;}
 body.bm-studio .bm-story-heading {margin-bottom: 40px;}
 body.bm-studio #portal-welcome-stage .bm-story-heading h2 {
@@ -150,7 +150,7 @@ body.bm-studio .ex-library-controls > .ex-library-mobile-filter {display: none;}
 @media (max-width: 650px) {
   body.bm-studio .bm-product-intro {--film-top: 68px;}
   body.bm-studio .bm-product-viewport {min-height: auto; padding-top: 44px; padding-bottom: 37px;}
-  body.bm-studio #portal-welcome-stage .studio-home-main .bm-product-copy h1 {font-size: clamp(35px, 10.5vw, 62px) !important;}
+  body.bm-studio #portal-welcome-stage .studio-home-main .bm-product-copy h2 {font-size: clamp(35px, 10.5vw, 62px) !important;}
   body.bm-studio .bm-product-viewport .bm-product-visual {width: calc(100% + var(--st-pad) * 2); margin-top: 23px;}
   body.bm-studio .bm-story-actions {gap: 12px 17px; margin-top: 10px;}
   body.bm-studio .bm-story-actions .studio-link {font-size: 14px;}
