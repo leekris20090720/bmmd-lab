@@ -2,6 +2,7 @@
 :root[data-theme=dark] body.bm-deck {
   --pd-bg:#101017;--pd-paper:#191922;--pd-wash:#282832;--pd-ink:#f6f2f0;--pd-muted:#c2bbc6;
   --pd-line:#514b5d;--pd-accent:#f2bb96;--deck-face:#20202a;--deck-edge:#554e60;--deck-deep:#0b0a11;
+  --deck-inset:#171720;--deck-hover:#34313e;--deck-selected:#372d30;--deck-selected-line:#926d59;--deck-accent-ink:#ffd7bb;
   --ui-bg:var(--pd-bg);--ui-surface:var(--pd-paper);--ui-surface-subtle:var(--pd-wash);--ui-text:var(--pd-ink);
   --ui-muted:var(--pd-muted);--ui-line:var(--pd-line);--ui-accent:var(--pd-accent);--ui-focus:#ffd6ac;
   --ui-primary-bg:var(--pd-accent);--ui-primary-text:#27190b;--ui-primary-hover:#ffd8b1;
@@ -222,3 +223,101 @@ body.bm-studio.bm-deck .spatial-stage .spatial-marker {
 body.bm-studio.bm-deck .spatial-markers {contain:layout paint;}
 
 body.bm-studio.bm-deck .deck-bays > :is(a,button) {transition:color .18s,border-color .18s;}
+
+/* A course is one viewport with independent reading and model surfaces. */
+body.bm-studio.bm-deck[data-course-layout="split"] #product-root .pd-main {
+  height:100%;min-height:0;padding:12px var(--st-pad) 16px;
+}
+body.bm-studio.bm-deck[data-course-layout="split"] :is(.deck-workspace,.deck-operation,#pd-content) {
+  display:flex;flex:1 1 0;flex-direction:column;align-items:stretch;min-width:0;min-height:0;
+}
+body.bm-studio.bm-deck .pd-course-topline {
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;min-height:0;margin-bottom:10px;
+}
+body.bm-studio.bm-deck #product-root .pd-course-topline .pd-return-bar {
+  margin:0;background:transparent!important;
+}
+body.bm-studio.bm-deck #product-root .pd-course-topline .pd-page-heading[data-deck-plate] {
+  padding:9px 15px!important;margin:0!important;min-height:0;
+}
+body.bm-studio.bm-deck #product-root .pd-main .pd-course-topline .pd-page-heading[data-deck-plate] h1 {
+  font-size:clamp(20px,2.7vw,34px)!important;line-height:1.21!important;overflow-wrap:anywhere;
+}
+body.bm-studio.bm-deck .pd-course-workspace {
+  flex:1 1 0;min-height:0;
+}
+body.bm-studio.bm-deck .pd-course-workspace > :is(.pd-course-reader,.pd-course-demo) {
+  min-height:0;background:var(--deck-face);border-color:var(--pd-line);
+}
+body.bm-studio.bm-deck .pd-course-workspace :is(.pd-course-chapters,.pd-course-pager,.pd-course-demo-controls,.pd-course-current) {
+  background:var(--deck-inset);border-color:var(--pd-line);
+}
+body.bm-studio.bm-deck .pd-course-workspace .pd-course-reading {
+  flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;
+}
+body.bm-studio.bm-deck .pd-course-workspace .pd-course-pager {
+  position:relative;flex:none;z-index:1;
+}
+body.bm-studio.bm-deck #pd-content .pd-course-workspace #pd-course-model {
+  background:var(--deck-inset);
+}
+body.bm-studio.bm-deck #product-root .pd-main :is(.pd-course-chapter-tab,.fit-day-tabs button)[aria-selected=true] {
+  color:var(--deck-accent-ink)!important;background:var(--deck-selected)!important;
+  border-color:var(--deck-selected-line)!important;
+}
+body.bm-studio.bm-deck #product-root .pd-main .fit-week {
+  border:1px solid var(--pd-line);
+}
+body.bm-studio.bm-deck #product-root .pd-main .fit-day-tabs button {
+  min-height:66px;box-shadow:none!important;
+}
+body.bm-studio.bm-deck #product-root .pd-main :is(input,select,textarea) {caret-color:var(--pd-accent);}
+@media(max-width:800px) {
+  body.bm-studio.bm-deck[data-course-layout="split"] #product-root .pd-main {padding:7px 12px 12px;}
+  body.bm-studio.bm-deck .pd-course-topline {gap:8px;margin-bottom:7px;}
+  body.bm-studio.bm-deck #product-root .pd-course-topline .pd-page-heading[data-deck-plate] {padding:7px 9px!important;}
+  body.bm-studio.bm-deck #product-root .pd-main .pd-course-topline .pd-page-heading[data-deck-plate] h1 {
+    font-size:clamp(17px,4.4vw,23px)!important;
+  }
+  body.bm-studio.bm-deck .pd-course-workspace .pd-course-chapters {gap:4px;}
+}
+@media(max-width:800px) and (min-height:690px) {
+  body.bm-studio.bm-deck .pd-course-workspace .pd-course-chapters {
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;
+  }
+  body.bm-studio.bm-deck #product-root .pd-course-chapters .pd-course-chapter-tab {padding-inline:3px;font-size:12px;}
+}
+@media(max-height:530px) {
+  body.bm-studio.bm-deck[data-course-layout="split"] #product-root {overflow-y:auto;}
+  body.bm-studio.bm-deck[data-course-layout="split"] #product-root .pd-main {height:auto;}
+  body.bm-studio.bm-deck[data-course-layout="split"] :is(.deck-workspace,.deck-operation,#pd-content) {flex:initial;}
+  body.bm-studio.bm-deck .pd-course-workspace {flex:none;height:390px;}
+}
+body.bm-studio.bm-deck :is(#product-root,#engineering-root) input[type=range] {
+  appearance:none;accent-color:var(--pd-accent)!important;
+}
+body.bm-studio.bm-deck :is(#product-root,#engineering-root) input[type=range]::-webkit-slider-runnable-track {
+  height:5px;border-radius:99px;
+}
+body.bm-studio.bm-deck :is(#product-root,#engineering-root) input[type=range]::-webkit-slider-thumb {
+  appearance:none;width:15px;height:15px;margin-top:-5px;border-radius:50%;
+}
+body.bm-studio.bm-deck :is(#product-root,#engineering-root) input[type=range]::-moz-range-track {
+  height:5px;border-radius:99px;
+}
+body.bm-studio.bm-deck :is(#product-root,#engineering-root) input[type=range]::-moz-range-thumb {
+  width:15px;height:15px;border:0;border-radius:50%;
+}
+body.bm-studio.bm-deck .pd-course-workspace :is(.pd-course-structure,.pd-course-setup,.pd-equation) {
+  background:var(--deck-inset);
+}
+body.bm-studio.bm-deck :is(.pd-ex-controls output,.pd-course-current strong) {color:var(--deck-accent-ink);}
+body.bm-studio.bm-deck .pd-auto-dot {box-shadow:none;}
+body.bm-studio.bm-deck #product-root .pd-main .pd-equation {
+  background:var(--deck-inset);border-color:var(--pd-line);
+}
+body.bm-studio.bm-deck #engineering-root :is(.viewport-control-toolbar,.eng-stage-caption,#did-study-values>div,.engineering-model-labels>span) {
+  background:var(--deck-inset)!important;border-color:var(--pd-line);
+}
+body.bm-studio.bm-deck #engineering-root :is(.eng-stage-caption,th) {color:var(--pd-muted);}
+body.bm-studio.bm-deck #engineering-root th {background:var(--pd-wash);}

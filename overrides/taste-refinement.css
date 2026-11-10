@@ -17,7 +17,7 @@ body.bm-studio .fit-home .studio-arrow-button>svg{width:26px;height:26px}
 body.bm-studio .fit-metrics{margin:26px 0 24px;padding:0;border:0;gap:24px}
 body.bm-studio .fit-metrics dt{font-size:12px;line-height:1.5;margin-bottom:8px}
 body.bm-studio .fit-metrics dd{font-size:24px;line-height:1.2;font-weight:500}
-body.bm-studio .fit-week{background:#121714;padding:18px 20px 12px;border-radius:16px;min-width:0;margin-top:auto}
+body.bm-studio .fit-week{background:var(--deck-inset,var(--pd-paper));padding:18px 20px 12px;border-radius:16px;min-width:0;margin-top:auto}
 body.bm-studio .fit-week-heading{gap:12px}
 body.bm-studio .fit-week-heading h3{font-size:14px!important}
 body.bm-studio .fit-calendar-range{font-size:12px!important;line-height:1.5!important;color:var(--pd-muted)!important;margin:4px 0 12px!important}
@@ -25,7 +25,7 @@ body.bm-studio .fit-day-tabs{margin:0 -4px 10px;gap:4px}
 body.bm-studio .fit-day-tabs button{min-height:76px;padding:8px 2px;gap:5px;border-radius:10px!important}
 body.bm-studio .fit-day-tabs button>strong{font-size:19px;line-height:1.2}
 body.bm-studio .fit-day-tabs button>small{height:10px;min-height:10px;font-size:12px;line-height:10px}
-body.bm-studio .fit-tab-indicator{background:#252e29;border-radius:10px}
+body.bm-studio .fit-tab-indicator{background:var(--pd-wash);border-radius:10px}
 body.bm-studio .fit-tab-indicator::after{height:2px;width:16px;left:calc(50% - 8px);bottom:7px}
 body.bm-studio .fit-day-empty{font-size:12px!important;line-height:1.6!important;padding-top:10px;padding-bottom:6px;min-height:38px}
 body.bm-studio .fit-home .studio-specimen{padding:20px;background:var(--pd-paper);border-radius:16px;justify-content:start;gap:0}
@@ -60,10 +60,10 @@ body.bm-studio #product-root .pd-return-bar{position:relative;top:auto;margin:0 
 body.bm-studio #product-root .pd-page-back{background:transparent!important;border-radius:8px}
 body.bm-studio #product-root :is(.pd-plan,.pd-empty,.pd-current,.pd-rest,.fit-session-progress){border-radius:16px!important}
 body.bm-studio #product-root .pd-main :is(button,.pd-button){border-radius:8px;font-size:14px;min-height:44px}
-body.bm-studio #product-root .pd-main :is(button,.pd-button):hover{background:#2b352e!important}
-body.bm-studio #product-root .pd-main :is(.pd-primary,button[type=submit]):hover{background:#43fa96!important;color:#03190d!important}
-body.bm-studio #product-root .pd-main button:is([aria-pressed=true],[aria-selected=true]){background:#25332a!important;border-color:#516558!important}
-body.bm-studio #product-root .pd-main :is(input,select,textarea){background:#101612!important;border-color:#435047!important;border-radius:8px!important;font-size:15px}
+body.bm-studio #product-root .pd-main :is(button,.pd-button):hover{background:var(--deck-hover,var(--pd-wash))!important}
+body.bm-studio #product-root .pd-main :is(.pd-primary,button[type=submit]):hover{background:var(--ui-primary-hover,var(--pd-accent))!important;color:var(--ui-primary-text,#27190b)!important}
+body.bm-studio #product-root .pd-main button:is([aria-pressed=true],[aria-selected=true]){background:var(--deck-selected,var(--pd-wash))!important;border-color:var(--deck-selected-line,var(--pd-line))!important}
+body.bm-studio #product-root .pd-main :is(input,select,textarea){background:var(--deck-inset,var(--pd-paper))!important;border-color:var(--pd-line)!important;border-radius:8px!important;font-size:15px}
 body.bm-studio #product-root .pd-main :is(input,select,textarea):focus{border-color:var(--pd-accent)!important}
 /* The teaching preview keeps its actual model and gains room for course entry. */
 body.bm-studio #product-root .pd-learn-intro{padding:0!important;margin:0 0 24px!important;gap:12px;align-items:start}
@@ -72,7 +72,7 @@ body.bm-studio #product-root .pd-learn-discover{padding:0!important;margin:0 0 2
 body.bm-studio #product-root .pd-section-head{margin-bottom:14px!important}
 body.bm-studio #product-root .pd-section-head h2{font-size:19px;line-height:1.4;letter-spacing:-.025em}
 body.bm-studio #product-root .pd-learn-tools{gap:12px}
-body.bm-studio #product-root .pd-learn-tools :is(a,button){padding:16px 18px;background:#161d18!important;border-radius:12px!important;text-align:left}
+body.bm-studio #product-root .pd-learn-tools :is(a,button){padding:16px 18px;background:var(--pd-wash)!important;border-radius:12px!important;text-align:left}
 body.bm-studio #product-root .pd-learn-tools strong{font-size:15px;line-height:1.5;font-weight:550}
 body.bm-studio #product-root .pd-learn-tools small{font-size:13px;line-height:1.6}
 body.bm-studio #product-root .pd-live-lab{margin:0 0 28px;border-radius:16px!important}

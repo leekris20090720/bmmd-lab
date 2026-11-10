@@ -57,7 +57,7 @@ body.bm-studio #product-root .pd-page-heading h1{font-size:30px!important;line-h
 body.bm-studio #product-root :is(.pd-primary,button.pd-primary){border-radius:999px!important;background:var(--pd-accent)!important;color:#03190d!important}
 body.bm-studio #product-root :is(input,select,textarea){border-radius:8px!important;font-variant-numeric:tabular-nums}
 body.bm-studio #product-root .pd-plan{padding:24px!important;transition:background-color .2s,transform .2s}
-body.bm-studio #product-root .pd-plan:hover{background:#1b211e!important}
+body.bm-studio #product-root .pd-plan:hover{background:var(--deck-hover,var(--pd-wash))!important}
 body.bm-studio .fit-session-progress{padding:24px;margin-bottom:24px;border:0}
 body.bm-studio .fit-progress-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
 body.bm-studio .fit-progress-heading h2{font-size:18px!important;line-height:1.4;margin:0!important}
