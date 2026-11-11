@@ -552,3 +552,34 @@ body.bm-studio #product-root .bm-mechanism-tools button {min-height:40px;padding
 [data-mechanism-color="teal"] {--legend-color:#55b6ad;}
 [data-mechanism-color="silver"] {--legend-color:#c5d6ef;}
 [data-mechanism-color="gold"] {--legend-color:#e0ac69;}
+
+
+/* The muscle view overlays the stage so the model and reader keep their height. */
+#product-root .pd-anatomy-toggle {
+  position:absolute;
+  inset-block-start:8px;
+  inset-inline-end:8px;
+  z-index:3;
+  min-height:44px;
+  padding:7px 10px;
+  font-size:13px;
+}
+#product-root .pd-anatomy-key {
+  position:absolute;
+  inset-inline-start:10px;
+  inset-block-end:8px;
+  max-inline-size:calc(100% - 20px);
+  padding:5px 8px;
+  border-radius:7px;
+  background:var(--deck-inset,#191820);
+  color:var(--pd-accent);
+  font-size:12px;
+  line-height:1.4;
+  pointer-events:none;
+}
+
+body.bm-studio.bm-deck #product-root #pd-course-model .pd-anatomy-toggle[aria-pressed="true"] {
+  color:#24190f!important;
+  background:var(--pd-accent,#eeb691)!important;
+  border-color:#f5d4c1!important;
+}

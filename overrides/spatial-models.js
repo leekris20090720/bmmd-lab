@@ -187,6 +187,75 @@
       }
       rod(parent,graphite,[-1.03,2.08,-.28],[.40,2.08,-.28],.082);
     }
+    function legExtension(parent){
+      shade(parent,0,.015,0,4.7,3.3);
+      for(const x of [-.97,.97]){
+        tube(parent,graphite,[[x,.12,1.14],[x,.12,-.87],[x,.23,-1.06],[x,.95,-1.03]],.092,24);
+      }
+      rod(parent,graphite,[-.94,.14,.74],[.94,.14,.74],.092);
+      rod(parent,chrome,[0,.22,-.30],[0,.93,-.30],.075);
+      soft(parent,ceramic,0,.94,.05,.96,.16,.83).rotation.x=-.09;
+      soft(parent,rubber,0,1.28,-.47,.93,.74,.20).rotation.x=.18;
+      tube(parent,graphite,[[1.03,.25,-.70],[1.03,1.83,-.70],[.77,2.05,-.67],[.45,2.05,-.67]],.080,26);
+      for(let i=0;i<9;i++)soft(parent,i===3?bronze:rubber,.98,.31+i*.115,-.80,.48,.081,.44);
+      for(const x of [.85,1.11])rod(parent,chrome,[x,.22,-.73],[x,1.73,-.73],.023);
+      wheel(parent,.74,1.10,.46,.28,'x');
+      tube(parent,chrome,[[.73,1.09,.48],[.74,.75,.69],[.74,.47,.96],[.60,.43,1.06]],.058,18);
+      cylinder(parent,rubber,.17,.43,1.06,.143,.88,'x');
+      cylinder(parent,bronze,-.29,.43,1.06,.081,.055,'x');
+      tube(parent,bronze,[[.98,1.66,-.72],[.99,1.93,-.71],[.88,1.94,-.23],[.76,1.33,.33]],.016,24);
+    }
+    function rowingStation(parent){
+      shade(parent,0,.015,0,5.0,3.2);
+      tube(parent,graphite,[[0,.18,1.62],[0,.18,-.96],[0,.33,-1.20],[0,1.81,-1.24]],.11,32);
+      for(const z of [1.47,-1.11])rod(parent,graphite,[-.78,.18,z],[.78,.18,z],.095);
+      for(const x of [-.25,.25])rod(parent,chrome,[x,.31,1.43],[x,.31,-.22],.042);
+      soft(parent,ceramic,0,.56,.85,.76,.15,.53);
+      soft(parent,graphite,0,.40,.85,.39,.18,.40);
+      soft(parent,graphite,0,1.04,-1.28,.79,1.68,.47);
+      for(let i=0;i<8;i++)soft(parent,i===3?bronze:rubber,0,.37+i*.135,-.99,.49,.093,.25);
+      for(const x of [-.30,.30]){
+        const plate=group(parent,x,.47,-.59);plate.rotation.x=-.59;
+        soft(plate,graphite,0,0,0,.40,.45,.09);
+        for(let i=0;i<5;i++)rod(plate,rubber,[-.14,-.16+.08*i,.049],[.14,-.16+.08*i,.049],.012);
+      }
+      wheel(parent,0,.77,-.96,.186);
+      rod(parent,bronze,[0,.77,-.85],[0,1.03,.53],.017);
+      tube(parent,chrome,[[-.26,1.06,.68],[-.19,1.02,.52],[0,1.02,.53],[.19,1.02,.52],[.26,1.06,.68]],.037,22);
+      for(const x of [-.26,.26])cylinder(parent,rubber,x,1.05,.72,.046,.16,'z');
+    }
+    function flyStation(parent){
+      shade(parent,0,.015,0,5.1,3.45);
+      tube(parent,graphite,[[-1.30,.12,.72],[-1.31,.12,-.61],[-1.19,.31,-.88],[-1.15,2.30,-.88],[-.93,2.58,-.88],[.93,2.58,-.88],[1.15,2.30,-.88],[1.19,.31,-.88],[1.31,.12,-.61],[1.30,.12,.72]],.103,56);
+      soft(parent,graphite,0,1.30,-1.0,.55,2.29,.44);
+      for(let i=0;i<10;i++)soft(parent,i===5?bronze:rubber,0,.44+i*.126,-.70,.35,.09,.24);
+      rod(parent,chrome,[0,.12,.17],[0,.74,.17],.086);
+      soft(parent,ceramic,0,.79,.27,.78,.17,.64);
+      soft(parent,rubber,0,1.29,-.13,.62,.91,.18).rotation.x=.12;
+      for(const side of [-1,1]){
+        cylinder(parent,chrome,side*.88,2.28,-.62,.208,.16);
+        cylinder(parent,bronze,side*.88,2.19,-.62,.115,.12);
+        tube(parent,graphite,[[side*.88,2.23,-.62],[side*1.43,2.22,-.38],[side*1.55,2.14,.20],[side*1.49,1.81,.81],[side*1.28,1.37,1.02]],.074,30);
+        cylinder(parent,rubber,side*1.28,1.30,1.02,.053,.37);
+      }
+    }
+    function shoulderStation(parent){
+      shade(parent,0,.015,0,4.8,3.25);
+      for(const x of [-.93,.93]){
+        tube(parent,graphite,[[x,.15,1.23],[x,.15,-.84],[x,.47,-1.01],[x,2.11,-.84]],.099,29);
+        wheel(parent,x,2.04,-.58,.244,'x');
+        tube(parent,chrome,[[x,2.04,-.58],[x,2.20,-.17],[x*.83,2.24,.49],[x*.71,2.20,.69]],.059,24);
+        cylinder(parent,rubber,x*.56,2.20,.69,.055,.36,'x');
+        tube(parent,graphite,[[x,2.02,-.60],[x*1.18,1.79,-.96],[x*1.29,1.69,-1.19]],.069,18);
+        cylinder(parent,bronze,x*1.29,1.68,-1.18,.105,.12,'x');
+        wheel(parent,x*1.18,1.71,-1.18,.29,'x');
+      }
+      rod(parent,graphite,[-.94,2.20,-.82],[.94,2.20,-.82],.096);
+      rod(parent,chrome,[0,.18,.14],[0,.74,.14],.087);
+      soft(parent,ceramic,0,.79,.27,.80,.17,.66);
+      soft(parent,rubber,0,1.35,-.08,.63,.98,.20).rotation.x=.18;
+      soft(parent,ceramic,0,1.94,-.19,.32,.29,.16);
+    }
     function terminal(parent,x,z){
       rod(parent,graphite,[x,.04,z],[x,.83,z],.12);
       const head=group(parent,x,.90,z);head.rotation.x=-.24;
@@ -248,7 +317,7 @@
     const exhibit=group(world);
     capsule(exhibit,1,2.76,1.91);
     const variants={};
-    for(const [id,build] of Object.entries({rack:bench,cable:cableMachine,incline:inclineMachine,seated:seatedMachine})){
+    for(const [id,build] of Object.entries({rack:bench,cable:cableMachine,incline:inclineMachine,seated:seatedMachine,extension:legExtension,row:rowingStation,fly:flyStation,shoulder:shoulderStation})){
       const item=group(exhibit);build(item);variants[id]=item;
     }
     const reserved=new Set([...Object.values(tiles),...Object.values(strips)]);
