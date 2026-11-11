@@ -5,10 +5,10 @@
   const length=1320;
   const rad=Math.PI/180;
   const plateSelectors=[
-    '[data-deck-plate]','.deck-bays > *','#pd-header','.pd-subnav',
+    '[data-deck-plate]','.deck-bays > *','#pd-header',
     '#pd-content > :is(section,article,form,.pd-plan,.pd-doors,.pd-course-directory,.ex-library-controls)',
     '.pd-ex-layout > *','.pd-course-workspace > *','.ex-topic',
-    '#pd-content > div:not(.pd-ex-layout,.pd-course-workspace,.pd-plot-grid,.ex-library-topics)',
+    '#pd-content > div:not(.pd-ex-layout,.pd-course-workspace,.pd-plot-grid,.ex-library-topics,.pd-plan-toolbar,.pd-learn-intro,.pd-learn-layout,.ex-library-intro)',
     '#engineering-root :is(.eng-top,.eng-heading,.eng-models,.eng-hero,.eng-stage,.eng-parameters,.eng-position,.eng-panel,.eng-graph,.eng-observe,.eng-layout > *,.did-lab-header,.did-detailed-readouts)',
     '.pg-header','.pg-tabs','.pg-content > :not(.pg-gallery)',
     '.pg-gallery :is(.pg-gallery-intro,.pg-gallery-filters,.pg-gallery-display,.pg-gallery-navigation)','.pg-footer'
@@ -148,7 +148,7 @@
     for(const {node,rect,keys,visible} of frames){
       if(!visible){node.removeAttribute('data-deck-active');continue;}
       const x=rect.left+rect.width/2-w/2,y=rect.top+rect.height/2-h/2;
-      const dock=node.id==='pd-header'||node.matches('.pd-subnav,.pg-header,.pg-tabs,.pg-footer');
+      const dock=node.id==='pd-header'||node.matches('.pg-header,.pg-tabs,.pg-footer');
       const wide=rect.width>w*.73;
       const rx=dock?-2.8:narrow?1.2:wide?2.0:4.0;
       const ry=narrow||dock?0:wide?-0.65:x>0?-2.6:1.5;

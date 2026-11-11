@@ -21,9 +21,7 @@
     doc.body.dataset.courseLayout = 'split';
     demo.classList.add('pd-course-persistent');
     const create = (tag, className) => { const node = doc.createElement(tag); node.className = className; return node; };
-    const top = create('div', 'pd-course-topline');
-    top.append(main.querySelector('.pd-return-bar'), main.querySelector('.pd-page-heading'));
-    main.prepend(top);
+    main.querySelector('.pd-page-topline').classList.add('pd-course-topline');
     content.querySelector('.pd-lead')?.remove(); // The same introduction remains in Overview.
     content.querySelector('.pd-course-toc')?.remove();
     const workspace = create('div', 'pd-course-workspace');

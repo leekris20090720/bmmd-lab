@@ -4,10 +4,10 @@
   const B = window.BM = window.BM || {};
   const t = (z,e) => B.i18n?.getLanguage() === 'en' ? e : z;
   const rooms = {
-    train: {number:'01',title:['训练','Train'],note:['计划、重量与每一组','Plans, loads and sets'],route:'train/plans',x:-3.62,z:2.54,yaw:-.42},
-    learn: {number:'02',title:['动作学习','Movement'],note:['人体动作与器械结构','Movement and machine structure'],route:'learn',x:3.62,z:2.54,yaw:.57},
-    lab: {number:'03',title:['力学实验','Mechanics'],note:['改变参数，验证原理','Change a variable and test it'],route:'learn/experiments',x:-3.62,z:-2.54,yaw:-.52},
-    interact: {number:'04',title:['互动展厅','Explore'],note:['转动器械，观察细节','Turn a machine and examine it'],x:3.62,z:-2.54,yaw:1.22}
+    train: {title:['训练','Train'],note:['计划、重量与每一组','Plans, loads and sets'],route:'train/plans',x:-3.62,z:2.54,yaw:-.42},
+    learn: {title:['动作学习','Movement'],note:['人体动作与器械结构','Movement and machine structure'],route:'learn',x:3.62,z:2.54,yaw:.57},
+    lab: {title:['力学实验','Mechanics'],note:['改变参数，验证原理','Change a variable and test it'],route:'learn/experiments',x:-3.62,z:-2.54,yaw:-.52},
+    interact: {title:['互动展厅','Explore'],note:['转动器械，观察细节','Turn a machine and examine it'],x:3.62,z:-2.54,yaw:1.22}
   };
   const stations = {
     train: [
@@ -29,7 +29,7 @@
     const room = rooms[id];
     const attrs = mark ? `class="spatial-marker" data-spatial-marker="${id}" tabindex="-1"` : `data-spatial-door="${id}"`;
     const detail = mark ? '' : `<small>${t(...room.note)}</small>`;
-    const body = `<span class="spatial-number">${room.number}</span><span class="spatial-door-text"><strong>${t(...room.title)}</strong>${detail}</span>${mark?'':'<span class="spatial-arrow" aria-hidden="true">↗</span>'}`;
+    const body = `<span class="spatial-door-text"><strong>${t(...room.title)}</strong>${detail}</span>${mark?'':'<span class="spatial-arrow" aria-hidden="true">↗</span>'}`;
     return room.route ? `<a ${attrs} href="#${id==='train'&&trainRoute?trainRoute:room.route}">${body}</a>` :
       `<button ${attrs} type="button" data-pd-explore aria-haspopup="dialog">${body}</button>`;
   }
@@ -59,9 +59,8 @@
   function home(trainRoute) {
     return `<section class="deck-hub" aria-labelledby="bm-spatial-title">
       <header class="deck-hub-title">
-        <p class="deck-label">BM//MD <span>  / MOTION LAB</span></p>
-        <h1 id="bm-spatial-title" data-heading-renderer="studio">${t('让力，显形。','Force takes form.')}</h1>
-        <p>${t('从一根钢索，到完成的一组动作。转动场景，选择你想观察的部分。','From a steel cable to a completed set. Orbit the scene and choose a station.')}</p>
+        <h1 id="bm-spatial-title" data-heading-renderer="studio">${t('动作力学馆','Movement mechanics')}</h1>
+        <p>${t('看懂器械怎样传递力量，记录你完成的每一组。','See how machines transmit force and log the sets you complete.')}</p>
       </header>
       <div class="deck-hub-model">${stage('hall',true,false,trainRoute)}</div>
       <nav class="deck-bays spatial-doors" aria-label="${t('舱室入口','Deck stations')}">
