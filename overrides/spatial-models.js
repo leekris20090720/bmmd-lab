@@ -2,6 +2,31 @@
 (() => {
   'use strict';
   const B=window.BM=window.BM||{};
+  B.lightSpatialScene = (T,renderer,scene)=>{
+    renderer.toneMapping = T.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.23;
+    scene.background = new T.Color(0x101017);
+    const envCanvas=document.createElement('canvas');envCanvas.width=512;envCanvas.height=256;
+    const paint=envCanvas.getContext('2d');
+    paint.fillStyle='#333140';paint.fillRect(0,0,512,256);
+    function softbox(x,y,w,h,color){
+      const fade=paint.createLinearGradient(x,y,x+w,y+h);
+      fade.addColorStop(0,'#817b8a');fade.addColorStop(.42,color);fade.addColorStop(1,'#857e8d');
+      paint.fillStyle=fade;paint.fillRect(x,y,w,h);
+    }
+    softbox(25,41,91,106,'#f4e8dc');softbox(187,55,127,54,'#ffffff');
+    softbox(375,60,50,142,'#c3b5eb');softbox(118,160,13,65,'#f6d1af');
+    const panorama=new T.CanvasTexture(envCanvas);
+    panorama.mapping=T.EquirectangularReflectionMapping;panorama.colorSpace=T.SRGBColorSpace;
+    const generator=new T.PMREMGenerator(renderer);
+    scene.environment=generator.fromEquirectangular(panorama).texture;scene.environmentIntensity=1.25;
+    panorama.dispose();generator.dispose();panorama.dispose();
+    scene.add(new T.HemisphereLight(0xdfd7f1,0x353242,1.45));
+    const key=new T.DirectionalLight(0xffe3c6,2.65);
+    key.position.set(-5,11,7);scene.add(key);
+    const rim=new T.DirectionalLight(0xa9a1db,2.30);
+    rim.position.set(8,6,-7);scene.add(rim);
+  };
   B.buildSpatialStudio=({THREE:T,RoundedBoxGeometry})=>{
     const world=new T.Group();
     const make=(color,metalness,roughness)=>new T.MeshStandardMaterial({color,metalness,roughness});

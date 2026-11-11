@@ -419,3 +419,50 @@ body.bm-studio.bm-deck #engineering-root :is(.viewport-control-toolbar,.eng-stag
 }
 body.bm-studio.bm-deck #engineering-root :is(.eng-stage-caption,th) {color:var(--pd-muted);}
 body.bm-studio.bm-deck #engineering-root th {background:var(--pd-wash);}
+
+/* The rotating mechanism and its orthographic diagram share the same controls. */
+.bm-mechanism {
+  min-width:0;
+  border-radius:12px;
+}
+.bm-mechanism-stage,.bm-mechanism-tools {display:none;}
+.bm-mechanism[data-mechanism-mode="3d"] .bm-mechanism-stage {
+  display:block;
+  height:clamp(230px,30vw,385px);
+  border-radius:12px;
+  background:var(--pd-bg);
+  overflow:hidden;
+  touch-action:pan-y;
+}
+.pd-live-stage .bm-mechanism[data-mechanism-mode="3d"] .bm-mechanism-stage {height:clamp(175px,20vw,245px);}
+.bm-mechanism-stage canvas {display:block;width:100%;height:100%;cursor:grab;}
+.bm-mechanism-stage canvas:active {cursor:grabbing;}
+.bm-mechanism-stage canvas:focus-visible {outline-offset:-4px!important;}
+.bm-mechanism:is([data-mechanism-mode="3d"],[data-mechanism-mode="2d"]) .bm-mechanism-tools {
+  display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:7px 0;
+}
+.bm-mechanism-tools > span {margin-right:auto;color:var(--pd-muted);font-size:12px;line-height:1.4;}
+body.bm-studio #product-root .bm-mechanism-tools button {min-height:40px;padding:5px 8px;font-size:12px;}
+.bm-mechanism[data-mechanism-mode="3d"] > .bm-mechanism-diagram {display:none!important;}
+@media(max-width:700px){
+  body.bm-studio #product-root .bm-mechanism-tools button {min-height:44px;}
+}
+.bm-mechanism-readouts {display:none;}
+.bm-mechanism[data-mechanism-mode="3d"] .bm-mechanism-readouts {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  margin:0;padding:10px 4px 5px;font-variant-numeric:tabular-nums;
+}
+.bm-mechanism-readouts dt {font-size:12px;color:var(--pd-muted);}
+.bm-mechanism-readouts dd {margin:0;color:var(--pd-ink);font-size:13px;white-space:nowrap;}
+.bm-mechanism-readouts output {font-weight:650;color:var(--pd-accent);}
+.bm-mechanism-legend {display:none;}
+.bm-mechanism[data-mechanism-mode="3d"] .bm-mechanism-legend:not(:empty) {
+  display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 2px 1px;
+  font-size:12px;color:var(--pd-muted);
+}
+.bm-mechanism-legend > span {display:inline-flex;align-items:center;gap:5px;}
+.bm-mechanism-legend > span::before {content:"";width:6px;height:6px;border-radius:50%;background:var(--legend-color);}
+[data-mechanism-color="copper"] {--legend-color:#f2bb96;}
+[data-mechanism-color="teal"] {--legend-color:#55b6ad;}
+[data-mechanism-color="silver"] {--legend-color:#c5d6ef;}
+[data-mechanism-color="gold"] {--legend-color:#e0ac69;}

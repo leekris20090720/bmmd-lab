@@ -88,29 +88,8 @@
   function createGraphics() {
     const T = B.ThreeRuntime.THREE;
     const renderer = new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});
-    renderer.toneMapping = T.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.23;
-    const scene = new T.Scene(); scene.background = new T.Color(0x101017);
-    const envCanvas=document.createElement('canvas');envCanvas.width=512;envCanvas.height=256;
-    const paint=envCanvas.getContext('2d');
-    paint.fillStyle='#333140';paint.fillRect(0,0,512,256);
-    function softbox(x,y,w,h,color){
-      const fade=paint.createLinearGradient(x,y,x+w,y+h);
-      fade.addColorStop(0,'#817b8a');fade.addColorStop(.42,color);fade.addColorStop(1,'#857e8d');
-      paint.fillStyle=fade;paint.fillRect(x,y,w,h);
-    }
-    softbox(25,41,91,106,'#f4e8dc');softbox(187,55,127,54,'#ffffff');
-    softbox(375,60,50,142,'#c3b5eb');softbox(118,160,13,65,'#f6d1af');
-    const panorama=new T.CanvasTexture(envCanvas);
-    panorama.mapping=T.EquirectangularReflectionMapping;panorama.colorSpace=T.SRGBColorSpace;
-    const generator=new T.PMREMGenerator(renderer);
-    scene.environment=generator.fromEquirectangular(panorama).texture;scene.environmentIntensity=1.25;
-    generator.dispose();panorama.dispose();
-    scene.add(new T.HemisphereLight(0xdfd7f1,0x353242,1.45));
-    const key=new T.DirectionalLight(0xffe3c6,2.65);
-    key.position.set(-5,11,7);scene.add(key);
-    const rim=new T.DirectionalLight(0xa9a1db,2.30);
-    rim.position.set(8,6,-7);scene.add(rim);
+    const scene = new T.Scene();
+    B.lightSpatialScene(T,renderer,scene);
     const model = B.buildSpatialStudio(B.ThreeRuntime), trace = B.buildSpatialTrace(T);
     scene.add(model.world,trace.world);
     const camera = new T.PerspectiveCamera(34,1,.12,100);

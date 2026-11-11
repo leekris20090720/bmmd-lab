@@ -208,6 +208,7 @@
           path('pd-live-energy', 'M90 251H' + (90 + ratio * 320)); set('pd-live-time', 't = ' + num(r.metrics.time) + ' s');
           set('pd-live-input', t('手柄瞬时机械功率', 'Instantaneous handle power') + ' · P'); set('pd-live-output', num(r.metrics.power, 1));
         }
+        B.MechanismView?.show(svg,r);
         host.style.setProperty('--pd-live-progress', q);
         host.dataset.liveProgress = q.toFixed(3);
       }
