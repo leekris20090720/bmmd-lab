@@ -131,10 +131,37 @@
   const topics = [
     { id: 'direction', name: ['侧平举拉力', 'Lateral-raise force'], title: ['侧平举：同一拉力，方向为什么重要？', 'Lateral raise: why does force direction matter?'], copy: ['固定一个抬臂姿态，把抬臂切线设为+x，观察钢索拉力沿这个方向的分量。', 'Fix one pose, define +x along the raising tangent, and inspect the cable-force component.'], formula: 'Fₓ = F cos α', unit: 'N' },
     { id: 'lever', name: ['腿屈伸力臂', 'Leg-extension arm'], title: ['腿屈伸：同样滚垫力，膝部力矩为何会变？', 'Leg extension: same pad force, different knee moment?'], copy: ['固定垂直滚垫力100 N，只比较膝轴到接触点的距离；不是个人座椅调节建议。', 'Hold perpendicular pad force at 100 N and vary knee-to-pad distance. This is not personal setup advice.'], formula: 'τ = F × d', unit: 'N·m' },
-    { id: 'power', name: ['滑轮动作节奏', 'Cable tempo'], title: ['同样滑轮行程，做快一点为何功率更高？', 'Why does faster cable travel raise power?'], copy: ['用同一配重完成同一手柄行程，观察速度与瞬时功率；机械功不是热量消耗。', 'Keep stack and handle travel fixed and compare speed with instantaneous power. Mechanical work is not calories.'], formula: 'P = Fv; Pavg = W/T', unit: 'W' }
+    { id: 'power', name: ['滑轮动作节奏', 'Cable tempo'], title: ['拉得快，功率为何更高？', 'Same travel, why does a faster pull raise power?'], copy: ['固定配重和手柄行程，比较不同速度下的瞬时功率。机械功与人体消耗的热量是不同的量。', 'Keep the stack and handle travel fixed, then compare instantaneous power at different speeds. Mechanical work and calories burned measure different quantities.'], formula: 'P = Fv, P̄ = W/T', unit: 'W' }
   ];
   function overviewHTML(t) {
-    return `<section id="pd-learning-live" class="pd-live-lab" aria-labelledby="pd-live-title"><div class="pd-live-top"><span class="pd-live-eyebrow"><i aria-hidden="true"></i>${t('让原理动起来', 'MECHANICS IN MOTION')}</span><button type="button" id="pd-live-play">${t('暂停演示', 'Pause demo')}</button></div><div class="pd-live-grid"><div class="pd-live-copy"><div class="pd-live-topics" role="group" aria-label="${t('选择演示主题', 'Choose a demonstration')}">${topics.map((s, i) => `<button type="button" data-live-topic="${i}" aria-pressed="${i === 0}">${t(...s.name)}<span aria-hidden="true"></span></button>`).join('')}</div><h2 id="pd-live-title">${t(...topics[0].title)}</h2><p id="pd-live-copy">${t(...topics[0].copy)}</p><p class="pd-live-formula" id="pd-live-formula">Fₓ = F cos α</p><a href="#experiment/direction" id="pd-live-link">${t('亲手试这个实验', 'Try this experiment yourself')} ↗</a></div><div class="pd-live-stage"><svg id="pd-live-svg" viewBox="0 0 500 280" role="img" aria-label="${t('侧平举拉力、腿屈伸力臂与滑轮功率演示', 'Lateral-raise force, knee-extension arm and cable power')}"></svg><div class="pd-live-values"><span id="pd-live-input"></span><strong><output id="pd-live-output"></output> <small id="pd-live-unit">N</small></strong></div></div></div><div class="pd-live-bottom"><span id="pd-live-status">${t('正在准备图解', 'Preparing the diagram')}</span><span>${t('理想模型 · 自动读数来自同一计算', 'Ideal models · readings share the diagram’s calculation')}</span></div></section>`;
+    return `<section id="pd-learning-live" class="pd-live-lab" aria-labelledby="pd-live-heading">
+      <header class="pd-live-top">
+        <h2 id="pd-live-heading">${t('力学演示', 'Mechanics demonstrations')}</h2>
+        <button type="button" id="pd-live-play">${t('暂停演示', 'Pause demo')}</button>
+      </header>
+      <div class="pd-live-topics" role="group" aria-label="${t('选择演示主题', 'Choose a demonstration')}">
+        ${topics.map((s, i) => `<button type="button" data-live-topic="${i}" aria-pressed="${i === 0}">${t(...s.name)}<span aria-hidden="true"></span></button>`).join('')}
+      </div>
+      <div class="pd-live-grid">
+        <div class="pd-live-copy">
+          <h3 id="pd-live-title">${t(...topics[0].title)}</h3>
+          <p id="pd-live-copy">${t(...topics[0].copy)}</p>
+          <p class="pd-live-formula" id="pd-live-formula">${topics[0].formula}</p>
+          <a href="#experiment/direction" id="pd-live-link">${t('打开完整实验', 'Open full experiment')} ↗</a>
+        </div>
+        <figure class="pd-live-stage">
+          <svg id="pd-live-svg" viewBox="0 0 500 280" role="img" aria-label="${t('侧平举拉力、腿屈伸力臂与滑轮功率演示', 'Lateral-raise force, knee-extension arm and cable power')}"></svg>
+          <figcaption class="pd-live-values">
+            <span id="pd-live-input"></span>
+            <strong><output id="pd-live-output"></output> <small id="pd-live-unit">N</small></strong>
+          </figcaption>
+        </figure>
+      </div>
+      <footer class="pd-live-bottom">
+        <span id="pd-live-status">${t('正在准备图解', 'Preparing the diagram')}</span>
+        <span>${t('理想模型 · 读数与图解同步', 'Ideal model · live readings')}</span>
+      </footer>
+    </section>`;
   }
   async function mountOverview() {
     leaveOverview();
@@ -158,6 +185,7 @@
         if (s.id === 'direction') svg.innerHTML = defs + grid + `<path class="pd-live-axis" d="M35 215H450M215 245V40"/><text x="443" y="238">x</text><text x="190" y="44">y</text><path class="pd-live-ghost" d="M105 215L274 153M105 215V35M105 215L-64 153" transform="translate(110 0)"/><path id="pd-live-projection" class="pd-live-projection"/><path id="pd-live-component" class="pd-live-component" marker-end="url(#pd-live-arrow)"/><path id="pd-live-force" class="pd-live-force" marker-end="url(#pd-live-arrow)"/><circle cx="215" cy="215" r="6" class="pd-live-pivot"/><text x="358" y="53">F = 100 N</text><text id="pd-live-angle" x="245" y="246"></text>`;
         if (s.id === 'lever') svg.innerHTML = defs + grid + `<path class="pd-live-axis" d="M70 234H450"/><path class="pd-live-ghost" d="M160 70V230M360 70V230"/><path id="pd-live-arm" class="pd-live-arm"/><path id="pd-live-force" class="pd-live-force" marker-end="url(#pd-live-arrow)"/><path id="pd-live-distance" class="pd-live-component"/><circle cx="80" cy="195" r="7" class="pd-live-pivot"/><text x="60" y="264">O</text><text x="285" y="53">F = 100 N</text><text id="pd-live-distance-label" x="125" y="253"></text>`;
         if (s.id === 'power') svg.innerHTML = defs + grid + `<path class="pd-live-axis" d="M65 174H445"/><path class="pd-live-ghost" d="M100 65V210M400 65V210"/><path id="pd-live-cable" class="pd-live-spring"/><rect id="pd-live-mass" y="110" width="64" height="64" rx="12"/><path class="pd-live-energy-track" d="M90 251H410"/><path id="pd-live-energy" class="pd-live-energy"/><text x="65" y="53">${t('理想滑轮手柄的单程位移', 'Ideal cable handle, one-way travel')}</text><text id="pd-live-time" x="300" y="236"></text>`;
+        svg.setAttribute('aria-label', t(...s.name));
         host.dataset.liveTopic = s.id;
       }
       function draw(q) {

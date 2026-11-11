@@ -152,7 +152,8 @@
       const wide=rect.width>w*.73;
       const rx=dock?-2.8:narrow?1.2:wide?2.0:4.0;
       const ry=narrow||dock?0:wide?-0.65:x>0?-2.6:1.5;
-      const nativePlane=node.matches('.pd-course-reader,.pd-course-demo');
+      // Keep the projected housing, but square the working surfaces to the screen.
+      const nativePlane=node.closest('#product-root,#engineering-root');
       const ax=nativePlane?0:rx*Math.min(1,680/rect.height),ay=nativePlane?0:ry;
       const transform=nativePlane?'none':`translate(${-x.toFixed(2)}px,${-y.toFixed(2)}px) perspective(${length}px) translate(${x.toFixed(2)}px,${y.toFixed(2)}px) rotateX(${ax.toFixed(3)}deg) rotateY(${ay.toFixed(3)}deg)`;
       if(node.style.getPropertyValue('--deck-transform')!==transform)node.style.setProperty('--deck-transform',transform);
