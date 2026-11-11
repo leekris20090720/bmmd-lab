@@ -84,9 +84,18 @@
   const clamp = (n,lo,hi) => Math.min(hi,Math.max(lo,n));
   let graphics, host, pageHost, galleryHost, listeners, resize, visibility, visible = false, load, failed = false, frame = 0;
   let instrumentStart=0, instrumentSignal={}, instrumentKind;
-  let scanOverride, scanReading, scanRequested=false, demoTap=null, previewStart=null, previewOffset=0;
+  const SCAN_PASS=2400, IDLE_HOLD=2600;
+  let scanReading, scanRequested=false, demoTap=null, previewStart=null, previewOffset=0;
+  let idleStage=false, idleTime=0, idleYaw=0, idleUntil=0, orbitHeld=false, scanHeld=false;
+  let scanTime=0, lastScanStep=0, lastTick=0, ambientWake=0;
+  function cue(name) {
+    if(document.body.hasAttribute('data-explore-open')&&!document.hidden)
+      window.dispatchEvent(new CustomEvent('bm:explore-sound',{detail:name}));
+  }
   let turn=0,pitch=0,shownTurn=0,shownPitch=0,lastDraw=0,previousView,transition,lost=false,traceData,markers=[];
-  const stop = () => { cancelAnimationFrame(frame); frame=0; };
+  const stop=()=>{
+    cancelAnimationFrame(frame);clearTimeout(ambientWake);frame=ambientWake=0;lastDraw=0;
+  };
   function createGraphics() {
     const T = B.ThreeRuntime.THREE;
     const renderer = new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});
@@ -123,7 +132,7 @@
     const radius=(isHall?(compact?30:21.4):isTrace?8.05:isInstrument?6.65:isExhibit?7.85:9.2)
       * Math.max(1,(isHall?1.46:preview?1:1.25)/camera.aspect);
     const compassView=isInstrument&&instrumentKind==='compass';
-    const angle=(compassView?.26:layout.yaw)+shownTurn+previewOffset;
+    const angle=(compassView?.26:layout.yaw)+shownTurn+previewOffset+idleYaw;
     const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:isInstrument?compassView?.63:.34:.47)+shownPitch,.22,1.26);
     const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:isInstrument?compassView?.46:1.05:.89,layout.z);
     const ground = radius*Math.cos(elevation);
@@ -134,7 +143,7 @@
     frame=0;
     if (!host || !graphics || !visible || document.hidden || lost) return;
     const {renderer,scene,camera,model,trace,point,look}=graphics;
-    const dt=lastDraw?Math.min(45,now-lastDraw):17;
+    const dt=lastDraw?Math.min(70,now-lastDraw):0;
     lastDraw=now;
     const relax=reduced()?1:1-Math.exp(-dt/43);
     shownTurn=Math.abs(turn-shownTurn)<.002?turn:shownTurn+(turn-shownTurn)*relax;
@@ -144,27 +153,40 @@
     if(isTrace && traceData?.route===document.body.dataset.bmRoute)trace.update(...traceData.args);
     else trace.world.visible=false;
     const quiet=reduced(),isScanner=instrumentKind==='scanner',isDemo=instrumentKind==='metronome';
-    const scanFraction=scanOverride ?? (quiet?(scanRequested?1:.55):clamp((now-instrumentStart)/1700,0,1));
-    const scanning=isScanner&&scanOverride===undefined&&!quiet&&scanFraction<1;
-    if(isScanner){
-      const reading=Math.round(scanFraction*100)+'/'+scanning;
-      if(reading!==scanReading){
-        scanReading=reading;
-        host.dispatchEvent(new CustomEvent('bm:scan',{detail:{fraction:scanFraction,moving:scanning}}));
-      }
-    }
+    const canIdle=idleStage&&!quiet;
+    const autonomous=canIdle&&!orbitHeld&&!scanHeld&&now>=idleUntil;
+    if(autonomous)idleTime+=dt;
     const demoTime=isDemo&&demoTap!==null?clamp((now-demoTap)/650,0,1):1;
     const demoActive=isDemo&&demoTime<1;
-    const intro=isDemo&&!quiet?clamp((now-instrumentStart)/2300,0,1):1;
-    const demoSwing=intro<1&&demoTap===null;
-    const swing=Math.sin(intro*Math.PI*4)*(1-intro)*.46;
+    const rocking=isDemo&&!quiet;
+    const tickIndex=Math.floor(idleTime/700),tickPhase=idleTime%700/700;
+    if(rocking&&autonomous&&tickIndex!==lastTick){
+      lastTick=tickIndex;
+      if(!demoActive)cue('tick');
+    }
+    const swing=Math.cos(idleTime*Math.PI/700)*.47;
     const state=demoActive
       ? {scale:1+.30*demoTime,near:true,beat:1,reaction:'on-time',strength:quiet?1:1-demoTime}
-      : demoSwing ? {scale:1.27-.20*Math.abs(swing)/.46,swing} : instrumentSignal;
+      : rocking ? {scale:1.04+.22*Math.sin(Math.PI*tickPhase),swing,near:tickPhase<.14} : instrumentSignal;
+
+    let scanFraction=0;
+    if(isScanner){
+      if(autonomous)scanTime+=dt;
+      const travel=scanTime/SCAN_PASS,step=Math.floor(travel),phase=travel%2;
+      scanFraction=quiet&&!scanRequested?.55:phase<=1?phase:2-phase;
+      if(autonomous&&step!==lastScanStep){lastScanStep=step;cue('scan');}
+      const reading=Math.round(scanFraction*100)+'/'+autonomous;
+      if(reading!==scanReading){
+        scanReading=reading;
+        host.dispatchEvent(new CustomEvent('bm:scan',{detail:{fraction:scanFraction,moving:autonomous}}));
+      }
+    }
+
     const arrival=previewStart!==null&&!quiet?clamp((now-previewStart)/640,0,1):1;
     const arriving=arrival<1;
     previewOffset=arriving?.34*(1-arrival)**3:0;
-    if(instrumentKind)model.updateInstrument(state,quiet,scanFraction,arrival);
+    if(!isScanner&&!isDemo&&idleStage)idleYaw=quiet?0:.32*Math.sin(idleTime/2200);
+    if(instrumentKind)model.updateInstrument(state,quiet,scanFraction,arrival,quiet?0:idleTime/1000);
     const target = pose();
     if (transition && !reduced()) {
       const time = clamp((now-transition.start)/660,0,1), ease=1-Math.pow(1-time,3);
@@ -186,9 +208,11 @@
       marker.hidden = Math.abs(point.x)>.91 || Math.abs(point.y)>.91 || point.z>1;
     }
     host.setAttribute('data-spatial-ready','true');
-    if(transition||shownTurn!==turn||shownPitch!==pitch||scanning||demoActive||demoSwing||arriving)drawSoon();
+    if(transition||shownTurn!==turn||shownPitch!==pitch||demoActive||arriving)drawSoon();
+    else if(canIdle&&!orbitHeld&&!scanHeld)ambientWake=setTimeout(drawSoon,Math.max(30,idleUntil-now));
   }
   function drawSoon() {
+    clearTimeout(ambientWake);ambientWake=0;
     if(!frame && host && visible && !document.hidden && !lost) frame=requestAnimationFrame(draw);
   }
   function fit() {
@@ -210,7 +234,14 @@
     shownTurn+=previewOffset;
     previewStart=null;previewOffset=0;
   }
-  function restoreView() { turn=0; pitch=0; transition=null; drawSoon(); }
+  function holdIdle() {
+    if(idleStage)idleUntil=performance.now()+IDLE_HOLD;
+  }
+  function restoreView() {
+    turn=pitch=0;transition=null;
+    if(idleStage){idleYaw=idleTime=0;lastTick=0;holdIdle();}
+    drawSoon();
+  }
   function selectRoom(id) { graphics.model.select(id); drawSoon(); }
   function bind(canvas, signal) {
     const controls = host.querySelector('.spatial-controls');
@@ -225,13 +256,14 @@
       if(event.key==='Home'){event.preventDefault();finishPreview();restoreView();return;}
       const shift=directions[event.key];
       if(!shift)return;
-      event.preventDefault(); transition=null; finishPreview();
+      event.preventDefault(); transition=null; finishPreview();holdIdle();
       turn+=shift[0]; pitch=clamp(pitch+shift[1],-.55,.65); drawSoon();
     },{signal});
     let drag;
     canvas.addEventListener('pointerdown',event=>{
       if (!event.isPrimary || event.button!==0) return;
       drag={id:event.pointerId,x:event.clientX,y:event.clientY,moved:false};
+      orbitHeld=true;holdIdle();
       canvas.setPointerCapture(event.pointerId);
     },{signal});
     canvas.addEventListener('pointermove',event=>{
@@ -243,11 +275,13 @@
       transition=null; turn-=dx*.007; pitch=clamp(pitch+dy*.006,-.55,.65);
       drawSoon();
     },{signal});
-    canvas.addEventListener('pointercancel',()=>{drag=null;},{signal});
+    const endDrag=()=>{drag=null;orbitHeld=false;holdIdle();drawSoon();};
+    canvas.addEventListener('pointercancel',endDrag,{signal});
+    canvas.addEventListener('lostpointercapture',()=>{if(drag)endDrag();},{signal});
     canvas.addEventListener('pointerup',event=>{
       if(drag?.id!==event.pointerId)return;
       const open = !drag.moved && host.classList.contains('spatial-view-full');
-      drag=null;
+      endDrag();
       if(!open)return;
       const {T,ray,camera,model}=graphics;
       const rect=canvas.getBoundingClientRect();
@@ -318,8 +352,10 @@
     instrumentKind=view==='instrument'?element.dataset.spatialVariant:undefined;
     instrumentStart=performance.now();
     previewStart=element.dataset.spatialControls==='orbit'?instrumentStart:null;
-    previewOffset=0;
-    scanOverride=scanReading=undefined;scanRequested=false;
+    idleStage=Boolean(element.closest('.pg-dialog'))&&(view==='exhibit'||Boolean(instrumentKind&&instrumentKind!=='pulse'));
+    idleTime=idleYaw=idleUntil=scanTime=lastScanStep=lastTick=previewOffset=0;
+    orbitHeld=scanHeld=scanRequested=false;
+    scanReading=undefined;
     demoTap=null;instrumentSignal={};
     if(instrumentKind)model.showInstrument(instrumentKind);
     if(element.dataset.spatialLabel)canvas.setAttribute('aria-label',element.dataset.spatialLabel);
@@ -328,7 +364,8 @@
     galleryHost=element;
     if(host===element && graphics && element){
       updateGallery(element);
-      restoreView();
+      turn=pitch=0;transition=null;drawSoon();
+      if(element.dataset.spatialControls==='orbit'||element.dataset.spatialView==='exhibit')cue('select');
     }else currentHost();
   }
   function releaseGallery(element){if(galleryHost===element)gallery(null);}
@@ -341,18 +378,25 @@
   }
   function scan(element,fraction){
     if(host!==element||instrumentKind!=='scanner')return;
-    scanOverride=typeof fraction==='number'?clamp(fraction,0,1):undefined;
+    const scrub=typeof fraction==='number';
+    scanTime=(scrub?clamp(fraction,0,1):reduced()?1:0)*SCAN_PASS;
+    lastScanStep=Math.floor(scanTime/SCAN_PASS);
     scanRequested=true;
-    instrumentStart=performance.now();
+    if(scrub)holdIdle();
+    else {idleUntil=0;cue('scan');}
     drawSoon();
+  }
+  function holdScanner(element,held){
+    if(host!==element||instrumentKind!=='scanner')return;
+    scanHeld=held;holdIdle();drawSoon();
   }
   function tap(element){
     if(host!==element||instrumentKind!=='metronome')return;
-    demoTap=performance.now();drawSoon();
+    demoTap=performance.now();holdIdle();cue('tap');drawSoon();
   }
   function turnPreview(element,direction){
     if(host!==element)return;
-    finishPreview();
+    finishPreview();holdIdle();
     if(direction===0)restoreView();
     else {turn+=direction*.34;drawSoon();}
   }
@@ -376,5 +420,5 @@
     traceData={route:document.body.dataset.bmRoute,args:[rows,reference,x,y]};
     if(host?.dataset.spatialView==='trace')drawSoon();
   }
-  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,scan,tap,turn:turnPreview,updateExperiment};
+  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,scan,holdScanner,tap,turn:turnPreview,updateExperiment};
 })();

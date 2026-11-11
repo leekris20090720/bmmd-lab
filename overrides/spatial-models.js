@@ -436,9 +436,9 @@
       const arrow=mesh(housing,new T.ExtrudeGeometry(needle,{depth:.055,bevelEnabled:true,bevelSize:.021,bevelThickness:.016,bevelSegments:3}),bronze,0,.292,0);
       arrow.rotation.set(-Math.PI/2,0,.48);
       cylinder(housing,chrome,0,.383,0,.098,.061);
-      return {arrive(progress){
+      return {arrive(progress,time){
         const remaining=1-progress;
-        arrow.rotation.z=.48+Math.sin(progress*8.7)*remaining*.90-remaining*.67;
+        arrow.rotation.z=.48+Math.sin(progress*8.7)*remaining*.90-remaining*.67+.25*Math.sin(time*1.24);
       }};
     }
     function atlas(stand){
@@ -456,10 +456,10 @@
           mesh(orbit,new T.SphereGeometry(j===0?.092:.049,18,12),j===0?bronze:softLight,Math.cos(a)*.91,Math.sin(a)*.91,0);
         }
       }
-      return {arrive(progress){
+      return {arrive(progress,time){
         const remaining=1-progress;
-        cell.rotation.y=-remaining*.78;
-        rings.forEach((ring,i)=>{ring.rotation.z=i*.75+(i%2?-1:1)*remaining*1.4;});
+        cell.rotation.y=-remaining*.78+.35*Math.sin(time*.63);
+        rings.forEach((ring,i)=>{ring.rotation.z=i*.75+(i%2?-1:1)*(remaining*1.4+time*(.19+i*.045));});
       }};
     }
     function archive(stand){
@@ -473,8 +473,8 @@
         for(let i=0;i<3;i++)rod(layer,chrome,[-.78,.13,.30-i*.16],[.68-i*.28,.13,.30-i*.16],.013);
         soft(layer,chrome,.62,.01,.66,.63,.058,.062);
       }
-      return {arrive(progress){
-        const reveal=Math.sin(progress*Math.PI);
+      return {arrive(progress,time){
+        const reveal=Math.sin(progress*Math.PI)+.32*Math.sin(time*1.3)**2;
         layers.forEach((layer,i)=>{
           layer.position.x=(i-2)*(.11+.095*reveal);
           layer.position.y=.13+i*.25+i*.09*reveal;
@@ -533,10 +533,10 @@
     for(const node of [...shell,...Object.values(bays),...Object.values(variants)])batch(node);
     world.traverse(node=>{if(node.geometry)retired.delete(node.geometry);});
     for(const g of retired)g.dispose();
-    return {world,anchors,tiles,showInstrument,updateInstrument(signal,quiet,fraction,arrival){
+    return {world,anchors,tiles,showInstrument,updateInstrument(signal,quiet,fraction,arrival,idleTime){
       liveInstrument?.model.pulse?.(signal,quiet);
       liveInstrument?.model.scan?.(fraction);
-      liveInstrument?.model.arrive?.(arrival);
+      liveInstrument?.model.arrive?.(arrival,idleTime);
     },showExhibit(kind){
       for(const [id,fixture] of Object.entries(variants))fixture.visible=id===kind;
     },show(view){
