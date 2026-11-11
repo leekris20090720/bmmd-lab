@@ -234,7 +234,8 @@
       return ({p,progress,metrics:m})=>{
         const angle=p.slope*radians;
         hinge.rotation.z=angle;
-        sled.position.x=.56+(p.mode===2?.48:progress)*1.8;
+        const travel=p.mode===0?progress:p.mode===1?1-progress:.48;
+        sled.position.x=.56+travel*1.8;
         const along=v(Math.cos(angle),Math.sin(angle)), perp=v(-along.y,along.x);
         const weight=Math.hypot(m.gravity,m.normal),scale=1.02/Math.max(1,weight,Math.abs(m.force),Math.abs(m.friction),m.normal);
         const at=v(-1.68,.33,.30).addScaledVector(along,sled.position.x).addScaledVector(perp,.24);
