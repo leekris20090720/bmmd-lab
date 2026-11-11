@@ -10,7 +10,7 @@
     '.pd-ex-layout > :is(.pd-ex-observe,.pd-ex-controls)','.pd-course-workspace > *','.ex-topic',
     '#pd-content > div:not(.pd-ex-layout,.pd-course-workspace,.pd-plot-grid,.ex-library-topics,.pd-plan-toolbar,.pd-learn-intro,.pd-learn-layout,.ex-library-intro,.ex-library-controls,.ex-library-groups)',
     '#engineering-root :is(.eng-top,.eng-heading,.eng-models,.eng-hero,.eng-stage,.eng-parameters,.eng-position,.eng-panel,.eng-graph,.eng-observe,.eng-layout > *,.did-lab-header,.did-detailed-readouts)',
-    '.pg-header','.pg-tabs','.pg-content > :not(.pg-gallery)',
+    '.pg-header','.pg-tabs','.pg-content > :not(.pg-gallery,section.pg-empty)',
     '.pg-gallery :is(.pg-gallery-intro,.pg-gallery-filters,.pg-gallery-display,.pg-gallery-navigation)','.pg-footer'
   ].join(',');
   const keySelectors='button,a.pd-button,nav a,summary,[role=tab],input:not([type=range],[type=checkbox],[type=radio],[type=file]),select,textarea';
@@ -31,7 +31,25 @@
   .pg-dialog .pg-dual-wave .pg-wave-choice small{line-height:1.4}
   .pg-dialog .pg-dual-wave .pg-wave-choice[aria-pressed=true]{--wave-x:0px!important}
   .pg-dialog .pg-dual-wave .pg-wave-choice[aria-pressed=true] small{color:#543221}
+  .pg-dialog .pg-empty{padding:clamp(16px,2.6vw,28px);overflow-wrap:anywhere}
+  .pg-dialog #pg-content > section.pg-empty{
+    border:1px solid var(--ui-line);min-height:0;
+    row-gap:12px!important;text-align:start!important;
+  }
+  .pg-dialog #pg-content > section.pg-empty > p{font-size:14px;line-height:1.7;text-wrap:pretty}
+  .pg-dialog #pg-content > section.pg-empty > p:first-child{font-size:13px}
+  .pg-dialog #pg-content > section.pg-empty > h3{font-size:clamp(20px,2vw,24px);line-height:1.35;font-weight:650;text-wrap:balance}
+  .pg-dialog #pg-content > section.pg-empty > button{
+    min-height:44px;padding:10px 14px;
+    text-align:start;line-height:1.5;text-wrap:pretty;
+  }
+  .pg-dialog #pg-content > section.pg-empty > button:first-of-type{margin-block-start:4px}
+  .pg-dialog .pg-result[aria-selected=true] small,
+  .pg-dialog .pg-result[aria-selected=true] > svg{color:#543221}
   .pg-dialog :is(button,a,input):focus-visible{outline:2px solid #f2bb96!important;outline-offset:2px}
+  .pg-dialog .pg-search-field:focus-within{outline:2px solid var(--ui-focus);outline-offset:2px}
+  .pg-dialog .pg-search-field input:focus-visible{outline:none!important}
+  .pg-dialog .pg-tabs{min-width:0;overflow-x:auto;scrollbar-width:thin}
   .pg-dialog .pg-tabs::before{display:none}
   .pg-dialog:has(> #bm-depth-canvas) .pg-content{background:transparent!important}
   .pg-dialog .pg-footer[data-deck-active]{background:#25232d!important}
@@ -145,8 +163,8 @@
     const frames=faces.map(node=>{
       const rect=node.getBoundingClientRect();
       if(rect.width<50||rect.height<14||rect.top>h+35||rect.bottom<minY-35)return {node,rect,visible:false};
-      // Scrollable gallery rows already draw their own bevel inside the scroll clip.
-      const keys=[...node.querySelectorAll(keySelectors)].filter(el=>!el.closest('.spatial-stage,.pg-gallery-thumbnails')).map(el=>el.getBoundingClientRect()).filter(r=>r.width>=24&&r.height>=23&&r.bottom>minY&&r.top<h).slice(0,54);
+      // Native controls in scroll strips draw their own bevel inside the clip.
+      const keys=[...node.querySelectorAll(keySelectors)].filter(el=>!el.closest('.spatial-stage,.pg-gallery-thumbnails,.pg-search-results,.pg-tabs')).map(el=>el.getBoundingClientRect()).filter(r=>r.width>=24&&r.height>=23&&r.bottom>minY&&r.top<h).slice(0,54);
       return {node,rect,keys,visible:true};
     });
     plane.removeAttribute('data-deck-measuring');
@@ -206,13 +224,29 @@
     }
   });
   changes.observe(document.body,{attributes:true,attributeFilter:['data-bm-route','data-explore-open'],subtree:true,childList:true});
-  const shadowObserver=new MutationObserver(()=>queue(true));
+  const shadowObserver=new MutationObserver(records=>{
+    if(records.some(record=>{
+      const target=record.target.nodeType===1?record.target:record.target.parentElement;
+      return record.type==='attributes'
+        ? target?.matches('.pg-dialog[open],.pg-tabs [aria-selected=true]')
+        : target?.closest('.pg-tabs');
+    })){
+      const list=watchedShadow.querySelector('.pg-dialog[open] .pg-tabs');
+      const active=list?.querySelector('[aria-selected=true]');
+      if(active && list.scrollWidth>list.clientWidth){
+        const bounds=list.getBoundingClientRect(), tab=active.getBoundingClientRect();
+        const left=tab.left-bounds.left-5, right=tab.right-bounds.right+5;
+        if(left<0 || right>0)list.scrollBy({left:left<0?left:right,behavior:'instant'});
+      }
+    }
+    if(records.some(record=>record.type==='childList'||record.attributeName==='open'))queue(true);
+  });
   function attachShadow(){
     const root=document.getElementById('bm-explore-root')?.shadowRoot;
     if(!root||root===watchedShadow)return;
     watchedShadow=root;
     shadowObserver.disconnect();
-    shadowObserver.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
+    shadowObserver.observe(root,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['open','aria-selected']});
     root.addEventListener('scroll',()=>queue(),{capture:true,passive:true});
     lookupModal();
   }
