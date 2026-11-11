@@ -19,7 +19,7 @@ function nav(space){header.innerHTML=`<a href="#home" class="pd-brand" aria-labe
 const narrowWorkspace=window.matchMedia('(max-width: 1100px)');
 const overviewSections={
   'train/plans':'.fit-training-panel',
-  learn:'.pd-learn-layout',
+  learn:'.pd-learn-movements',
   'learn/experiments':'.ex-library-controls'
 };
 function placeWorkspacePreview(){
@@ -79,8 +79,44 @@ function learning(){
  '<circle cx="31" cy="36" r="21" stroke-dasharray="3 4"/><circle cx="31" cy="36" r="3"/><path class="pd-sketch-accent" d="M31 36H65V12m-4 6 4-6 4 6M65 43c10-15 16-10 25-29"/>',
  '<path d="M12 10V60H94"/><path class="pd-sketch-accent" d="M12 56C46 56 55 14 94 14"/><path stroke-dasharray="3 3" d="M57 9V60"/><circle cx="57" cy="35" r="4"/>'
  ];
- const questions=[['lever','腿屈伸：同样滚垫力，膝部力矩为何不同？','Leg extension: same pad force, different knee moment?','找转轴，再看垂直力臂。','Find the pivot, then the perpendicular moment arm.'],['cam','腿屈伸：凸轮为什么改变阻力？','Leg extension: why does the cam change resistance?','让作用线与力矩曲线一起变化。','Follow the line of action and torque curve together.'],['kinematics','腿屈伸：转角、速度与加速度怎样联系？','Leg extension: how do angle, speed and acceleration connect?','拖动同一时刻，对照三张曲线。','Scrub one time point across three plots.']];
- page(t('学习','Learn'),`<div class="pd-learn-intro"><p class="pd-lead">${t('看懂一个动作，再亲手验证它的原理。','Understand a movement, then test its mechanics yourself.')}</p><span><b data-kx-number="${F.all.length}">${F.all.length}</b> ${t('门动作课程','movement courses')} · ${t('动作 → 结构 → 受力','Movement → structure → forces')}<br><a class="ex-learn-entry" href="#learn/experiments">${t('打开力学实验室','Open the mechanics lab')} ↗</a></span></div><section class="pd-learn-discover" aria-labelledby="pd-learn-discover-title"><div class="pd-section-head"><h2 id="pd-learn-discover-title">${t('探索学习','Explore and discover')}</h2></div><div class="pd-learn-tools"><a href="#learn/map"><strong>${t('立体导图','3D movement map')} <span aria-hidden="true">↗</span></strong><small>${t('从身体部位发现动作','Find movements by body area')}</small></a><button type="button" data-pd-explore><strong>${t('互动探索','Interactive exploration')} <span aria-hidden="true">↗</span></strong><small>${t('动手探索动作与结构','Explore movements and structures')}</small></button><button type="button" data-pd-search><strong>${t('搜索动作','Search movements')} <span aria-hidden="true">↗</span></strong><small>${t('快速找到想学的动作 · ⌘ / Ctrl K','Find a movement · ⌘ / Ctrl K')}</small></button></div></section><div class="pd-learn-layout"><section class="pd-learn-movements" aria-labelledby="pd-learn-movements-title"><div class="pd-section-head"><h2 id="pd-learn-movements-title">${t('从一个动作开始','Start with a movement')}</h2><a href="#learn/courses">${t('全部课程','All courses')} ↗</a></div><article class="pd-learn-feature"><div class="pd-learn-equipment"><img src="${E(featured.image)}" alt="" decoding="async"></div><div><span class="pd-learn-eyebrow">${t('动作观察','Movement study')}</span><h3>${E(title(featured))}</h3><p>${t('先找膝盖与转轴，再观察小腿垫怎样带动工作臂。','Find the knee and pivot, then follow the shin pad and work arm.')}</p><a class="pd-button pd-primary" data-pd-course="cam" href="#course/cam">${t('进入课程','Open course')} ↗</a><small>${t('人体演示 · 结构观察 · 受力实验','Body demonstration · structure · mechanics')}</small></div></article><div class="pd-learn-shelf">${selected.map(a=>`<a data-pd-course="${a.id}" href="#course/${a.id}">${a.image?`<img src="${E(a.image)}" alt="" loading="lazy" decoding="async">`:'<span class="pd-learn-body-icon" aria-hidden="true">↗</span>'}<div><h3>${E(title(a))}</h3><small>${E(t({chest:'胸部',shoulder:'肩部',back:'背部',legs:'下肢'}[a.group]||'家庭练习',{chest:'Chest',shoulder:'Shoulders',back:'Back',legs:'Legs'}[a.group]||'Home exercise'))}</small></div></a>`).join('')}</div></section><section class="pd-learn-questions" aria-labelledby="pd-learn-questions-title"><div class="pd-section-head"><h2 id="pd-learn-questions-title">${t('把原理看明白','Explore the mechanics')}</h2><a href="#learn/experiments">${t('全部实验','All experiments')} ↗</a></div><ol>${questions.map(([id,z,e,subZ,subE],i)=>`<li><a href="#experiment/${id}"><svg viewBox="0 0 108 74" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">${diagrams[i]}</svg><div><h3>${t(z,e)}</h3><p>${t(subZ,subE)}</p></div><span aria-hidden="true">↗</span></a></li>`).join('')}</ol><p class="pd-learn-question-note">${t('改变参数，模型、图解与读数一起回应。','Change a parameter. The model, diagram and readings respond together.')}</p></section></div>${B.LearningDynamics.overviewHTML(t)}${B.ResearchContent.directoryLinks()}`);B.LearningDynamics.mountOverview();
+ const questions=[
+  ['lever','滚垫力相同，膝部力矩为何不同？','Same pad force, different knee moment?','找转轴，再比较滚垫力的垂直力臂。','Find the pivot and compare perpendicular moment arms.'],
+  ['cam','凸轮如何改变阻力？','How does the cam change resistance?','观察钢索的作用线和力矩曲线。','Follow the cable’s line of action and the torque curve.'],
+  ['kinematics','转角、速度和加速度如何关联？','How do angle, speed and acceleration relate?','拖动同一时刻，对照三张曲线。','Scrub to the same instant on all three plots.']
+ ];
+ const courseLinks=selected.map(a=>`<li><a data-pd-course="${a.id}" href="#course/${a.id}">
+   <strong>${E(title(a))}</strong><small>${E(t({chest:'胸部',shoulder:'肩部',back:'背部',legs:'下肢'}[a.group]||'家庭练习',{chest:'Chest',shoulder:'Shoulders',back:'Back',legs:'Legs'}[a.group]||'Home exercise'))}</small>
+   <span aria-hidden="true">↗</span>
+ </a></li>`).join('');
+ const questionLinks=questions.map(([id,z,e,subZ,subE],i)=>`<li><a href="#experiment/${id}">
+   <svg viewBox="0 0 108 74" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">${diagrams[i]}</svg>
+   <div><h3>${t(z,e)}</h3><p>${t(subZ,subE)}</p></div><span aria-hidden="true">↗</span>
+ </a></li>`).join('');
+ page(t('学习','Learn'),`
+  <div class="pd-learn-intro"><p class="pd-lead">${t('看懂一个动作，再亲手验证它的原理。','Understand a movement, then test its mechanics yourself.')}</p></div>
+  <nav class="pd-learn-tools" aria-label="${t('学习工具','Learning tools')}">
+    <a href="#learn/map">${t('立体导图','3D movement map')} <span aria-hidden="true">↗</span></a>
+    <button type="button" data-pd-explore>${t('互动展厅','Explore the gallery')} <span aria-hidden="true">↗</span></button>
+    <button type="button" data-pd-search>${t('搜索动作','Search movements')} <kbd>⌘ / Ctrl K</kbd></button>
+  </nav>
+  <div class="pd-learn-layout">
+    <section class="pd-learn-movements" aria-labelledby="pd-learn-movements-title">
+      <div class="pd-section-head"><h2 id="pd-learn-movements-title">${t('从一个动作开始','Start with a movement')}</h2><a href="#learn/courses">${t('全部 '+F.all.length+' 门课程','All '+F.all.length+' courses')} ↗</a></div>
+      <article class="pd-learn-feature">
+        <div><h3>${E(title(featured))}</h3><p>${t('找准膝盖与转轴，观察滚垫带动工作臂。','Find the knee and pivot, then follow how the shin pad moves the work arm.')}</p></div>
+        <a class="pd-button pd-primary" data-pd-course="cam" href="#course/cam">${t('进入课程','Open course')} ↗</a>
+      </article>
+      <ul class="pd-learn-shelf" aria-label="${t('其他动作课程','More movement courses')}">${courseLinks}</ul>
+    </section>
+    <section class="pd-learn-questions" aria-labelledby="pd-learn-questions-title">
+      <div class="pd-section-head"><h2 id="pd-learn-questions-title">${t('把原理看明白','Explore the mechanics')}</h2><a href="#learn/experiments">${t('全部实验','All experiments')} ↗</a></div>
+      <p class="pd-learn-question-note">${t('三个实验都以坐姿腿屈伸为例。','Use the seated leg extension to test these three questions.')}</p>
+      <ul>${questionLinks}</ul>
+    </section>
+  </div>
+  ${B.LearningDynamics.overviewHTML(t)}${B.ResearchContent.directoryLinks()}
+ `);
+ B.LearningDynamics.mountOverview();
 }
 function settings(){page(t('设置','Settings'),`<section class="pd-plan"><h2>${t('显示与操作','Display and interaction')}</h2><div class="pd-fields"><label><input id="pd-reduce" type="checkbox" ${F.state().preferences.reducedMotion?'checked':''}>${t('减少动态，使用静态关键帧','Reduce motion and use static keyframes')}</label><label><input id="pd-rest-sound" type="checkbox" ${F.state().preferences.restSound?'checked':''}>${t('休息结束提示音（默认关闭）','Rest completion sound (off by default)')}</label><label><input id="pd-rest-vibration" type="checkbox" ${F.state().preferences.restVibration?'checked':''}>${t('休息结束振动（设备支持时）','Vibrate when rest ends (if supported)')}</label></div><p>${t('声音和振动只在你选择后启用。训练数据保存在此浏览器。','Sound and vibration require your choice. Training data is saved in this browser.')}</p><a class="pd-button" href="#settings/data">${t('备份与恢复','Backup and restore')}</a></section><section class="pd-plan"><h2>${t('已有数据与工具','Existing data and tools')}</h2><p>${t('旧计划和训练快照保留。实验档案与器械结构检查仍在学习空间中。','Previous plans and training snapshots are retained. Experiment archives and equipment inspection remain in Learning.')}</p><a href="#learn/experiments">${t('查看学习工具','Open learning tools')}</a><a class="pd-button" href="#settings/profile">${t('可选身体档案','Optional body profile')}</a></section>`,'settings');}
 
