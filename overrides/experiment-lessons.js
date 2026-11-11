@@ -145,7 +145,10 @@
   const sections=groups.map((group,index)=>{
    const entries=items.filter(item=>item.theme===index);
    const rows=entries.map(item=>`<li data-ex-card data-ex-theme="${index}" data-ex-search="${E([...item.title,...item.intro,item.id].join(' ').toLowerCase())}">
-    <a href="#experiment/${item.id}"><div><h3>${t(...item.title)}</h3><p>${t(...item.intro)}</p><small>${item.kind}</small></div><span aria-hidden="true">↗</span></a>
+    <a href="#experiment/${item.id}">
+      <div class="ex-library-entry"><h3>${t(...item.title)}</h3><p>${t(...item.intro)}</p></div>
+      ${item.kind?`<small>${item.kind}</small>`:''}<span aria-hidden="true">↗</span>
+    </a>
    </li>`).join('');
    return `<section class="ex-library-group" data-ex-group="${index}" aria-labelledby="ex-group-${index}">
     <div class="ex-section-heading"><h2 id="ex-group-${index}">${t(...group)}</h2><span>${entries.length} ${t('个实验','experiments')}</span></div><ol>${rows}</ol>

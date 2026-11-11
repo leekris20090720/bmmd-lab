@@ -6,9 +6,9 @@
   const rad=Math.PI/180;
   const plateSelectors=[
     '[data-deck-plate]','.deck-bays > *','#pd-header',
-    '#pd-content > :is(section,article,form,.pd-plan,.pd-doors,.pd-course-directory,.ex-library-controls)',
-    '.pd-ex-layout > *','.pd-course-workspace > *','.ex-topic',
-    '#pd-content > div:not(.pd-ex-layout,.pd-course-workspace,.pd-plot-grid,.ex-library-topics,.pd-plan-toolbar,.pd-learn-intro,.pd-learn-layout,.ex-library-intro)',
+    '#pd-content > :is(section,article,form,.pd-plan,.pd-doors,.pd-course-directory):not(.pd-plot-grid)',
+    '.pd-ex-layout > :is(.pd-ex-observe,.pd-ex-controls)','.pd-course-workspace > *','.ex-topic',
+    '#pd-content > div:not(.pd-ex-layout,.pd-course-workspace,.pd-plot-grid,.ex-library-topics,.pd-plan-toolbar,.pd-learn-intro,.pd-learn-layout,.ex-library-intro,.ex-library-controls,.ex-library-groups)',
     '#engineering-root :is(.eng-top,.eng-heading,.eng-models,.eng-hero,.eng-stage,.eng-parameters,.eng-position,.eng-panel,.eng-graph,.eng-observe,.eng-layout > *,.did-lab-header,.did-detailed-readouts)',
     '.pg-header','.pg-tabs','.pg-content > :not(.pg-gallery)',
     '.pg-gallery :is(.pg-gallery-intro,.pg-gallery-filters,.pg-gallery-display,.pg-gallery-navigation)','.pg-footer'

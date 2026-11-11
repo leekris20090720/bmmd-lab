@@ -127,7 +127,7 @@ body.bm-studio.bm-deck .ex-library-controls > .ex-library-mobile-filter {display
 body.bm-studio.bm-deck :is(.pd-main,#engineering-root) :is(
 .pd-plan,.pd-learn-discover,.pd-learn-feature,.pd-learn-shelf>a,.pd-course-directory>a,.pd-doors>a,
 .pd-ex-theme,.pd-ex-panel,.pd-live-lab,.pd-course-aside,.pd-course-stage,.pd-learn-questions li>a,
-.pd-course-card,.pd-research-card,.pd-ex-controls,.pd-ex-observe,.pd-plot,.pd-ex-layout,.pd-auto-bar,.fit-training-panel,
+.pd-course-card,.pd-research-card,.pd-ex-controls,.pd-ex-observe,.pd-plot,.pd-auto-bar,.fit-training-panel,
 .eng-stage,.eng-panel,.eng-graph,.eng-top,.eng-hero
 ) {
   background:var(--deck-face)!important;
@@ -135,7 +135,29 @@ body.bm-studio.bm-deck :is(.pd-main,#engineering-root) :is(
   border-radius:12px!important;
 }
 body.bm-studio.bm-deck #pd-content > section:not(.pd-course-workspace):not(.pd-ex-layout) {padding-inline:clamp(10px,1.25vw,19px);}
-body.bm-studio.bm-deck #pd-content > .pd-ex-layout {background:transparent!important;border:0!important;}
+body.bm-studio.bm-deck #pd-content > .pd-ex-layout {
+  grid-template-columns:minmax(0,1.6fr) minmax(255px,1fr);
+  grid-template-areas:"observation controls" "plots controls";
+  grid-template-rows:min-content 1fr;
+  gap:clamp(15px,1.8vw,24px);
+  background:transparent!important;border:0!important;
+}
+body.bm-studio.bm-deck .pd-ex-layout > .pd-ex-observe {grid-area:observation;min-width:0;}
+body.bm-studio.bm-deck .pd-ex-layout > .pd-ex-controls {grid-area:controls;align-self:start;}
+body.bm-studio.bm-deck .pd-ex-layout > .pd-plot-grid {
+  grid-area:plots;min-width:0;align-self:start;margin:0;padding:0;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,285px),1fr));gap:clamp(15px,1.8vw,24px);
+  background:none!important;
+}
+body.bm-studio.bm-deck .pd-ex-layout .pd-plot:last-child:nth-child(odd) {grid-column:1/-1;}
+body.bm-studio.bm-deck .pd-ex-layout .pd-plot {min-width:0;}
+@media(max-width:760px) {
+  body.bm-studio.bm-deck #pd-content > .pd-ex-layout {
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"observation" "controls" "plots";
+    grid-template-rows:auto;
+  }
+}
 body.bm-studio.bm-deck #pd-content :is(.pd-course-stage,.pd-course-demo,.sphere-stage) {min-width:0;}
 body.bm-studio.bm-deck .pd-learn-feature:has(.pd-learn-equipment>img) {grid-template-columns:minmax(0,1fr);}
 body.bm-studio.bm-deck .pd-learn-equipment:has(>img) {display:none;}
@@ -223,11 +245,38 @@ body.bm-studio.bm-deck #pd-content > :is(.ex-library-intro,.pd-learn-intro) .pd-
   margin:0;font-size:16px!important;line-height:1.55!important;
 }
 body.bm-studio.bm-deck #pd-content .ex-library-count strong {font-size:18px;}
-body.bm-studio.bm-deck #pd-content > .ex-library-controls {padding:10px 0 12px;margin:0 0 20px;}
-body.bm-studio.bm-deck #pd-content .ex-library-filters {margin-top:9px;}
-body.bm-studio.bm-deck #pd-content .ex-section-heading {gap:12px;margin-bottom:9px;}
-body.bm-studio.bm-deck #pd-content .ex-library-group a {min-height:0;padding:13px 0;}
-body.bm-studio.bm-deck #pd-content .ex-library-group a > span {flex:none;}
+body.bm-studio.bm-deck #pd-content > .ex-library-controls {
+  padding:16px clamp(12px,1.6vw,20px);margin:0 0 26px;
+  border:1px solid var(--pd-line);border-radius:12px;background:var(--deck-inset);
+}
+body.bm-studio.bm-deck #pd-content .ex-library-filters {gap:8px;margin-top:14px;}
+body.bm-studio.bm-deck #pd-content .ex-library-groups {
+  display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(28px,4vw,48px);
+}
+body.bm-studio.bm-deck #pd-content .ex-section-heading {gap:12px;margin-bottom:12px;}
+body.bm-studio.bm-deck #pd-content .ex-library-group a {
+  display:grid;grid-template-columns:minmax(0,1fr) max-content 18px;
+  grid-template-areas:"entry meta arrow";gap:6px clamp(10px,2vw,22px);
+  align-items:start;min-height:0;padding:clamp(15px,1.65vw,22px) 0;
+}
+body.bm-studio.bm-deck #pd-content .ex-library-entry {grid-area:entry;min-width:0;}
+body.bm-studio.bm-deck #pd-content .ex-library-entry h3 {
+  margin:0 0 6px;font-size:17px;line-height:1.5;overflow-wrap:anywhere;
+}
+body.bm-studio.bm-deck #pd-content .ex-library-entry p {
+  margin:0;max-width:40em;font-size:15px;line-height:1.75;overflow-wrap:anywhere;
+}
+body.bm-studio.bm-deck #pd-content .ex-library-group a > small {
+  grid-area:meta;padding-top:3px;line-height:1.5;color:var(--pd-muted);white-space:nowrap;
+}
+body.bm-studio.bm-deck #pd-content .ex-library-group a > span {grid-area:arrow;text-align:right;}
+@media(max-width:650px) {
+  body.bm-studio.bm-deck #pd-content .ex-library-group a {
+    grid-template-columns:minmax(0,1fr) 18px;grid-template-areas:"entry arrow" "meta .";
+  }
+  body.bm-studio.bm-deck #pd-content .ex-library-group a:not(:has(>small)) {grid-template-areas:"entry arrow";}
+  body.bm-studio.bm-deck #pd-content .ex-library-group a > small {padding-top:0;}
+}
 body.bm-studio.bm-deck #pd-content .pd-plan-toolbar .pd-actions {margin:10px 0 12px;}
 body.bm-studio.bm-deck #product-root #pd-content > .pd-empty {padding:14px 16px!important;}
 body.bm-studio.bm-deck #pd-content > .pd-empty > :is(h2,p) {margin:0;}
@@ -299,7 +348,7 @@ body.bm-studio.bm-deck #pd-content .pd-learn-questions p {font-size:15px;line-he
   body.bm-studio.bm-deck #pd-content .pd-learn-tools {column-gap:10px;}
   body.bm-studio.bm-deck #pd-content .pd-learn-tools kbd {display:none;}
 }
-body.bm-studio.bm-deck #pd-content > :is(.pd-plan,.fit-training-panel,.ex-library-controls) {margin-block:17px;}
+body.bm-studio.bm-deck #pd-content > :is(.pd-plan,.fit-training-panel) {margin-block:17px;}
 body.bm-studio.bm-deck .ex-topic {padding:12px;border:1px solid var(--deck-edge);background:var(--deck-face);border-radius:16px;}
 body.bm-studio.bm-deck #engineering-root .eng-shell {background:transparent!important;}
 body.bm-studio.bm-deck #engineering-root .eng-shell::before {display:none!important;}
@@ -358,6 +407,12 @@ body.bm-studio.bm-deck .pd-course-workspace .pd-course-pager {
 }
 body.bm-studio.bm-deck #pd-content .pd-course-workspace #pd-course-model {
   background:var(--deck-inset);
+}
+body.bm-studio.bm-deck #product-root .pd-course-chapters .pd-course-chapter-tab {
+  border-bottom-color:var(--pd-line)!important;
+}
+body.bm-studio.bm-deck #product-root .pd-course-chapters .pd-course-chapter-tab:hover {
+  border-bottom-color:var(--pd-accent)!important;
 }
 body.bm-studio.bm-deck #product-root .pd-main :is(.pd-course-chapter-tab,.fit-day-tabs button)[aria-selected=true] {
   color:var(--deck-accent-ink)!important;background:var(--deck-selected)!important;
