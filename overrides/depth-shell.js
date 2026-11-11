@@ -10,7 +10,7 @@
     '.pd-ex-layout > :is(.pd-ex-observe,.pd-ex-controls)','.pd-course-workspace > *','.ex-topic',
     '#pd-content > div:not(.pd-ex-layout,.pd-course-workspace,.pd-plot-grid,.ex-library-topics,.pd-plan-toolbar,.pd-learn-intro,.pd-learn-layout,.ex-library-intro,.ex-library-controls,.ex-library-groups)',
     '#engineering-root :is(.eng-top,.eng-heading,.eng-models,.eng-hero,.eng-stage,.eng-parameters,.eng-position,.eng-panel,.eng-graph,.eng-observe,.eng-layout > *,.did-lab-header,.did-detailed-readouts)',
-    '.pg-header','.pg-tabs','.pg-content > :not(.pg-gallery,section.pg-empty,.pg-rhythm,.pg-quiz,.pg-portal-search)',
+    '.pg-header','.pg-tabs','.pg-content > :not(.pg-gallery,section.pg-empty,.pg-rhythm,.pg-quiz,.pg-portal-search,.pg-lab-bench)',
     '.pg-gallery :is(.pg-gallery-intro,.pg-gallery-filters,.pg-gallery-display,.pg-gallery-navigation)','.pg-footer'
   ].join(',');
   const keySelectors='button,a.pd-button,nav a,summary,[role=tab],input:not([type=range],[type=checkbox],[type=radio],[type=file]),select,textarea';
@@ -24,6 +24,7 @@
   .pg-gallery-stage{background:#101017!important}
   .pg-dialog button{background:#2d2936!important;color:#f6f2f0!important;border:1px solid #62576a!important;border-radius:14px!important;box-shadow:0 3px 0 #121017!important}
   .pg-dialog button:is([aria-selected=true],[aria-pressed=true],.pg-gallery-primary){background:#f2bb96!important;color:#23180d!important;border-color:#f7d5c0!important}
+  .pg-dialog .pg-lab-bench .pg-bench-switch button[aria-pressed=true]{background:#f2bb96!important;color:#27190b!important}
   .pg-dialog .pg-dual-wave button.pg-wave-choice{
     justify-content:center;align-items:flex-start;gap:4px;
     padding:10px clamp(12px,1.2vw,16px);text-align:start;

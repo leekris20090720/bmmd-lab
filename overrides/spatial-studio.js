@@ -83,9 +83,9 @@
   const reduced = () => motion.matches || document.documentElement.classList.contains('pd-reduced');
   const clamp = (n,lo,hi) => Math.min(hi,Math.max(lo,n));
   let graphics, host, pageHost, galleryHost, listeners, resize, visibility, visible = false, load, failed = false, frame = 0;
-  let instrumentStart=0, instrumentSignal={}, instrumentKind;
+  let instrumentSignal={}, instrumentKind;
   const SCAN_PASS=2400, IDLE_HOLD=2600;
-  let scanReading, scanRequested=false, demoTap=null, previewStart=null, previewOffset=0;
+  let scanReading, scanRequested=false, demoTap=null, instrumentSelection;
   let idleStage=false, idleTime=0, idleYaw=0, idleUntil=0, orbitHeld=false, scanHeld=false;
   let scanTime=0, lastScanStep=0, lastTick=0, ambientWake=0;
   function cue(name) {
@@ -129,12 +129,12 @@
     const isHall = view==='hall';
     const compact = host.classList.contains('spatial-view-room');
     const preview=host.classList.contains('pg-model');
-    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isInstrument?6.65:isExhibit?7.85:9.2)
-      * Math.max(1,(isHall?1.46:preview?1:1.25)/camera.aspect);
-    const compassView=isInstrument&&instrumentKind==='compass';
-    const angle=(compassView?.26:layout.yaw)+shownTurn+previewOffset+idleYaw;
-    const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:isInstrument?compassView?.63:.34:.47)+shownPitch,.22,1.26);
-    const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:isInstrument?compassView?.46:1.05:.89,layout.z);
+    const isWayfinder=instrumentKind==='wayfinder',isBench=instrumentKind==='bench';
+    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isWayfinder?8.25:isBench?7.45:isInstrument?6.65:isExhibit?7.85:9.2)
+      * Math.max(1,(isHall?1.46:isBench?1.59:isWayfinder?1.14:preview?1:1.25)/camera.aspect);
+    const angle=(isWayfinder?.16:isBench?.11:layout.yaw)+shownTurn+idleYaw;
+    const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:isInstrument?isWayfinder?.67:.34:.47)+shownPitch,.22,1.26);
+    const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:isInstrument?isWayfinder?.05:isBench?1.19:1.05:.89,layout.z);
     const ground = radius*Math.cos(elevation);
     const position = new T.Vector3(center.x+ground*Math.sin(angle),center.y+radius*Math.sin(elevation),center.z+ground*Math.cos(angle));
     return {center,position};
@@ -152,7 +152,7 @@
     model.world.visible=!isTrace;
     if(isTrace && traceData?.route===document.body.dataset.bmRoute)trace.update(...traceData.args);
     else trace.world.visible=false;
-    const quiet=reduced(),isScanner=instrumentKind==='scanner',isDemo=instrumentKind==='metronome';
+    const quiet=reduced(),isScanner=instrumentKind==='scanner',isBench=instrumentKind==='bench',isDemo=instrumentKind==='metronome';
     const canIdle=idleStage&&!quiet;
     const autonomous=canIdle&&!orbitHeld&&!scanHeld&&now>=idleUntil;
     if(autonomous)idleTime+=dt;
@@ -170,23 +170,20 @@
       : rocking ? {scale:1.04+.22*Math.sin(Math.PI*tickPhase),swing,near:tickPhase<.14} : instrumentSignal;
 
     let scanFraction=0;
-    if(isScanner){
+    if(isScanner||isBench){
       if(autonomous)scanTime+=dt;
       const travel=scanTime/SCAN_PASS,step=Math.floor(travel),phase=travel%2;
-      scanFraction=quiet&&!scanRequested?.55:phase<=1?phase:2-phase;
-      if(autonomous&&step!==lastScanStep){lastScanStep=step;cue('scan');}
+      scanFraction=quiet&&!scanRequested?(isBench?0:.55):phase<=1?phase:2-phase;
+      if(autonomous&&step!==lastScanStep){lastScanStep=step;if(isScanner)cue('scan');}
       const reading=Math.round(scanFraction*100)+'/'+autonomous;
       if(reading!==scanReading){
         scanReading=reading;
-        host.dispatchEvent(new CustomEvent('bm:scan',{detail:{fraction:scanFraction,moving:autonomous}}));
+        host.dispatchEvent(new CustomEvent('bm:stage-progress',{detail:{fraction:scanFraction,moving:autonomous}}));
       }
     }
 
-    const arrival=previewStart!==null&&!quiet?clamp((now-previewStart)/640,0,1):1;
-    const arriving=arrival<1;
-    previewOffset=arriving?.34*(1-arrival)**3:0;
-    if(!isScanner&&!isDemo&&idleStage)idleYaw=quiet?0:.32*Math.sin(idleTime/2200);
-    if(instrumentKind)model.updateInstrument(state,quiet,scanFraction,arrival,quiet?0:idleTime/1000);
+    if(!isScanner&&!isDemo&&idleStage)idleYaw=quiet?0:(isBench?.10:.30)*Math.sin(idleTime/2200);
+    const aligning=instrumentKind&&model.updateInstrument(state,quiet,scanFraction,quiet?0:idleTime/1000,instrumentSelection,dt);
     const target = pose();
     if (transition && !reduced()) {
       const time = clamp((now-transition.start)/660,0,1), ease=1-Math.pow(1-time,3);
@@ -208,7 +205,7 @@
       marker.hidden = Math.abs(point.x)>.91 || Math.abs(point.y)>.91 || point.z>1;
     }
     host.setAttribute('data-spatial-ready','true');
-    if(transition||shownTurn!==turn||shownPitch!==pitch||demoActive||arriving)drawSoon();
+    if(transition||shownTurn!==turn||shownPitch!==pitch||demoActive||aligning)drawSoon();
     else if(canIdle&&!orbitHeld&&!scanHeld)ambientWake=setTimeout(drawSoon,Math.max(30,idleUntil-now));
   }
   function drawSoon() {
@@ -229,11 +226,6 @@
     }
     drawSoon();
   }
-  function finishPreview() {
-    turn+=previewOffset;
-    shownTurn+=previewOffset;
-    previewStart=null;previewOffset=0;
-  }
   function holdIdle() {
     if(idleStage)idleUntil=performance.now()+IDLE_HOLD;
   }
@@ -253,10 +245,10 @@
     },{signal});
     canvas.addEventListener('keydown',event=>{
       const directions={ArrowLeft:[-.16,0],ArrowRight:[.16,0],ArrowUp:[0,.09],ArrowDown:[0,-.09]};
-      if(event.key==='Home'){event.preventDefault();finishPreview();restoreView();return;}
+      if(event.key==='Home'){event.preventDefault();restoreView();return;}
       const shift=directions[event.key];
       if(!shift)return;
-      event.preventDefault(); transition=null; finishPreview();holdIdle();
+      event.preventDefault(); transition=null; holdIdle();
       turn+=shift[0]; pitch=clamp(pitch+shift[1],-.55,.65); drawSoon();
     },{signal});
     let drag;
@@ -270,7 +262,6 @@
       if(drag?.id!==event.pointerId)return;
       const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
       if(!drag.moved && Math.hypot(dx,dy)<5)return;
-      if(!drag.moved)finishPreview();
       drag.moved=true; drag.x=event.clientX; drag.y=event.clientY;
       transition=null; turn-=dx*.007; pitch=clamp(pitch+dy*.006,-.55,.65);
       drawSoon();
@@ -280,14 +271,19 @@
     canvas.addEventListener('lostpointercapture',()=>{if(drag)endDrag();},{signal});
     canvas.addEventListener('pointerup',event=>{
       if(drag?.id!==event.pointerId)return;
-      const open = !drag.moved && host.classList.contains('spatial-view-full');
+      const click=!drag.moved;
       endDrag();
-      if(!open)return;
+      if(!click)return;
       const {T,ray,camera,model}=graphics;
       const rect=canvas.getBoundingClientRect();
       ray.setFromCamera(new T.Vector2((event.clientX-rect.left)/rect.width*2-1,1-(event.clientY-rect.top)/rect.height*2),camera);
-      const hit=ray.intersectObjects(Object.values(model.tiles),false)[0];
-      if(hit)host.closest('.deck-hub').querySelector(`[data-spatial-door="${hit.object.name}"]`)?.click();
+      if(instrumentKind==='wayfinder'||instrumentKind==='bench'){
+        const id=model.pickInstrument(ray);
+        if(id)host.dispatchEvent(new CustomEvent('bm:stage-pick',{detail:id}));
+      }else if(host.classList.contains('spatial-view-full')){
+        const hit=ray.intersectObjects(Object.values(model.tiles),false)[0];
+        if(hit)host.closest('.deck-hub').querySelector(`[data-spatial-door="${hit.object.name}"]`)?.click();
+      }
     },{signal});
     const entry = host.closest('.deck-hub');
     if(!entry)return;
@@ -350,10 +346,9 @@
     model.show(view);
     if(view==='exhibit')model.showExhibit(element.dataset.spatialVariant);
     instrumentKind=view==='instrument'?element.dataset.spatialVariant:undefined;
-    instrumentStart=performance.now();
-    previewStart=element.dataset.spatialControls==='orbit'?instrumentStart:null;
+    instrumentSelection=element.dataset.spatialSelection;
     idleStage=Boolean(element.closest('.pg-dialog'))&&(view==='exhibit'||Boolean(instrumentKind&&instrumentKind!=='pulse'));
-    idleTime=idleYaw=idleUntil=scanTime=lastScanStep=lastTick=previewOffset=0;
+    idleTime=idleYaw=idleUntil=scanTime=lastScanStep=lastTick=0;
     orbitHeld=scanHeld=scanRequested=false;
     scanReading=undefined;
     demoTap=null;instrumentSignal={};
@@ -377,18 +372,24 @@
     drawSoon();
   }
   function scan(element,fraction){
-    if(host!==element||instrumentKind!=='scanner')return;
+    if(host!==element||!['scanner','bench'].includes(instrumentKind))return;
     const scrub=typeof fraction==='number';
-    scanTime=(scrub?clamp(fraction,0,1):reduced()?1:0)*SCAN_PASS;
+    scanTime=(scrub?clamp(fraction,0,1):reduced()&&instrumentKind==='scanner'?1:0)*SCAN_PASS;
     lastScanStep=Math.floor(scanTime/SCAN_PASS);
     scanRequested=true;
     if(scrub)holdIdle();
-    else {idleUntil=0;cue('scan');}
+    else {idleUntil=0;if(instrumentKind==='scanner')cue('scan');}
     drawSoon();
   }
   function holdScanner(element,held){
-    if(host!==element||instrumentKind!=='scanner')return;
+    if(host!==element||!['scanner','bench'].includes(instrumentKind))return;
     scanHeld=held;holdIdle();drawSoon();
+  }
+  function selectInstrument(element,selection){
+    if(host!==element||selection===instrumentSelection)return;
+    instrumentSelection=selection;
+    if(instrumentKind==='bench')scanTime=0;
+    cue('select');drawSoon();
   }
   function tap(element){
     if(host!==element||instrumentKind!=='metronome')return;
@@ -396,7 +397,7 @@
   }
   function turnPreview(element,direction){
     if(host!==element)return;
-    finishPreview();holdIdle();
+    holdIdle();
     if(direction===0)restoreView();
     else {turn+=direction*.34;drawSoon();}
   }
@@ -420,5 +421,5 @@
     traceData={route:document.body.dataset.bmRoute,args:[rows,reference,x,y]};
     if(host?.dataset.spatialView==='trace')drawSoon();
   }
-  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,scan,holdScanner,tap,turn:turnPreview,updateExperiment};
+  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,scan,holdScanner,select:selectInstrument,tap,turn:turnPreview,updateExperiment};
 })();

@@ -418,80 +418,131 @@
         sample.rotation.y=-.23+easing*.71;
       }};
     }
-    function compass(stand){
-      capsule(stand,1,1.64,1.16);
-      shade(stand,0,.028,0,3.5,2.6);
-      const housing=group(stand,0,.46,0);
-      housing.rotation.x=.22;
-      turned(housing,graphite,[[0,-.31],[1.08,-.31],[1.24,-.28],[1.28,-.21],[1.28,.10],[1.23,.17],[1.17,.19],[0,.19]]);
-      turned(housing,chrome,[[1.15,.194],[1.20,.199],[1.22,.168],[1.22,.127]]);
-      cylinder(housing,ceramic,0,.211,0,1.15,.044);
-      band(housing,bronze,1.03,.015,.244);
-      for(let i=0;i<24;i++){
-        const a=i*Math.PI/12,c=Math.cos(a),d=Math.sin(a),r=i%6===0?.84:.96;
-        rod(housing,i%6===0?bronze:chrome,[c*r,.25,d*r],[c*1.02,.25,d*1.02],i%6===0?.023:.010);
+    function wayfinder(stand){
+      const destinations=['home','library','learn/experiments','plans','training','history','data','settings/profile'];
+      capsule(stand,1,2.84,2.84);
+      shade(stand,.0,.03,0,6.35,6.35);
+      turned(stand,graphite,[[0,.04],[2.34,.04],[2.49,.11],[2.55,.24],[2.54,.38],[2.47,.49],[2.33,.54],[0,.54]]);
+      band(stand,chrome,2.39,.036,.49);
+      band(stand,softLight,2.49,.016,.29);
+      turned(stand,ceramic,[[0,.553],[2.30,.553],[2.31,.49]],0,0,0);
+      band(stand,bronze,1.42,.025,.574);
+      band(stand,softLight,1.28,.014,.579);
+      for(let i=0;i<48;i++){
+        const angle=i*Math.PI/24,sin=Math.sin(angle),cos=Math.cos(angle);
+        const start=i%6===0?1.49:1.56;
+        rod(stand,i%6===0?bronze:softLight,[sin*start,.582,cos*start],[sin*1.64,.582,cos*1.64],i%6===0?.016:.007);
       }
-      const needle=new T.Shape();
-      needle.moveTo(0,.85);needle.lineTo(-.18,-.05);needle.lineTo(0,-.52);needle.lineTo(.18,-.05);needle.closePath();
-      const arrow=mesh(housing,new T.ExtrudeGeometry(needle,{depth:.055,bevelEnabled:true,bevelSize:.021,bevelThickness:.016,bevelSegments:3}),bronze,0,.292,0);
-      arrow.rotation.set(-Math.PI/2,0,.48);
-      cylinder(housing,chrome,0,.383,0,.098,.061);
-      return {arrive(progress,time){
-        const remaining=1-progress;
-        arrow.rotation.z=.48+Math.sin(progress*8.7)*remaining*.90-remaining*.67+.25*Math.sin(time*1.24);
+      const targets=[], lamps=[];
+      destinations.forEach((id,i)=>{
+        const angle=i*Math.PI/4, x=Math.sin(angle)*1.98,z=Math.cos(angle)*1.98;
+        const station=group(stand,x,.55,z);station.rotation.y=angle;
+        const top=soft(station,graphite,0,.115,0,.65,.23,.52);
+        top.userData.destination=id;targets.push(top);
+        lamps.push(soft(station,softLight,0,.242,.13,.39,.031,.054));
+        for(const offset of [-.17,.17])cylinder(station,chrome,offset,.24,-.06,.038,.027);
+        rod(station,bronze,[-.092,.256,-.074],[.092,.256,-.074],.013);
+      });
+      const rotor=group(stand,0,.68,0);
+      const pointer=new T.Shape();
+      pointer.moveTo(0,1.47);pointer.lineTo(-.19,.34);pointer.lineTo(-.15,-.19);pointer.lineTo(0,-.64);
+      pointer.lineTo(.15,-.19);pointer.lineTo(.19,.34);pointer.closePath();
+      const needle=mesh(rotor,new T.ExtrudeGeometry(pointer,{depth:.08,bevelEnabled:true,bevelSize:.028,bevelThickness:.028,bevelSegments:3}),bronze);
+      needle.rotation.x=Math.PI/2;
+      cylinder(stand,graphite,0,.682,0,.32,.27);
+      cylinder(stand,chrome,0,.827,0,.23,.075);
+      band(stand,glow,.17,.018,.869);
+      return {targets,update({selection,time,quiet,dt}){
+        const index=Math.max(0,destinations.indexOf(selection));
+        const heading=index*Math.PI/4+(quiet?0:.034*Math.sin(time*1.9));
+        const difference=Math.atan2(Math.sin(heading-rotor.rotation.y),Math.cos(heading-rotor.rotation.y));
+        rotor.rotation.y+=quiet?difference:difference*(1-Math.exp(-Math.max(16,dt)/100));
+        lamps.forEach((lamp,i)=>{lamp.material=i===index?selected:softLight;});
+        return Math.abs(difference)>.009;
       }};
     }
-    function atlas(stand){
-      capsule(stand,1,1.63,1.12);
-      rod(stand,graphite,[0,.03,0],[0,.72,0],.15);
-      const cell=group(stand,0,1.35,0);
-      const kernel=mesh(cell,new T.SphereGeometry(.51,40,24),ceramic,0,0,0);
-      kernel.material=make(0x63566b,.63,.32);
-      const rings=[];
-      for(const [i,[rx,ry]] of [[.8,.02],[-.8,-.45],[.22,1.31]].entries()){
-        const orbit=group(cell);orbit.rotation.set(rx,ry,i*.75);rings.push(orbit);
-        ringFace(orbit,.91,.030,i===0?bronze:chrome,0,0,0);
-        for(let j=0;j<3;j++){
-          const a=(i*.37+j)*Math.PI*2/3;
-          mesh(orbit,new T.SphereGeometry(j===0?.092:.049,18,12),j===0?bronze:softLight,Math.cos(a)*.91,Math.sin(a)*.91,0);
-        }
+    function mechanicsBench(stand){
+      capsule(stand,1,3.55,1.28);
+      shade(stand,0,.035,0,7.65,3.25);
+      const bases=[],targets=[];
+      const lanes=['pulley','cam','incline'];
+      const updateCable=(wire,a,b)=>{
+        const start=v(...a),end=v(...b),delta=end.clone().sub(start);
+        wire.position.copy(start).addScaledVector(delta,.5);
+        wire.scale.y=delta.length();wire.quaternion.setFromUnitVectors(yAxis,delta.normalize());
+      };
+      const sections=lanes.map((id,i)=>{
+        const lane=group(stand,(i-1)*2.22,.22,0);
+        const base=soft(lane,graphite,0,-.006,0,1.99,.40,1.95);
+        base.userData.destination=id;targets.push(base);
+        bases.push(soft(lane,softLight,0,.063,.974,1.47,.027,.026));
+        soft(lane,ceramic,0,.197,0,1.89,.041,1.83);
+        return lane;
+      });
+      const pulley=sections[0];
+      for(const x of [-.77,.77]){
+        tube(pulley,graphite,[[x,.21,.63],[x,.22,-.55],[x,.43,-.65],[x,1.77,-.62],[x,2.18,-.31],[x,2.24,.05]],.063,26);
       }
-      return {arrive(progress,time){
-        const remaining=1-progress;
-        cell.rotation.y=-remaining*.78+.35*Math.sin(time*.63);
-        rings.forEach((ring,i)=>{ring.rotation.z=i*.75+(i%2?-1:1)*(remaining*1.4+time*(.19+i*.045));});
+      rod(pulley,chrome,[-.77,2.23,.04],[.77,2.23,.04],.062);
+      wheel(pulley,.34,2.05,.20,.17);
+      cylinder(pulley,chrome,-.17,2.16,.28,.048,.10,'z');
+      const load=group(pulley,0,.55,.18);
+      wheel(load,0,.15,.09,.173);
+      soft(load,graphite,0,-.10,.10,.47,.22,.39);
+      soft(load,bronze,0,-.24,.10,.51,.066,.43);
+      const tensionLines=Array.from({length:3},()=>cylinder(pulley,bronze,0,0,0,.014,1));
+      const handle=cylinder(pulley,rubber,.51,1.83,.28,.047,.28,'x');
+      const camLane=sections[1];
+      tube(camLane,graphite,[[-.68,.22,-.42],[-.68,1.24,-.42],[-.52,1.71,-.42],[0,1.82,-.42],[.52,1.71,-.42],[.68,1.24,-.42],[.68,.22,-.42]],.083,36);
+      const cam=group(camLane,-.16,1.18,.16);
+      const profile=new T.Shape();
+      for(let j=0;j<=80;j++){
+        const angle=j*Math.PI*2/80,r=.51+.105*Math.cos(angle)+.053*Math.sin(2*angle);
+        if(j===0)profile.moveTo(r*Math.cos(angle),r*Math.sin(angle));else profile.lineTo(r*Math.cos(angle),r*Math.sin(angle));
+      }
+      profile.closePath();
+      mesh(cam,new T.ExtrudeGeometry(profile,{depth:.18,bevelEnabled:true,bevelSize:.025,bevelThickness:.025,bevelSegments:3}),graphite);
+      cylinder(cam,chrome,0,0,.20,.15,.10,'z');
+      rod(cam,bronze,[0,0,.21],[.43,0,.21],.024);
+      for(const y of [1.00,1.36])rod(camLane,chrome,[.36,y,.09],[.87,y,.09],.029);
+      const follower=wheelFollower(camLane);
+      function wheelFollower(lane){
+        const node=group(lane,.66,1.18,.19);
+        wheel(node,0,0,.07,.122);
+        soft(node,ceramic,.15,0,-.084,.27,.32,.14);
+        return node;
+      }
+      const ramp=sections[2];
+      const slope=group(ramp,0,1.03,0);slope.rotation.z=.45;
+      for(const z of [-.39,.39]){
+        rod(slope,chrome,[-.90,-.03,z],[.90,-.03,z],.061);
+        rod(ramp,graphite,[.76,.22,z],[.76,1.39,z],.071);
+        rod(ramp,graphite,[-.76,.22,z],[-.76,.67,z],.056);
+      }
+      for(let i=0;i<6;i++)rod(slope,ceramic,[-.78+i*.31,-.078,-.40],[-.78+i*.31,-.078,.40],.036);
+      const cart=group(slope,.57,.19,0);
+      soft(cart,ceramic,0,.02,0,.45,.19,.69);
+      soft(cart,bronze,0,.125,0,.29,.088,.46);
+      for(const z of [-.39,.39])for(const x of [-.16,.16])wheel(cart,x,-.105,z,.082);
+      return {targets,update({selection,progress}){
+        bases.forEach((lamp,i)=>{lamp.material=lanes[i]===selection?selected:softLight;});
+        const lift=selection==='pulley'?progress*.50:0;
+        load.position.y=.55+lift;handle.position.y=1.82-lift*2;
+        updateCable(tensionLines[0],[-.17,2.16,.28],[-.17,.70+lift,.28]);
+        updateCable(tensionLines[1],[.17,2.05,.28],[.17,.70+lift,.28]);
+        updateCable(tensionLines[2],[.51,2.05,.28],[.51,handle.position.y,.28]);
+        const angle=selection==='cam'?progress*Math.PI*2:0;
+        cam.rotation.z=angle;
+        follower.position.x=.47+.105*Math.cos(angle)-.053*Math.sin(2*angle);
+        cart.position.x=.61-(selection==='incline'?progress*1.22:0);
       }};
     }
-    function archive(stand){
-      capsule(stand,1,1.69,1.05);
-      const layers=[];
-      for(let n=0;n<5;n++){
-        const layer=group(stand,(n-2)*.11,.13+n*.25,-n*.105);
-        layer.rotation.y=-.19+n*.085;layers.push(layer);
-        soft(layer,n===3?bronze:graphite,0,0,0,2.2,.18,1.33);
-        soft(layer,n===3?bronze:ceramic,0,.101,0,2.08,.037,1.23);
-        for(let i=0;i<3;i++)rod(layer,chrome,[-.78,.13,.30-i*.16],[.68-i*.28,.13,.30-i*.16],.013);
-        soft(layer,chrome,.62,.01,.66,.63,.058,.062);
-      }
-      return {arrive(progress,time){
-        const reveal=Math.sin(progress*Math.PI)+.32*Math.sin(time*1.3)**2;
-        layers.forEach((layer,i)=>{
-          layer.position.x=(i-2)*(.11+.095*reveal);
-          layer.position.y=.13+i*.25+i*.09*reveal;
-        });
-      }};
-    }
-    function balance(stand){
-      capsule(stand,1,1.84,1.09);
-      testStand(stand);
-      return {};
-    }
-    const instrumentBuilders={metronome,scanner,compass,atlas,archive,balance};
+    const instrumentBuilders={metronome,scanner,wayfinder,bench:mechanicsBench};
     let liveInstrument;
     function showInstrument(id){
       if(id==='pulse')id='metronome';
       if(!instruments.has(id)){
-        const root=group(instrument), model=(instrumentBuilders[id]||compass)(root);
+        const root=group(instrument), model=(instrumentBuilders[id]||wayfinder)(root);
         instruments.set(id,{root,model});
       }
       liveInstrument=instruments.get(id);
@@ -533,10 +584,14 @@
     for(const node of [...shell,...Object.values(bays),...Object.values(variants)])batch(node);
     world.traverse(node=>{if(node.geometry)retired.delete(node.geometry);});
     for(const g of retired)g.dispose();
-    return {world,anchors,tiles,showInstrument,updateInstrument(signal,quiet,fraction,arrival,idleTime){
-      liveInstrument?.model.pulse?.(signal,quiet);
-      liveInstrument?.model.scan?.(fraction);
-      liveInstrument?.model.arrive?.(arrival,idleTime);
+    return {world,anchors,tiles,showInstrument,updateInstrument(signal,quiet,fraction,time,selection,dt){
+      const active=liveInstrument?.model;
+      active?.pulse?.(signal,quiet);
+      active?.scan?.(fraction);
+      return active?.update?.({selection,progress:fraction,time,quiet,dt});
+    },pickInstrument(ray){
+      const target=ray.intersectObjects(liveInstrument?.model.targets||[],false)[0];
+      return target?.object.userData.destination;
     },showExhibit(kind){
       for(const [id,fixture] of Object.entries(variants))fixture.visible=id===kind;
     },show(view){
