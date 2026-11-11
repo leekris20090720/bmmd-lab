@@ -6,6 +6,30 @@
   <meta name="color-scheme" content="dark">
   <title>BM//MD · 动作力学与训练记录</title>
   <link rel="icon" href="data:,">
+  <style>
+    #bm-startup {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      place-items: center;
+      background: #101017;
+      color: #f6f2f0;
+      font: 400 15px/1.5 system-ui, "PingFang SC", sans-serif;
+      text-align: center;
+    }
+    #bm-startup strong { font-size: 23px; }
+    #bm-startup p { margin: 10px 0; color: #c2bbc6; }
+    #bm-startup button {
+      padding: 8px 16px;
+      border: 1px solid #f5d4c1;
+      border-radius: 12px;
+      background: #f2bb96;
+      color: #27190b;
+      font: inherit;
+      cursor: pointer;
+    }
+    body:has(> #bm-startup) #portal-hub-overlay { visibility: hidden !important; }
+  </style>
   <link rel="stylesheet" href="style.css?v=learn-entries-20261027-1">
   <link rel="stylesheet" href="apple-lab.css?v=learn-entries-20261027-1">
   <link rel="stylesheet" href="sphere-map.css?v=learn-entries-20261027-1">
@@ -51,9 +75,35 @@
 <link rel="stylesheet" href="taste-refinement.css?v=straight-demo-20261111-1">
 <link rel="stylesheet" href="mechanics-expanded.css?v=cohesion-20261111-1">
 <link rel="stylesheet" href="spatial-studio.css?v=spatial-20261111-1">
-<link rel="stylesheet" href="depth-shell.css?v=layout-balance-20261111-1">
+<link rel="stylesheet" href="depth-shell.css?v=control-details-20261111-1">
 </head>
 <body class="telemetry-app apple-lab depth-ui theme-dark dark-mode bm-studio bm-deck">
+  <div id="bm-startup" style="display:grid!important">
+    <div>
+      <strong>BM//MD</strong>
+      <p id="bm-startup-message" role="status">正在加载页面…</p>
+      <button type="button" id="bm-startup-retry" hidden>重新加载</button>
+      <noscript>
+        <style>#bm-startup-message { display: none; }</style>
+        <p>请启用 JavaScript 后重新加载。</p>
+      </noscript>
+    </div>
+  </div>
+  <script>
+    (() => {
+      const startup = document.getElementById('bm-startup');
+      const retry = document.getElementById('bm-startup-retry');
+      const recovery = setTimeout(() => {
+        document.getElementById('bm-startup-message').textContent = '页面还未加载完成。';
+        retry.hidden = false;
+      }, 12000);
+      retry.addEventListener('click', () => location.reload());
+      window.addEventListener('bm:startup-ready', () => {
+        clearTimeout(recovery);
+        startup.remove();
+      }, { once: true });
+    })();
+  </script>
   <div id="portal-hub-overlay">
     <button type="button" class="portal-level-back" id="btn-portal-level-back">← 返回上一级</button>
     <section class="hub-hero portal-stage portal-stage-active" id="portal-welcome-stage">
@@ -615,8 +665,8 @@
   <script src="mechanism-scenes.js?v=mechanism-3d-20261111-2"></script>
   <script src="mechanism-view.js?v=mechanism-3d-20261111-1"></script>
   <script src="spatial-studio.js?v=mechanism-3d-20261111-1"></script>
-  <script src="depth-shell.js?v=layout-balance-20261111-1"></script>
-  <script src="product-spaces.js?v=layout-balance-20261111-1"></script>
+  <script src="depth-shell.js?v=control-details-20261111-1"></script>
+  <script src="product-spaces.js?v=startup-route-20261111-1"></script>
   <script src="assets/ui/equipment-hero.js?v=spatial-20261111-1" defer></script>
 </body>
 </html>

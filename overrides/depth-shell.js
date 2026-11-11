@@ -24,6 +24,13 @@
   .pg-gallery-stage{background:#101017!important}
   .pg-dialog button{background:#2d2936!important;color:#f6f2f0!important;border:1px solid #62576a!important;border-radius:14px!important;box-shadow:0 3px 0 #121017!important}
   .pg-dialog button:is([aria-selected=true],[aria-pressed=true],.pg-gallery-primary){background:#f2bb96!important;color:#23180d!important;border-color:#f7d5c0!important}
+  .pg-dialog .pg-dual-wave button.pg-wave-choice{
+    justify-content:center;align-items:flex-start;gap:4px;
+    padding:10px clamp(12px,1.2vw,16px);text-align:start;
+  }
+  .pg-dialog .pg-dual-wave .pg-wave-choice small{line-height:1.4}
+  .pg-dialog .pg-dual-wave .pg-wave-choice[aria-pressed=true]{--wave-x:0px!important}
+  .pg-dialog .pg-dual-wave .pg-wave-choice[aria-pressed=true] small{color:#543221}
   .pg-dialog :is(button,a,input):focus-visible{outline:2px solid #f2bb96!important;outline-offset:2px}
   .pg-dialog .pg-tabs::before{display:none}
   .pg-dialog:has(> #bm-depth-canvas) .pg-content{background:transparent!important}
@@ -138,7 +145,8 @@
     const frames=faces.map(node=>{
       const rect=node.getBoundingClientRect();
       if(rect.width<50||rect.height<14||rect.top>h+35||rect.bottom<minY-35)return {node,rect,visible:false};
-      const keys=[...node.querySelectorAll(keySelectors)].filter(el=>!el.closest('.spatial-stage')).map(el=>el.getBoundingClientRect()).filter(r=>r.width>=24&&r.height>=23&&r.bottom>minY&&r.top<h).slice(0,54);
+      // Scrollable gallery rows already draw their own bevel inside the scroll clip.
+      const keys=[...node.querySelectorAll(keySelectors)].filter(el=>!el.closest('.spatial-stage,.pg-gallery-thumbnails')).map(el=>el.getBoundingClientRect()).filter(r=>r.width>=24&&r.height>=23&&r.bottom>minY&&r.top<h).slice(0,54);
       return {node,rect,keys,visible:true};
     });
     plane.removeAttribute('data-deck-measuring');
