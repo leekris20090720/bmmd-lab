@@ -84,6 +84,7 @@
   const clamp = (n,lo,hi) => Math.min(hi,Math.max(lo,n));
   let graphics, host, pageHost, galleryHost, listeners, resize, visibility, visible = false, load, failed = false, frame = 0;
   let instrumentStart=0, instrumentSignal={}, instrumentKind;
+  let scanOverride, scanReading, scanRequested=false, demoTap=null, previewStart=null, previewOffset=0;
   let turn=0,pitch=0,shownTurn=0,shownPitch=0,lastDraw=0,previousView,transition,lost=false,traceData,markers=[];
   const stop = () => { cancelAnimationFrame(frame); frame=0; };
   function createGraphics() {
@@ -122,7 +123,7 @@
     const radius=(isHall?(compact?30:21.4):isTrace?8.05:isInstrument?6.65:isExhibit?7.85:9.2)
       * Math.max(1,(isHall?1.46:preview?1:1.25)/camera.aspect);
     const compassView=isInstrument&&instrumentKind==='compass';
-    const angle=(compassView?.26:layout.yaw)+shownTurn;
+    const angle=(compassView?.26:layout.yaw)+shownTurn+previewOffset;
     const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:isInstrument?compassView?.63:.34:.47)+shownPitch,.22,1.26);
     const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:isInstrument?compassView?.46:1.05:.89,layout.z);
     const ground = radius*Math.cos(elevation);
@@ -142,9 +143,28 @@
     model.world.visible=!isTrace;
     if(isTrace && traceData?.route===document.body.dataset.bmRoute)trace.update(...traceData.args);
     else trace.world.visible=false;
-    const isScanner=host.dataset.spatialView==='instrument'&&instrumentKind==='scanner';
-    const scanFraction=isScanner&&!reduced()?clamp((now-instrumentStart)/1700,0,1):.55;
-    if(host.dataset.spatialView==='instrument')model.updateInstrument(instrumentSignal,reduced(),scanFraction);
+    const quiet=reduced(),isScanner=instrumentKind==='scanner',isDemo=instrumentKind==='metronome';
+    const scanFraction=scanOverride ?? (quiet?(scanRequested?1:.55):clamp((now-instrumentStart)/1700,0,1));
+    const scanning=isScanner&&scanOverride===undefined&&!quiet&&scanFraction<1;
+    if(isScanner){
+      const reading=Math.round(scanFraction*100)+'/'+scanning;
+      if(reading!==scanReading){
+        scanReading=reading;
+        host.dispatchEvent(new CustomEvent('bm:scan',{detail:{fraction:scanFraction,moving:scanning}}));
+      }
+    }
+    const demoTime=isDemo&&demoTap!==null?clamp((now-demoTap)/650,0,1):1;
+    const demoActive=isDemo&&demoTime<1;
+    const intro=isDemo&&!quiet?clamp((now-instrumentStart)/2300,0,1):1;
+    const demoSwing=intro<1&&demoTap===null;
+    const swing=Math.sin(intro*Math.PI*4)*(1-intro)*.46;
+    const state=demoActive
+      ? {scale:1+.30*demoTime,near:true,beat:1,reaction:'on-time',strength:quiet?1:1-demoTime}
+      : demoSwing ? {scale:1.27-.20*Math.abs(swing)/.46,swing} : instrumentSignal;
+    const arrival=previewStart!==null&&!quiet?clamp((now-previewStart)/640,0,1):1;
+    const arriving=arrival<1;
+    previewOffset=arriving?.34*(1-arrival)**3:0;
+    if(instrumentKind)model.updateInstrument(state,quiet,scanFraction,arrival);
     const target = pose();
     if (transition && !reduced()) {
       const time = clamp((now-transition.start)/660,0,1), ease=1-Math.pow(1-time,3);
@@ -166,7 +186,7 @@
       marker.hidden = Math.abs(point.x)>.91 || Math.abs(point.y)>.91 || point.z>1;
     }
     host.setAttribute('data-spatial-ready','true');
-    if(transition||shownTurn!==turn||shownPitch!==pitch||(isScanner&&!reduced()&&scanFraction<1))drawSoon();
+    if(transition||shownTurn!==turn||shownPitch!==pitch||scanning||demoActive||demoSwing||arriving)drawSoon();
   }
   function drawSoon() {
     if(!frame && host && visible && !document.hidden && !lost) frame=requestAnimationFrame(draw);
@@ -185,6 +205,11 @@
     }
     drawSoon();
   }
+  function finishPreview() {
+    turn+=previewOffset;
+    shownTurn+=previewOffset;
+    previewStart=null;previewOffset=0;
+  }
   function restoreView() { turn=0; pitch=0; transition=null; drawSoon(); }
   function selectRoom(id) { graphics.model.select(id); drawSoon(); }
   function bind(canvas, signal) {
@@ -197,10 +222,10 @@
     },{signal});
     canvas.addEventListener('keydown',event=>{
       const directions={ArrowLeft:[-.16,0],ArrowRight:[.16,0],ArrowUp:[0,.09],ArrowDown:[0,-.09]};
-      if(event.key==='Home'){event.preventDefault();restoreView();return;}
+      if(event.key==='Home'){event.preventDefault();finishPreview();restoreView();return;}
       const shift=directions[event.key];
       if(!shift)return;
-      event.preventDefault(); transition=null;
+      event.preventDefault(); transition=null; finishPreview();
       turn+=shift[0]; pitch=clamp(pitch+shift[1],-.55,.65); drawSoon();
     },{signal});
     let drag;
@@ -213,6 +238,7 @@
       if(drag?.id!==event.pointerId)return;
       const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
       if(!drag.moved && Math.hypot(dx,dy)<5)return;
+      if(!drag.moved)finishPreview();
       drag.moved=true; drag.x=event.clientX; drag.y=event.clientY;
       transition=null; turn-=dx*.007; pitch=clamp(pitch+dy*.006,-.55,.65);
       drawSoon();
@@ -290,11 +316,12 @@
     model.show(view);
     if(view==='exhibit')model.showExhibit(element.dataset.spatialVariant);
     instrumentKind=view==='instrument'?element.dataset.spatialVariant:undefined;
-    if(instrumentKind){
-      instrumentStart=performance.now();
-      instrumentSignal={};
-      model.showInstrument(instrumentKind);
-    }
+    instrumentStart=performance.now();
+    previewStart=element.dataset.spatialControls==='orbit'?instrumentStart:null;
+    previewOffset=0;
+    scanOverride=scanReading=undefined;scanRequested=false;
+    demoTap=null;instrumentSignal={};
+    if(instrumentKind)model.showInstrument(instrumentKind);
     if(element.dataset.spatialLabel)canvas.setAttribute('aria-label',element.dataset.spatialLabel);
   }
   function gallery(element) {
@@ -305,11 +332,29 @@
     }else currentHost();
   }
   function releaseGallery(element){if(galleryHost===element)gallery(null);}
-  function pulse(element,scale,near,beat){
+  function pulse(element,scale,near,beat,reaction,strength){
     if(host!==element)return;
-    if(instrumentSignal.scale===scale&&instrumentSignal.near===near&&instrumentSignal.beat===beat)return;
-    instrumentSignal={scale,near,beat};
+    const current=instrumentSignal;
+    if(current.scale===scale&&current.near===near&&current.beat===beat&&current.reaction===reaction&&current.strength===strength)return;
+    instrumentSignal={scale,near,beat,reaction,strength};
     drawSoon();
+  }
+  function scan(element,fraction){
+    if(host!==element||instrumentKind!=='scanner')return;
+    scanOverride=typeof fraction==='number'?clamp(fraction,0,1):undefined;
+    scanRequested=true;
+    instrumentStart=performance.now();
+    drawSoon();
+  }
+  function tap(element){
+    if(host!==element||instrumentKind!=='metronome')return;
+    demoTap=performance.now();drawSoon();
+  }
+  function turnPreview(element,direction){
+    if(host!==element)return;
+    finishPreview();
+    if(direction===0)restoreView();
+    else {turn+=direction*.34;drawSoon();}
   }
   window.addEventListener('bm:page-ready',event=>{
     const route=event.detail.route;
@@ -331,5 +376,5 @@
     traceData={route:document.body.dataset.bmRoute,args:[rows,reference,x,y]};
     if(host?.dataset.spatialView==='trace')drawSoon();
   }
-  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,updateExperiment};
+  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,scan,tap,turn:turnPreview,updateExperiment};
 })();
