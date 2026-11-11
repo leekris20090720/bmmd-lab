@@ -10,7 +10,7 @@
     '.pd-ex-layout > :is(.pd-ex-observe,.pd-ex-controls)','.pd-course-workspace > *','.ex-topic',
     '#pd-content > div:not(.pd-ex-layout,.pd-course-workspace,.pd-plot-grid,.ex-library-topics,.pd-plan-toolbar,.pd-learn-intro,.pd-learn-layout,.ex-library-intro,.ex-library-controls,.ex-library-groups)',
     '#engineering-root :is(.eng-top,.eng-heading,.eng-models,.eng-hero,.eng-stage,.eng-parameters,.eng-position,.eng-panel,.eng-graph,.eng-observe,.eng-layout > *,.did-lab-header,.did-detailed-readouts)',
-    '.pg-header','.pg-tabs','.pg-content > :not(.pg-gallery,section.pg-empty)',
+    '.pg-header','.pg-tabs','.pg-content > :not(.pg-gallery,section.pg-empty,.pg-rhythm,.pg-quiz,.pg-portal-search)',
     '.pg-gallery :is(.pg-gallery-intro,.pg-gallery-filters,.pg-gallery-display,.pg-gallery-navigation)','.pg-footer'
   ].join(',');
   const keySelectors='button,a.pd-button,nav a,summary,[role=tab],input:not([type=range],[type=checkbox],[type=radio],[type=file]),select,textarea';
@@ -48,6 +48,15 @@
   .pg-dialog .pg-result[aria-selected=true] > svg{color:#543221}
   .pg-dialog :is(button,a,input):focus-visible{outline:2px solid #f2bb96!important;outline-offset:2px}
   .pg-dialog .pg-search-field:focus-within{outline:2px solid var(--ui-focus);outline-offset:2px}
+  .pg-dialog .pg-portal-search .pg-search-field{background:#1f1c27;border-color:#615469;box-shadow:none}
+  .pg-dialog .pg-portal-search .pg-search-field input{outline:none!important;box-shadow:none!important}
+  .pg-dialog .pg-rhythm-assembly button.pg-rhythm-target{
+    background:transparent!important;border:0!important;border-radius:50%!important;box-shadow:none!important
+  }
+  .pg-dialog .pg-rhythm-assembly button.pg-rhythm-target:focus-visible{outline:2px solid #f2bb96!important;outline-offset:-6px}
+  .pg-dialog .pg-game .pg-instrument-copy button.pg-primary{
+    background:#f2bb96!important;color:#23180d!important;border-color:#f7d5c0!important
+  }
   .pg-dialog .pg-search-field input:focus-visible{outline:none!important}
   .pg-dialog .pg-tabs{min-width:0;overflow-x:auto;scrollbar-width:thin}
   .pg-dialog .pg-tabs::before{display:none}

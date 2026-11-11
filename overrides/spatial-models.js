@@ -320,6 +320,149 @@
     for(const [id,build] of Object.entries({rack:bench,cable:cableMachine,incline:inclineMachine,seated:seatedMachine,extension:legExtension,row:rowingStation,fly:flyStation,shoulder:shoulderStation})){
       const item=group(exhibit);build(item);variants[id]=item;
     }
+    const instrument=group(world), instruments=new Map();
+    const glass=new T.MeshPhysicalMaterial({color:0x605063,roughness:.23,metalness:.22,transparent:true,opacity:.26,depthWrite:false,side:T.DoubleSide,clearcoat:.85});
+    function ringFace(parent,radius,section,material,x,y,z){
+      return mesh(parent,new T.TorusGeometry(radius,section,10,96),material,x,y,z);
+    }
+    function metronome(stand){
+      capsule(stand,1,1.69,.91);
+      for(const x of [-.81,.81]){
+        tube(stand,graphite,[[x,.05,.24],[x,.17,.05],[x,.56,-.32],[x,.99,-.36],[x,1.58,-.22]],.074,22);
+        cylinder(stand,chrome,x,1.57,-.22,.144,.18,'x');
+      }
+      const face=group(stand,0,1.55,.02);
+      turned(face,graphite,[[.89,-.20],[1.05,-.20],[1.16,-.16],[1.19,-.08],[1.19,.085],[1.14,.161],[1.02,.187],[.91,.173],[.89,.127],[.89,-.20]],0,0,0,'z',96);
+      ringFace(face,1.11,.020,chrome,0,0,.144);
+      ringFace(face,.91,.025,bronze,0,0,.159);
+      const interior=cylinder(face,ceramic,0,0,.004,.887,.094,'z');
+      interior.material=make(0x2f2939,.37,.43);
+      ringFace(face,.49,.019,softLight,0,0,.075);
+      ringFace(face,.91,.009,glow,0,0,.185);
+      for(let i=0;i<36;i++){
+        const t=i*Math.PI/18, r=i%3===0?1.014:1.03, c=Math.cos(t),d=Math.sin(t);
+        rod(face,i%3===0?bronze:softLight,[c*r,d*r,.182],[c*1.07,d*1.07,.178],i%3===0?.011:.005);
+      }
+      turned(face,chrome,[[0,.005],[.26,.005],[.30,.022],[.305,.115],[.28,.15],[0,.15]],0,0,0,'z');
+      cylinder(face,graphite,0,0,.153,.253,.035,'z');
+      ringFace(face,.232,.014,bronze,0,0,.174);
+      cylinder(face,glow,0,0,.178,.089,.019,'z');
+      const wave=ringFace(face,.91,.027,selected,0,0,.204);
+      const ripple=ringFace(face,.91,.008,bronze,0,0,.210);
+      wave.scale.set(1.27,1.27,1);ripple.scale.copy(wave.scale);
+      return {pulse({scale=1.27,near=false,beat=0},quiet){
+        wave.scale.set(quiet?1:scale,quiet?1:scale,1);
+        wave.visible=!quiet||near;
+        wave.material=near?selected:glow;
+        ripple.scale.copy(wave.scale);ripple.visible=!quiet&&scale>1.04;
+        interior.rotation.z=beat*Math.PI/4;
+      }};
+    }
+    function scanner(stand){
+      capsule(stand,1,1.95,1.23);
+      shade(stand,0,.024,0,3.9,2.65);
+      turned(stand,graphite,[[0,.03],[.87,.03],[.94,.08],[.98,.15],[.95,.23],[.87,.25],[0,.25]]);
+      band(stand,glow,.935,.014,.195);
+      for(const z of [-.60,.38]){
+        tube(stand,graphite,[[-1.19,.11,z],[-1.19,1.74,z],[-1.07,2.04,z],[-.78,2.19,z],[.78,2.19,z],[1.07,2.04,z],[1.19,1.74,z],[1.19,.11,z]],.10,42);
+        tube(stand,chrome,[[-1.17,.44,z+.014],[-1.17,1.71,z+.014],[-.98,2.02,z+.014],[-.66,2.10,z+.014]],.023,24);
+      }
+      for(const x of [-1.19,1.19])for(const y of [.38,1.77]){
+        rod(stand,ceramic,[x,y,-.62],[x,y,.40],.07);
+      }
+      soft(stand,graphite,0,2.16,-.06,.62,.28,.68);
+      turned(stand,chrome,[[0,.06],[.19,.06],[.21,.102],[.19,.14],[0,.14]],0,1.99,.17,'z');
+      cylinder(stand,glow,0,1.99,.319,.092,.035,'z');
+      const sample=group(stand,0,.90,.02);sample.rotation.z=-.18;
+      const face=new T.Shape();face.absarc(0,0,.59,0,Math.PI*2,false);
+      for(let n=0;n<5;n++){
+        const a=n*Math.PI*2/5;
+        const hole=new T.Path();hole.absarc(.37*Math.cos(a),.37*Math.sin(a),.104,0,Math.PI*2,true);face.holes.push(hole);
+      }
+      const disk=new T.ExtrudeGeometry(face,{depth:.17,curveSegments:24,bevelEnabled:true,bevelSize:.026,bevelThickness:.027,bevelSegments:2});
+      mesh(sample,disk,graphite,0,0,-.09);
+      ringFace(sample,.58,.037,chrome,0,0,.084);
+      ringFace(sample,.56,.014,bronze,0,0,.128);
+      cylinder(sample,chrome,0,0,.111,.174,.09,'z');
+      cylinder(sample,ink,0,0,.161,.101,.034,'z');
+      rod(stand,chrome,[0,.24,-.19],[0,.59,-.13],.10);
+      const sensor=group(stand,0,.96,0);
+      for(const z of [-.60,.38])for(const x of [-1.17,1.17]){
+        soft(sensor,graphite,x,0,z,.24,.24,.25);
+        cylinder(sensor,glow,x*.89,0,z,.042,.072,'x');
+      }
+      const pane=mesh(sensor,new T.PlaneGeometry(2.20,.98),glass,0,0,-.11);pane.rotation.x=-Math.PI/2;
+      rod(sensor,glow,[-1.03,.002,.382],[1.03,.002,.382],.010);
+      return {scan(fraction){
+        const easing=fraction*fraction*(3-2*fraction);
+        sensor.position.y=1.83-1.42*easing;
+        sample.rotation.y=-.23+easing*.71;
+      }};
+    }
+    function compass(stand){
+      capsule(stand,1,1.64,1.16);
+      shade(stand,0,.028,0,3.5,2.6);
+      const housing=group(stand,0,.46,0);
+      housing.rotation.x=.22;
+      turned(housing,graphite,[[0,-.31],[1.08,-.31],[1.24,-.28],[1.28,-.21],[1.28,.10],[1.23,.17],[1.17,.19],[0,.19]]);
+      turned(housing,chrome,[[1.15,.194],[1.20,.199],[1.22,.168],[1.22,.127]]);
+      cylinder(housing,ceramic,0,.211,0,1.15,.044);
+      band(housing,bronze,1.03,.015,.244);
+      for(let i=0;i<24;i++){
+        const a=i*Math.PI/12,c=Math.cos(a),d=Math.sin(a),r=i%6===0?.84:.96;
+        rod(housing,i%6===0?bronze:chrome,[c*r,.25,d*r],[c*1.02,.25,d*1.02],i%6===0?.023:.010);
+      }
+      const needle=new T.Shape();
+      needle.moveTo(0,.85);needle.lineTo(-.18,-.05);needle.lineTo(0,-.52);needle.lineTo(.18,-.05);needle.closePath();
+      const arrow=mesh(housing,new T.ExtrudeGeometry(needle,{depth:.055,bevelEnabled:true,bevelSize:.021,bevelThickness:.016,bevelSegments:3}),bronze,0,.292,0);
+      arrow.rotation.set(-Math.PI/2,0,.48);
+      cylinder(housing,chrome,0,.383,0,.098,.061);
+      return {};
+    }
+    function atlas(stand){
+      capsule(stand,1,1.63,1.12);
+      rod(stand,graphite,[0,.03,0],[0,.72,0],.15);
+      const cell=group(stand,0,1.35,0);
+      const kernel=mesh(cell,new T.SphereGeometry(.51,40,24),ceramic,0,0,0);
+      kernel.material=make(0x63566b,.63,.32);
+      for(const [i,[rx,ry]] of [[.8,.02],[-.8,-.45],[.22,1.31]].entries()){
+        const orbit=group(cell);orbit.rotation.set(rx,ry,i*.75);
+        ringFace(orbit,.91,.030,i===0?bronze:chrome,0,0,0);
+        for(let j=0;j<3;j++){
+          const a=(i*.37+j)*Math.PI*2/3;
+          mesh(orbit,new T.SphereGeometry(j===0?.092:.049,18,12),j===0?bronze:softLight,Math.cos(a)*.91,Math.sin(a)*.91,0);
+        }
+      }
+      return {};
+    }
+    function archive(stand){
+      capsule(stand,1,1.69,1.05);
+      for(let n=0;n<5;n++){
+        const layer=group(stand,(n-2)*.11,.13+n*.25,-n*.105);
+        layer.rotation.y=-.19+n*.085;
+        soft(layer,n===3?bronze:graphite,0,0,0,2.2,.18,1.33);
+        soft(layer,n===3?bronze:ceramic,0,.101,0,2.08,.037,1.23);
+        for(let i=0;i<3;i++)rod(layer,chrome,[-.78,.13,.30-i*.16],[.68-i*.28,.13,.30-i*.16],.013);
+        soft(layer,chrome,.62,.01,.66,.63,.058,.062);
+      }
+      return {};
+    }
+    function balance(stand){
+      capsule(stand,1,1.84,1.09);
+      testStand(stand);
+      return {};
+    }
+    const instrumentBuilders={metronome,scanner,compass,atlas,archive,balance};
+    let liveInstrument;
+    function showInstrument(id){
+      if(id==='pulse')id='metronome';
+      if(!instruments.has(id)){
+        const root=group(instrument), model=(instrumentBuilders[id]||compass)(root);
+        instruments.set(id,{root,model});
+      }
+      liveInstrument=instruments.get(id);
+      for(const exhibit of instruments.values())exhibit.root.visible=exhibit===liveInstrument;
+    }
     const reserved=new Set([...Object.values(tiles),...Object.values(strips)]);
     const retired=new Set();
     function batch(root){
@@ -356,10 +499,14 @@
     for(const node of [...shell,...Object.values(bays),...Object.values(variants)])batch(node);
     world.traverse(node=>{if(node.geometry)retired.delete(node.geometry);});
     for(const g of retired)g.dispose();
-    return {world,anchors,tiles,showExhibit(kind){
+    return {world,anchors,tiles,showInstrument,updateInstrument(signal,quiet,fraction){
+      liveInstrument?.model.pulse?.(signal,quiet);
+      liveInstrument?.model.scan?.(fraction);
+    },showExhibit(kind){
       for(const [id,fixture] of Object.entries(variants))fixture.visible=id===kind;
     },show(view){
       exhibit.visible=view==='exhibit';
+      instrument.visible=view==='instrument';
       const all=view==='hall';
       for(const [id,bay] of Object.entries(bays))bay.visible=all||view===id;
       for(const node of shell)node.visible=all;

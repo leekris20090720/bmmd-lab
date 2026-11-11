@@ -83,6 +83,7 @@
   const reduced = () => motion.matches || document.documentElement.classList.contains('pd-reduced');
   const clamp = (n,lo,hi) => Math.min(hi,Math.max(lo,n));
   let graphics, host, pageHost, galleryHost, listeners, resize, visibility, visible = false, load, failed = false, frame = 0;
+  let instrumentStart=0, instrumentSignal={}, instrumentKind;
   let turn=0,pitch=0,shownTurn=0,shownPitch=0,lastDraw=0,previousView,transition,lost=false,traceData,markers=[];
   const stop = () => { cancelAnimationFrame(frame); frame=0; };
   function createGraphics() {
@@ -109,14 +110,21 @@
   }
   function pose() {
     const {T,camera} = graphics;
-    const view = host.dataset.spatialView, isTrace = view==='trace', isExhibit=view==='exhibit';
-    const layout = isTrace || isExhibit ? {x:0,z:0,yaw:.42} : rooms[view] || cameraHome;
+    const view=host.dataset.spatialView,isTrace=view==='trace',isExhibit=view==='exhibit',isInstrument=view==='instrument';
+    if(isInstrument&&instrumentKind==='pulse'){
+      const y=1.55,z=6.45*Math.max(1,1/camera.aspect);
+      return {center:new T.Vector3(0,y,0),position:new T.Vector3(0,y,z)};
+    }
+    const layout = isTrace || isExhibit || isInstrument ? {x:0,z:0,yaw:.42} : rooms[view] || cameraHome;
     const isHall = view==='hall';
     const compact = host.classList.contains('spatial-view-room');
-    const radius = (isHall?(compact?30:21.4):isTrace?8.05:isExhibit?7.85:9.2) * Math.max(1,(isHall?1.46:1.25)/camera.aspect);
-    const angle = layout.yaw+shownTurn;
-    const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:.47)+shownPitch,.22,1.26);
-    const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:.89,layout.z);
+    const preview=host.classList.contains('pg-model');
+    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isInstrument?6.65:isExhibit?7.85:9.2)
+      * Math.max(1,(isHall?1.46:preview?1:1.25)/camera.aspect);
+    const compassView=isInstrument&&instrumentKind==='compass';
+    const angle=(compassView?.26:layout.yaw)+shownTurn;
+    const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:isInstrument?compassView?.63:.34:.47)+shownPitch,.22,1.26);
+    const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:isInstrument?compassView?.46:1.05:.89,layout.z);
     const ground = radius*Math.cos(elevation);
     const position = new T.Vector3(center.x+ground*Math.sin(angle),center.y+radius*Math.sin(elevation),center.z+ground*Math.cos(angle));
     return {center,position};
@@ -134,6 +142,9 @@
     model.world.visible=!isTrace;
     if(isTrace && traceData?.route===document.body.dataset.bmRoute)trace.update(...traceData.args);
     else trace.world.visible=false;
+    const isScanner=host.dataset.spatialView==='instrument'&&instrumentKind==='scanner';
+    const scanFraction=isScanner&&!reduced()?clamp((now-instrumentStart)/1700,0,1):.55;
+    if(host.dataset.spatialView==='instrument')model.updateInstrument(instrumentSignal,reduced(),scanFraction);
     const target = pose();
     if (transition && !reduced()) {
       const time = clamp((now-transition.start)/660,0,1), ease=1-Math.pow(1-time,3);
@@ -155,7 +166,7 @@
       marker.hidden = Math.abs(point.x)>.91 || Math.abs(point.y)>.91 || point.z>1;
     }
     host.setAttribute('data-spatial-ready','true');
-    if(transition||shownTurn!==turn||shownPitch!==pitch)drawSoon();
+    if(transition||shownTurn!==turn||shownPitch!==pitch||(isScanner&&!reduced()&&scanFraction<1))drawSoon();
   }
   function drawSoon() {
     if(!frame && host && visible && !document.hidden && !lost) frame=requestAnimationFrame(draw);
@@ -248,16 +259,18 @@
       graphics ||= createGraphics();
       const {canvas,camera,look,model}=graphics;
       const view=next.dataset.spatialView;
-      if(previousView && previousView!==view && ![previousView,view].some(key=>key==='trace'||key==='exhibit')){
+      if(previousView && previousView!==view && ![previousView,view].some(key=>key==='trace'||key==='exhibit'||key==='instrument')){
         transition={start:performance.now(),position:camera.position.clone(),center:look.clone()};
       }
       previousView=view; turn=shownTurn=0; pitch=shownPitch=0; lastDraw=0;
       markers=[...next.querySelectorAll('[data-spatial-marker],[data-spatial-station]')];
-      model.show(view); model.select(view);
-      if(view==='exhibit')model.showExhibit(next.dataset.spatialVariant);
-      canvas.setAttribute('aria-label',t('立体视图，方向键转动，Home 键复位','3D view. Arrow keys rotate, Home resets.'));
+      model.select(view);
+      updateGallery(next);
+      const passive=next.dataset.spatialPassive==='true';
+      canvas.tabIndex=passive?-1:0;
+      canvas.setAttribute('aria-label',next.dataset.spatialLabel||t('立体视图，方向键转动，Home 键复位','3D view. Arrow keys rotate, Home resets.'));
       next.querySelector('.spatial-stage').prepend(canvas);
-      bind(canvas,signal);
+      if(!passive)bind(canvas,signal);
       resize=new ResizeObserver(fit);resize.observe(next.querySelector('.spatial-stage'));
       visibility=new IntersectionObserver(([entry])=>{
         visible=entry.isIntersecting;
@@ -272,12 +285,31 @@
   function currentHost() {
     mount(galleryHost?.isConnected ? galleryHost : pageHost?.isConnected ? pageHost : null);
   }
+  function updateGallery(element) {
+    const {model,canvas}=graphics,view=element.dataset.spatialView;
+    model.show(view);
+    if(view==='exhibit')model.showExhibit(element.dataset.spatialVariant);
+    instrumentKind=view==='instrument'?element.dataset.spatialVariant:undefined;
+    if(instrumentKind){
+      instrumentStart=performance.now();
+      instrumentSignal={};
+      model.showInstrument(instrumentKind);
+    }
+    if(element.dataset.spatialLabel)canvas.setAttribute('aria-label',element.dataset.spatialLabel);
+  }
   function gallery(element) {
     galleryHost=element;
-    if (host===element && graphics && element) {
-      graphics.model.showExhibit(element.dataset.spatialVariant);
+    if(host===element && graphics && element){
+      updateGallery(element);
       restoreView();
-    } else currentHost();
+    }else currentHost();
+  }
+  function releaseGallery(element){if(galleryHost===element)gallery(null);}
+  function pulse(element,scale,near,beat){
+    if(host!==element)return;
+    if(instrumentSignal.scale===scale&&instrumentSignal.near===near&&instrumentSignal.beat===beat)return;
+    instrumentSignal={scale,near,beat};
+    drawSoon();
   }
   window.addEventListener('bm:page-ready',event=>{
     const route=event.detail.route;
@@ -299,5 +331,5 @@
     traceData={route:document.body.dataset.bmRoute,args:[rows,reference,x,y]};
     if(host?.dataset.spatialView==='trace')drawSoon();
   }
-  B.SpatialStudio={home,header,gallery,updateExperiment};
+  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,updateExperiment};
 })();
