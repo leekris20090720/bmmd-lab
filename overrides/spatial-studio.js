@@ -16,7 +16,7 @@
     ],
     learn: [
       ['观察钢索','Cable course','course/arm',[3.33,1.32,3.63]],
-      ['动作导图','Movement map','learn/map',[6.08,.93,2.91]]
+      ['课程目录','Course catalog','learn/courses',[6.08,.93,2.91]]
     ],
     lab: [
       ['有效力臂','Moment arm','experiment/lever',[-3.26,1.88,-2.24]],
