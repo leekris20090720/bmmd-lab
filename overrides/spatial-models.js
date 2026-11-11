@@ -418,8 +418,112 @@
         sample.rotation.y=-.23+easing*.71;
       }};
     }
+    function wayfinderMiniatures(){
+      const pearl=make(0xaaa9b8,.42,.36), slate=make(0x676274,.48,.39);
+      const copper=make(0xc49069,.61,.31);
+      return [
+        ['home',station=>{
+          soft(station,slate,0,.045,0,.62,.09,.49);
+          soft(station,pearl,0,.233,0,.47,.31,.37);
+          const roof=new T.Shape();
+          roof.moveTo(-.30,0);roof.lineTo(0,.205);roof.lineTo(.30,0);roof.closePath();
+          mesh(station,new T.ExtrudeGeometry(roof,{depth:.49,bevelEnabled:true,bevelThickness:.014,bevelSize:.014,bevelSegments:2}),copper,0,.375,-.245);
+          soft(station,graphite,.035,.168,.190,.123,.194,.025);
+          soft(station,ink,-.125,.247,.195,.106,.10,.021);
+          rod(station,chrome,[-.165,.238,.211],[-.085,.238,.211],.009);
+          soft(station,pearl,.035,.065,.218,.17,.041,.10);
+        }],
+        ['library',station=>{
+          soft(station,graphite,0,.047,0,.70,.094,.49);
+          for(const [i,height] of [.43,.51,.37].entries()){
+            const volume=group(station,(i-1)*.183,.105,.01);
+            volume.rotation.z=i===2?-.17:.035;
+            const cover=[copper,slate,pearl][i];
+            soft(volume,cover,0,height*.50,0,.162,height,.40);
+            soft(volume,pearl,0,height*.50,-.187,.117,height-.047,.053);
+            for(const y of [.077,height-.073])rod(volume,copper,[-.058,y,.204],[.058,y,.204],.010);
+          }
+        }],
+        ['learn/experiments',station=>{
+          soft(station,slate,0,.046,0,.72,.092,.45);
+          turned(station,graphite,[[0,.08],[.11,.08],[.092,.14],[.044,.36],[0,.39]]);
+          cylinder(station,chrome,0,.383,.01,.066,.081,'z');
+          const lever=group(station,0,.386,0);
+          rod(lever,chrome,[-.305,0,0],[.305,0,0],.029);
+          for(const [x,y] of [[-.255,-.115],[.255,-.115]]){
+            rod(lever,bronze,[x,0,0],[x,y-.03,0],.011);
+            turned(lever,copper,[[0,-.031],[.103,-.031],[.111,-.016],[.11,.002],[.094,.024],[0,.024]],x,y-.033,0,'y',30);
+          }
+          cylinder(lever,slate,-.255,-.117,0,.048,.061);
+          return time=>{lever.rotation.z=.12+.19*Math.sin(time*1.9);};
+        }],
+        ['plans',station=>{
+          soft(station,graphite,0,.044,0,.61,.088,.40);
+          const page=group(station,0,.31,.025);page.rotation.x=-.17;
+          soft(page,pearl,0,0,0,.56,.43,.095);
+          soft(page,copper,0,.155,.051,.52,.092,.028);
+          for(const x of [-.159,.159]){
+            mesh(page,new T.TorusGeometry(.049,.014,7,24),chrome,x,.214,.015).rotation.y=Math.PI/2;
+          }
+          for(let row=0;row<3;row++)for(let column=0;column<4;column++){
+            soft(page,row===1&&column===2?copper:slate,(column-1.5)*.104,.045-row*.074,.058,.049,.036,.014);
+          }
+        }],
+        ['training',station=>{
+          soft(station,slate,0,.046,0,.73,.092,.44);
+          for(const x of [-.13,.13]){
+            rod(station,chrome,[x,.076,0],[x,.245,0],.034);
+            rod(station,graphite,[x,.231,-.087],[x,.231,.084],.035);
+          }
+          const handle=group(station,0,.278,0);handle.rotation.y=-.19;
+          cylinder(handle,chrome,0,0,0,.027,.65,'x');
+          for(const side of [-1,1]){
+            for(let i=0;i<3;i++){
+              cylinder(handle,i===2?copper:graphite,side*(.202+i*.036),0,0,.153-i*.014,.031,'x');
+            }
+            cylinder(handle,chrome,side*.324,0,0,.059,.046,'x');
+          }
+        }],
+        ['history',station=>{
+          soft(station,slate,0,.044,0,.72,.088,.43);
+          rod(station,chrome,[-.311,.102,.115],[.318,.102,.115],.014);
+          for(const [i,height] of [.18,.28,.23,.43].entries()){
+            const x=(i-1.5)*.155;
+            soft(station,i===3?copper:pearl,x,.10+height/2,0,.113,height,.23);
+            soft(station,i===3?selected:softLight,x,.102+height,.026,.087,.015,.13);
+          }
+        }],
+        ['data',station=>{
+          soft(station,graphite,0,.044,0,.63,.088,.46);
+          for(let i=0;i<3;i++){
+            const level=group(station,0,.13+i*.117,0);
+            turned(level,i===2?slate:graphite,[[0,-.05],[.237,-.05],[.264,-.034],[.273,-.012],[.273,.025],[.258,.048],[0,.05]],0,0,0,'y',38);
+            band(level,i===2?copper:pearl,.252,.014,.025);
+            cylinder(level,i===2?selected:softLight,.096,.003,.254,.021,.025,'z');
+          }
+          cylinder(station,copper,0,.414,0,.073,.034);
+          cylinder(station,pearl,0,.444,0,.045,.030);
+        }],
+        ['settings/profile',station=>{
+          turned(station,graphite,[[0,.02],[.23,.02],[.26,.049],[.24,.084],[.14,.096],[0,.096]]);
+          band(station,copper,.22,.014,.078);
+          const bust=new T.Shape();
+          bust.moveTo(-.128,.10);bust.lineTo(.128,.10);
+          bust.quadraticCurveTo(.21,.112,.237,.177);
+          bust.quadraticCurveTo(.244,.231,.192,.258);
+          bust.quadraticCurveTo(.102,.279,.065,.322);
+          bust.lineTo(.058,.376);bust.lineTo(-.058,.376);bust.lineTo(-.065,.322);
+          bust.quadraticCurveTo(-.102,.279,-.192,.258);
+          bust.quadraticCurveTo(-.244,.231,-.237,.177);
+          bust.quadraticCurveTo(-.21,.112,-.128,.10);bust.closePath();
+          mesh(station,new T.ExtrudeGeometry(bust,{depth:.145,bevelEnabled:true,bevelSize:.023,bevelThickness:.023,bevelSegments:3}),pearl,0,0,-.073);
+          mesh(station,new T.SphereGeometry(.119,24,18),pearl,0,.465,.011).scale.set(.92,1.17,.93);
+          mesh(station,new T.SphereGeometry(.033,14,10),pearl,0,.449,.106).scale.set(.65,1,.72);
+        }]
+      ];
+    }
     function wayfinder(stand){
-      const destinations=['home','library','learn/experiments','plans','training','history','data','settings/profile'];
+      const miniatures=wayfinderMiniatures();
       capsule(stand,1,2.84,2.84);
       shade(stand,.0,.03,0,6.35,6.35);
       turned(stand,graphite,[[0,.04],[2.34,.04],[2.49,.11],[2.55,.24],[2.54,.38],[2.47,.49],[2.33,.54],[0,.54]]);
@@ -433,15 +537,19 @@
         const start=i%6===0?1.49:1.56;
         rod(stand,i%6===0?bronze:softLight,[sin*start,.582,cos*start],[sin*1.64,.582,cos*1.64],i%6===0?.016:.007);
       }
-      const targets=[], lamps=[];
-      destinations.forEach((id,i)=>{
-        const angle=i*Math.PI/4, x=Math.sin(angle)*1.98,z=Math.cos(angle)*1.98;
-        const station=group(stand,x,.55,z);station.rotation.y=angle;
-        const top=soft(station,graphite,0,.115,0,.65,.23,.52);
-        top.userData.destination=id;targets.push(top);
-        lamps.push(soft(station,softLight,0,.242,.13,.39,.031,.054));
-        for(const offset of [-.17,.17])cylinder(station,chrome,offset,.24,-.06,.038,.027);
-        rod(station,bronze,[-.092,.256,-.074],[.092,.256,-.074],.013);
+      const targets=[];
+      const stations=miniatures.map(([id,build],i)=>{
+        const angle=i*Math.PI/4,x=Math.sin(angle)*1.94,z=Math.cos(angle)*1.94;
+        const station=group(stand,x,.548,z);
+        turned(station,graphite,[[0,0],[.36,0],[.39,.027],[.39,.069],[.36,.094],[0,.094]],0,0,0,'y',44);
+        const ring=band(station,softLight,.36,.014,.073);
+        const model=group(station,0,.096,0);model.rotation.y=.12;
+        const animate=build(model);
+        station.traverse(node=>{
+          if(!node.isMesh)return;
+          node.userData.destination=id;targets.push(node);
+        });
+        return {id,ring,model,animate};
       });
       const rotor=group(stand,0,.68,0);
       const pointer=new T.Shape();
@@ -453,12 +561,20 @@
       cylinder(stand,chrome,0,.827,0,.23,.075);
       band(stand,glow,.17,.018,.869);
       return {targets,update({selection,time,quiet,dt}){
-        const index=Math.max(0,destinations.indexOf(selection));
+        const index=Math.max(0,stations.findIndex(station=>station.id===selection));
         const heading=index*Math.PI/4+(quiet?0:.034*Math.sin(time*1.9));
         const difference=Math.atan2(Math.sin(heading-rotor.rotation.y),Math.cos(heading-rotor.rotation.y));
-        rotor.rotation.y+=quiet?difference:difference*(1-Math.exp(-Math.max(16,dt)/100));
-        lamps.forEach((lamp,i)=>{lamp.material=i===index?selected:softLight;});
-        return Math.abs(difference)>.009;
+        const ease=quiet?1:1-Math.exp(-Math.max(16,dt)/100);
+        rotor.rotation.y+=difference*ease;
+        let lifting=false;
+        stations.forEach(({ring,model,animate},i)=>{
+          const active=i===index, height=active?.163:.096;
+          ring.material=active?selected:softLight;
+          model.position.y+=(height-model.position.y)*ease;
+          lifting||=Math.abs(height-model.position.y)>.001;
+          animate?.(active&&!quiet?time:0);
+        });
+        return lifting||Math.abs(difference)>.009;
       }};
     }
     function mechanicsBench(stand){
