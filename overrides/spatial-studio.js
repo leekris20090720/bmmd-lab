@@ -140,7 +140,8 @@
     return {center,position};
   }
   function wayfinderLabelWidth(){
-    return graphics.width<370?61:77;
+    const english=document.documentElement.lang==="en";
+    return graphics.width<370?(english?74:61):(english?108:77);
   }
   function wayfinderDistance(){
     const {width,height}=graphics;
@@ -461,6 +462,7 @@
     }
   }).observe(document.body,{attributes:true,attributeFilter:['data-bm-route']});
   motion.addEventListener('change',drawSoon);
+  document.addEventListener('bm:language-change',drawSoon);
   document.addEventListener('visibilitychange',()=>{ if(document.hidden)stop(); else drawSoon(); });
   window.addEventListener('pagehide',event=>{if(event.persisted)stop();else detach();});
   window.addEventListener('pageshow',event=>{if(event.persisted)drawSoon();});
