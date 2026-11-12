@@ -637,3 +637,45 @@ body.bm-studio.bm-deck #pd-content .pd-learn-destinations > a {display:grid;grid
 .pd-learn-destinations > a:hover strong,.pd-learn-destinations > a:focus-visible strong {color:var(--pd-accent);}
 .pd-equipment-reference figure {margin:12px 0;}
 .pd-equipment-reference img {display:block;max-width:100%;width:min(360px,100%);height:auto;max-height:330px;object-fit:contain;}
+
+/* Learning uses the same metal studies as the hall, with flat, native controls. */
+body.bm-studio.bm-deck #pd-content .pd-learn-destinations {
+  max-width:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,2vw,28px);margin:16px 0 0;border:0;
+}
+body.bm-studio.bm-deck #pd-content .pd-learn-destinations > a {
+  display:flex;flex-direction:column;align-items:stretch;gap:0;padding:0;min-width:0;
+  border:1px solid var(--pd-line);border-radius:12px;overflow:hidden;background:#1d1c24;
+}
+body.bm-studio.bm-deck #pd-content .pd-learn-destinations > a > .bm-learning-preview {height:clamp(185px,24vw,330px);}
+.bm-destination-copy {display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:clamp(14px,2.4vw,28px);}
+.bm-destination-copy > span:first-child {display:grid;gap:6px;}
+.bm-learning-preview {position:relative;display:block;min-width:0;background:#101017;overflow:hidden;}
+.bm-learning-preview :is(img,canvas) {position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain;}
+.bm-learning-preview img {pointer-events:none;}
+.bm-learning-preview canvas {opacity:0;touch-action:pan-y;cursor:grab;}
+.bm-learning-preview canvas[data-model-ready] {opacity:1;}
+.bm-learning-preview canvas:active {cursor:grabbing;}
+.bm-model-filters {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin-top:14px;}
+.bm-model-filters:has([data-course-filter]) {grid-template-columns:repeat(5,minmax(0,1fr));}
+body.bm-studio.bm-deck #product-root #pd-content .bm-model-filters button {
+  display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;min-width:0;min-height:44px;
+  padding:0;overflow:hidden;text-align:left;border-radius:10px!important;border:1px solid var(--pd-line)!important;background:#1d1c24!important;
+}
+body.bm-studio.bm-deck #product-root #pd-content :is(.bm-model-filters button,.pd-learn-destinations a):is(:hover,:focus-visible,[aria-pressed=true]) {
+  border-color:var(--pd-accent)!important;
+}
+.bm-model-filters .bm-learning-preview {height:clamp(82px,10vw,135px);}
+.bm-model-label {display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:9px 10px;min-width:0;white-space:normal;line-height:1.3;}
+.bm-model-label strong {overflow-wrap:anywhere;font-size:14px;}
+.bm-model-label small {color:var(--pd-muted);font-variant-numeric:tabular-nums;}
+.bm-model-filters [aria-pressed=true] .bm-model-label strong {color:var(--pd-accent);}
+.bm-model-hint,.bm-model-status {color:var(--pd-muted);font-size:13px;margin:10px 0;}
+body.bm-studio.bm-deck #pd-content .bm-model-search {grid-template-columns:minmax(0,400px);margin-bottom:0;}
+body.bm-studio.bm-deck #pd-content .ex-library-controls:has(.bm-model-filters) {display:block;}
+@media(max-width:860px){
+  .bm-model-filters,.bm-model-filters:has([data-course-filter]) {grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(max-width:530px){
+  body.bm-studio.bm-deck #pd-content .pd-learn-destinations {grid-template-columns:minmax(0,1fr);}
+  .bm-model-filters,.bm-model-filters:has([data-course-filter]) {grid-template-columns:repeat(2,minmax(0,1fr));}
+}

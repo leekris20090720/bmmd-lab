@@ -138,10 +138,11 @@
   }
   return `<svg viewBox="0 0 500 355" role="img" aria-label="${E(t('当前参数的计算图解','Computed diagram for the current parameters'))}"><defs><marker id="ex-new-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>${s}</svg>`;
  }
- function directoryHTML(X,labs,{t,E}){
+ function directoryHTML(X,labs,{t,E,modelPicker}){
   const groups=[['力与转动','Force and rotation'],['传动与阻力','Transmission and resistance'],['功、时间与运动','Work, time and motion'],['曲线、弹簧与测量','Curves, springs and measurement'],['动作综合实验','Movement studies']];
   const items=[...X.configs.map(c=>({...c,kind:protocols[c.id]?t('3组对照','3 comparisons'):''})),...labs.map(c=>({...c,theme:4,kind:t('动作综合','Movement study')}))];
-  const topics=[['all',t('全部','All')],...groups.map((group,i)=>[String(i),t(...group)])];
+  const kinds=['force','transmission','motion','measurement','study'];
+  const topics=[['all',t('全部','All'),'topics',items.length],...groups.map((group,i)=>[String(i),t(...group),kinds[i],items.filter(item=>item.theme===i).length])];
   const sections=groups.map((group,index)=>{
    const entries=items.filter(item=>item.theme===index);
    const rows=entries.map(item=>`<li data-ex-card data-ex-theme="${index}" data-ex-search="${E([...item.title,...item.intro,item.id].join(' ').toLowerCase())}">
@@ -161,20 +162,20 @@
   </div>
   <div class="ex-library-controls">
    <label>${t('搜索实验','Find an experiment')}<input type="search" id="ex-library-search" placeholder="${t('名称或关键词','Name or keyword')}" autocomplete="off"></label>
-   <div class="ex-library-filters" role="group" aria-label="${t('按主题筛选实验','Filter experiments by topic')}">${topics.map(([value,label])=>`<button type="button" data-ex-filter="${value}" aria-pressed="${value==='all'}">${label}</button>`).join('')}</div>
-   <label class="ex-library-mobile-filter">${t('主题','Topic')}<select id="ex-library-topic">${topics.map(([value,label])=>`<option value="${value}">${label}</option>`).join('')}</select></label>
+   ${modelPicker.filters(topics,t('按主题筛选实验','Filter experiments by topic'),'data-ex-filter')}
+   ${modelPicker.hint()}
    <p id="ex-library-status" role="status" aria-live="polite">${t('显示全部','Showing all')} ${items.length} ${t('个实验','experiments')}</p>
   </div><div class="ex-library-groups">${sections}</div>
   <p id="ex-library-empty" hidden>${t('没有匹配的实验。换个关键词或选择“全部”。','No matches. Try another term or select All.')}</p>`;
  }
  function mountDirectory(root,{t}){
   const input=root.querySelector('#ex-library-search');
-  const select=root.querySelector('#ex-library-topic');
+  let theme='all';
   const buttons=[...root.querySelectorAll('[data-ex-filter]')];
   const rows=[...root.querySelectorAll('[data-ex-card]')];
   const groups=[...root.querySelectorAll('[data-ex-group]')];
   const filter=()=>{
-   const theme=select.value,query=input.value.trim().toLowerCase();
+   const query=input.value.trim().toLowerCase();
    const visibleGroups=new Set();
    let count=0;
    for(const row of rows){
@@ -187,8 +188,7 @@
    root.querySelector('#ex-library-status').textContent=t('找到','Found')+' '+count+' '+t('个实验','experiments');
   };
   input.addEventListener('input',filter);
-  select.addEventListener('change',filter);
-  for(const button of buttons)button.addEventListener('click',()=>{select.value=button.dataset.exFilter;filter();});
+  for(const button of buttons)button.addEventListener('click',()=>{theme=button.dataset.exFilter;filter();});
  }
  return {metrics,protocols,guideHTML,sourceHTML,explanation,diagram,directoryHTML,mountDirectory};
 });

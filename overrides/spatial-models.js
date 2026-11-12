@@ -27,7 +27,7 @@
     const rim=new T.DirectionalLight(0xa9a1db,2.30);
     rim.position.set(8,6,-7);scene.add(rim);
   };
-  B.buildSpatialStudio=({THREE:T,RoundedBoxGeometry})=>{
+  B.buildSpatialStudio=({THREE:T,RoundedBoxGeometry},learningKind)=>{
     const world=new T.Group();
     const make=(color,metalness,roughness)=>new T.MeshStandardMaterial({color,metalness,roughness});
     const chrome=make(0xb8becb,.82,.25), graphite=make(0x44444e,.72,.29);
@@ -262,6 +262,53 @@
       soft(head,chrome,0,0,0,.49,.30,.09);
       soft(head,ink,0,0,.049,.43,.23,.025);
       rod(head,glow,[-.14,-.031,.067],[.13,.037,.067],.008);
+    }
+    if(learningKind){
+      const model=group(world);
+      const base=(w=2.3,d=1.4)=>capsule(world,1,w,d);
+      function miniature(builder,x,z,size){
+        const item=group(model,x,0,z);item.scale.setScalar(size);builder(item);
+      }
+      const builders={
+        movement(){base();cableMachine(model);},
+        laboratory(){base(2.4,1.5);testStand(model);},
+        catalog(){base(2.85,1.75);miniature(flyStation,-1.35,.28,.59);miniature(legExtension,1.08,.64,.63);miniature(cableMachine,.20,-.93,.69);},
+        chest(){base();flyStation(model);},
+        back(){base();rowingStation(model);},
+        shoulders(){base();shoulderStation(model);},
+        legs(){base(2.55,1.75);inclineMachine(model);},
+        topics(){base(2.5,1.55);miniature(testStand,-1.03,-.35,.57);miniature(gallery,1.07,.35,.72);},
+        force(){
+          base();rod(model,chrome,[0,.1,0],[0,1.4,0],.14);
+          wheel(model,0,1.4,.05,.35);
+          rod(model,graphite,[-1.48,.8,.25],[1.48,2,.25],.15);
+          const arrow=new T.ArrowHelper(v(0,-1,0),v(1.48,2.94,.25),.95,0xe0a67e,.28,.22);
+          model.add(arrow);
+          cylinder(model,bronze,-1.46,.83,.27,.22,.27,'z');
+        },
+        transmission(){base();gallery(model);},
+        motion(){
+          base(2.6,1.4);
+          for(const z of [-.63,.63])rod(model,chrome,[-1.85,.42,z],[1.85,1.48,z],.065);
+          for(const [x,h] of [[-1.65,.46],[1.56,1.41]])for(const z of [-.63,.63])rod(model,graphite,[x,0,z],[x,h,z],.095);
+          const car=group(model,.32,1.12,0);car.rotation.z=.279;
+          soft(car,graphite,0,0,0,1.03,.24,1.22);
+          for(const x of [-.36,.36])for(const z of [-.64,.64])cylinder(car,chrome,x,-.09,z,.17,.125,'z');
+          soft(car,bronze,0,.24,0,.59,.28,.63);
+        },
+        measurement(){
+          base();rod(model,graphite,[0,.12,0],[0,2.68,0],.12);
+          rod(model,chrome,[-.78,2.64,.16],[1.25,2.64,.16],.09);
+          const coil=[];for(let i=0;i<=168;i++){const a=i/168;coil.push([.89+.255*Math.cos(a*14*Math.PI),2.45-1.27*a,.16+.255*Math.sin(a*14*Math.PI)]);}
+          tube(model,chrome,coil,.044,168);
+          cylinder(model,bronze,.89,1.01,.16,.26,.32);
+          rod(model,graphite,[-.77,.38,.16],[-.77,2.62,.16],.045);
+          for(let i=0;i<15;i++){const y=.47+i*.14;rod(model,i%5===0?bronze:chrome,[-.77,y,.16],[-.77+(i%5===0?.27:.15),y,.16],.018);}
+        },
+        study(){base(2.35,1.50);legExtension(model);},
+      };
+      builders[learningKind]?.();
+      return world;
     }
     const rooms=[
       {id:'train',x:-3.62,z:2.54,build:bench,desk:[2.49,.38]},
