@@ -33,6 +33,8 @@
     const chrome=make(0xb8becb,.82,.25), graphite=make(0x44444e,.72,.29);
     const ceramic=make(0x484552,.24,.46), rubber=make(0x15161e,.04,.78);
     const bronze=make(0xc68a60,.67,.29), platform=make(0x292835,.55,.36);
+    B.ModelViewTools?.finish(T,[chrome,graphite,bronze],'metal',.023);
+    B.ModelViewTools?.finish(T,[ceramic,rubber,platform],'matte',.031);
     const ink=new T.MeshBasicMaterial({color:0x191821}), glow=new T.MeshBasicMaterial({color:0xe0a67e});
     const softLight=new T.MeshBasicMaterial({color:0x6a627f}), selected=new T.MeshBasicMaterial({color:0xffd1a3});
     const unitCylinder=new T.CylinderGeometry(1,1,1,32);

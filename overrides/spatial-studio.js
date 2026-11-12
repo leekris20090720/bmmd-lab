@@ -51,6 +51,7 @@
         <span class="spatial-controls">
           <button type="button" data-spatial-turn="-1" aria-label="${t('向左转','Turn left')}">↶</button>
           <button type="button" data-spatial-turn="1" aria-label="${t('向右转','Turn right')}">↷</button>
+          ${B.ModelViewTools.buttons('data-spatial-zoom')}
           <button type="button" data-spatial-reset>${t('重置视角','Reset view')}</button>
         </span>
       </figcaption>
@@ -94,7 +95,7 @@
     if(document.body.hasAttribute('data-explore-open')&&!document.hidden)
       window.dispatchEvent(new CustomEvent('bm:explore-sound',{detail:name}));
   }
-  let turn=0,pitch=0,shownTurn=0,shownPitch=0,lastDraw=0,previousView,transition,lost=false,traceData,markers=[],callouts=[];
+  let turn=0,pitch=0,zoom=1,shownTurn=0,shownPitch=0,lastDraw=0,previousView,transition,lost=false,traceData,markers=[],callouts=[];
   const stop=()=>{
     cancelAnimationFrame(frame);clearTimeout(ambientWake);frame=ambientWake=0;lastDraw=0;
   };
@@ -124,7 +125,7 @@
     const {T,camera} = graphics;
     const view=host.dataset.spatialView,isTrace=view==='trace',isExhibit=view==='exhibit',isInstrument=view==='instrument';
     if(isInstrument&&instrumentKind==='pulse'){
-      const y=1.55,z=6.45*Math.max(1,1/camera.aspect);
+      const y=1.55,z=6.45*Math.max(1,1/camera.aspect)*zoom;
       return {center:new T.Vector3(0,y,0),position:new T.Vector3(0,y,z)};
     }
     const layout = isTrace || isExhibit || isInstrument ? {x:0,z:0,yaw:.42} : rooms[view] || cameraHome;
@@ -133,7 +134,7 @@
     const preview=host.classList.contains('pg-model');
     const isWayfinder=instrumentKind==='wayfinder',isBench=instrumentKind==='bench';
     const fit=isWayfinder&&callouts.length?1:Math.max(1,(isHall?1.46:isBench?1.59:preview?1:1.25)/camera.aspect);
-    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isWayfinder?wayfinderDistance():isBench?7.45:isInstrument?6.65:isExhibit?8.55:9.2)*fit;
+    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isWayfinder?wayfinderDistance():isBench?7.45:isInstrument?6.65:isExhibit?8.55:9.2)*fit*zoom;
     const angle=(isWayfinder?.16:isBench?.11:layout.yaw)+shownTurn+idleYaw;
     const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:isInstrument?isWayfinder?.67:.34:.47)+shownPitch,.22,1.26);
     const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:isInstrument?isWayfinder?.05:isBench?1.19:1.05:.89,layout.z);
@@ -279,17 +280,23 @@
     if(idleStage)idleUntil=performance.now()+IDLE_HOLD;
   }
   function restoreView() {
-    turn=pitch=0;transition=null;
+    turn=pitch=0;zoom=1;transition=null;
     if(idleStage){idleYaw=idleTime=0;lastTick=0;holdIdle();}
     drawSoon();
   }
   function selectRoom(id) { graphics.model.select(id); drawSoon(); }
+  function changeZoom(factor){
+    zoom=B.ModelViewTools.limits(zoom*factor);
+    transition=null;holdIdle();drawSoon();
+  }
   function bind(canvas, signal) {
+    const input=B.ModelViewTools.bind(canvas,{zoom:changeZoom,signal,available:()=>host?.hasAttribute('data-spatial-ready')});
     const controls = host.querySelector('.spatial-controls');
     controls?.addEventListener('click',event=>{
       const button=event.target.closest('button');
       if(!button)return;
       if(button.hasAttribute('data-spatial-reset'))restoreView();
+      else if(button.dataset.spatialZoom)changeZoom(Number(button.dataset.spatialZoom)>0 ? .8 : 1.25);
       else { transition=null; turn+=.34*Number(button.dataset.spatialTurn); drawSoon(); }
     },{signal});
     canvas.addEventListener('keydown',event=>{
@@ -308,7 +315,7 @@
       canvas.setPointerCapture(event.pointerId);
     },{signal});
     canvas.addEventListener('pointermove',event=>{
-      if(drag?.id!==event.pointerId)return;
+      if(drag?.id!==event.pointerId||input.pinching())return;
       const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
       if(!drag.moved && Math.hypot(dx,dy)<5)return;
       drag.moved=true; drag.x=event.clientX; drag.y=event.clientY;
@@ -367,7 +374,7 @@
       if(previousView && previousView!==view && ![previousView,view].some(key=>key==='trace'||key==='exhibit'||key==='instrument')){
         transition={start:performance.now(),position:camera.position.clone(),center:look.clone()};
       }
-      previousView=view; turn=shownTurn=0; pitch=shownPitch=0; lastDraw=0;
+      previousView=view; turn=shownTurn=0; pitch=shownPitch=0; zoom=1; lastDraw=0;
       markers=[...next.querySelectorAll('[data-spatial-marker],[data-spatial-station]')];
       callouts=[...next.querySelectorAll('[data-spatial-callout]')];
       model.select(view);
@@ -409,7 +416,7 @@
     galleryHost=element;
     if(host===element && graphics && element){
       updateGallery(element);
-      turn=pitch=0;transition=null;drawSoon();
+      turn=pitch=0;zoom=1;transition=null;drawSoon();
       if(element.dataset.spatialControls==='orbit'||element.dataset.spatialView==='exhibit')cue('select');
     }else currentHost();
   }
@@ -468,9 +475,10 @@
   document.addEventListener('visibilitychange',()=>{ if(document.hidden)stop(); else drawSoon(); });
   window.addEventListener('pagehide',event=>{if(event.persisted)stop();else detach();});
   window.addEventListener('pageshow',event=>{if(event.persisted)drawSoon();});
+  function zoomPreview(element,direction){if(host===element)changeZoom(direction>0 ? .8 : 1.25);}
   function updateExperiment(rows,reference,x,y) {
     traceData={route:document.body.dataset.bmRoute,args:[rows,reference,x,y]};
     if(host?.dataset.spatialView==='trace')drawSoon();
   }
-  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,scan,holdScanner,select:selectInstrument,tap,turn:turnPreview,updateExperiment};
+  B.SpatialStudio={home,header,gallery,releaseGallery,pulse,scan,holdScanner,select:selectInstrument,tap,turn:turnPreview,zoom:zoomPreview,updateExperiment};
 })();

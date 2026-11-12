@@ -11,7 +11,7 @@
     const buttons=tile.gym.querySelectorAll('[data-gym-zone-button]');
     const point=new graphics.T.Vector3();
     const rects=[];
-    let fits=width>=590;
+    let fits=width>=590&&!tile.focus&&tile.zoom>=.84;
     for(const button of buttons){
       point.copy(gym.zones[button.dataset.courseFilter].anchor).project(camera);
       const x=(point.x+1)*width/2,y=(1-point.y)*height/2;
@@ -51,6 +51,10 @@
       if(renderer.domElement.width!==dw||renderer.domElement.height!==dh)renderer.setSize(dw,dh,false);
       if(!models.has(tile.kind))cacheModel(tile.kind,B.buildSpatialStudio(B.ThreeRuntime,tile.kind));
       const {object,center,radius}=models.get(tile.kind);
+      const gym=object.userData.gym;
+      const detail=gym?.details?.get(tile.focus);
+      const target=detail?.center||center;
+      const targetRadius=detail?.radius||radius;
       const isBlender=object.userData.blender===true;
       let targetScene=scene;
       if(isBlender){
@@ -61,11 +65,10 @@
       const yaw=(tile.gym ? .30 : .58)+tile.yaw+(automatic ? .16*Math.sin(now/1800) : 0);
       const pitch=(tile.gym ? .68 : .40)+tile.pitch,aspect=w/h;
       const fit=Math.min(1,aspect/(tile.gym?1.42:1));
-      const distance=radius*tile.framing/fit;
+      const distance=targetRadius*(detail?2.9:tile.framing)*tile.zoom/fit;
       camera.aspect=aspect;
-      camera.position.set(center.x+distance*Math.cos(pitch)*Math.sin(yaw),center.y+distance*Math.sin(pitch),center.z+distance*Math.cos(pitch)*Math.cos(yaw));
-      camera.lookAt(center);camera.updateProjectionMatrix();
-      const gym=object.userData.gym;
+      camera.position.set(target.x+distance*Math.cos(pitch)*Math.sin(yaw),target.y+distance*Math.sin(pitch),target.z+distance*Math.cos(pitch)*Math.cos(yaw));
+      camera.lookAt(target);camera.updateProjectionMatrix();
       const lighting=gym?.select(tile.gym.dataset.zone,now,idle());
       renderer.toneMappingExposure=isBlender?1.12:1.23;
       renderer.shadowMap.enabled=isBlender;
@@ -89,6 +92,8 @@
       tile.ctx.drawImage(renderer.domElement,0,0);
       targetScene.remove(object);
       tile.canvas.dataset.modelReady='true';
+      tile.canvas.dataset.modelZoom=tile.zoom.toFixed(3);
+      tile.preview?.setAttribute('data-preview-ready','');
       tile.dirty=Boolean(lighting);animate||=automatic||lighting;
     }
     if(animate)schedule();
@@ -112,22 +117,47 @@
       const ctx=canvas.getContext('2d');
       if(!control||!ctx)continue;
       const kind=canvas.dataset.learningModel;
+      const preview=canvas.closest('.bm-zoom-preview');
       let framing=2.90;
       if(control.closest('.pd-learn-destinations'))framing=2.78;
       if(gym)framing=2.34;
-      const tile={canvas,ctx,control,kind,gym,framing,waitForModel:Boolean(gym&&!models.has(kind)),yaw:0,pitch:0,dirty:true,visible:false,manual:false};
+      const tile={canvas,ctx,control,kind,gym,preview,framing,zoom:1,focus:'',waitForModel:Boolean(gym&&!models.has(kind)),yaw:0,pitch:0,dirty:true,visible:false,manual:false};
       tiles.push(tile);resize.observe(canvas);observe.observe(canvas);
       let drag,preventClickUntil=0;
       const refresh=()=>{tile.dirty=true;schedule();};
+      const zoom=factor=>{
+        tile.zoom=B.ModelViewTools.limits(tile.zoom*factor,.34,1.6);
+        tile.manual=true;
+        refresh();
+      };
+      const input=B.ModelViewTools.bind(gym?control:canvas,{zoom,signal,available:()=>Boolean(canvas.dataset.modelReady)});
+      if(!gym)control.addEventListener('keydown',event=>{
+        if(!canvas.dataset.modelReady||!['+','=','-','−'].includes(event.key))return;
+        event.preventDefault();zoom(event.key==='+'||event.key==='=' ? .8 : 1.25);
+      },{signal});
+      const tools=gym||preview;
+      tools?.addEventListener('click',event=>{
+        const button=event.target.closest('[data-model-zoom]');
+        if(button&&canvas.dataset.modelReady)zoom(Number(button.dataset.modelZoom)>0?.8:1.25);
+      },{signal});
       const feature=()=>{if(active===state&&!gym){state.feature=tile;refresh();}};
       const tilt=delta=>{tile.pitch=Math.max(-.20,Math.min(gym ? .37 : .60,delta));};
       if(gym){
         state.selection=new MutationObserver(refresh);
         state.selection.observe(gym,{attributes:true,attributeFilter:['data-zone']});
+        const selector=gym.querySelector('[data-gym-detail]');
+        const reset=()=>{
+          tile.yaw=tile.pitch=0;tile.zoom=1;tile.focus='';selector.value='';
+        };
+        selector.addEventListener('change',()=>{
+          tile.focus=selector.value;
+          tile.zoom=1;tile.yaw=tile.pitch=0;
+          refresh();
+        },{signal});
         gym.addEventListener('click',event=>{
           const button=event.target.closest('[data-gym-view]');
           if(!button||!tile.pickCamera)return;
-          if(button.dataset.gymView==='reset')tile.yaw=tile.pitch=0;
+          if(button.dataset.gymView==='reset')reset();
           else tile.yaw+=Number(button.dataset.gymView)*.32;
           refresh();
         },{signal});
@@ -153,7 +183,7 @@
         drag={id:e.pointerId,x:e.clientX,y:e.clientY,yaw:tile.yaw,pitch:tile.pitch,moved:false};
       },{signal});
       control.addEventListener('pointermove',e=>{
-        if(drag?.id!==e.pointerId)return;
+        if(drag?.id!==e.pointerId||input.pinching())return;
         const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
         if(!drag.moved){
           if(e.pointerType==='touch'&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>6){drag=null;return;}
@@ -172,7 +202,10 @@
       control.addEventListener('keydown',e=>{
         if(!canvas.dataset.modelReady||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;
         e.preventDefault();tile.manual=true;
-        if(e.key==='Home'){tile.yaw=0;tile.pitch=0;}
+        if(e.key==='Home'){
+          tile.yaw=tile.pitch=0;tile.zoom=1;tile.focus='';
+          if(gym)gym.querySelector('[data-gym-detail]').value='';
+        }
         else if(e.key==='ArrowLeft'||e.key==='ArrowRight')tile.yaw+=e.key==='ArrowLeft'?-.25:.25;
         else tilt(tile.pitch+(e.key==='ArrowUp'?.12:-.12));
         refresh();
@@ -204,25 +237,33 @@
     }).catch(()=>{load=null;if(!signal.aborted)leave();});
   }
   const tile=(id,body)=>`<span class="bm-learning-preview"><img src="assets/learning-models/${id}.webp" alt="" loading="lazy" decoding="async"><canvas data-learning-model="${id}" aria-hidden="true"></canvas></span>${body}`;
+  const preview=html=>`<div class="bm-zoom-preview">${html}<div class="bm-zoom-tools">${B.ModelViewTools.buttons()}</div></div>`;
   function gym(items,selected){
     const {t,E}=B.Product;
     const [all,...zones]=items;
     const button=([key,label,count],inside=false)=>`<button type="button" data-course-filter="${key}" ${inside?'data-gym-zone-button':''} aria-pressed="${key===selected}" aria-controls="pd-course-directory"><span>${E(label)}</span><small>${count}</small></button>`;
+    const details=[
+      ['','健身房全景','Gym overview'],['fly','胸飞鸟机','Pec fly'],['chest_press','推胸机','Chest press'],
+      ['row','坐姿划船机','Seated row'],['cable_tower','双塔滑轮机','Cable tower'],['dumbbells','哑铃架','Dumbbell rack'],
+      ['shoulder_press','肩推机','Shoulder press'],['leg_press','倒蹬机','Leg press'],
+      ['leg_extension','腿屈伸机','Leg extension'],['floor','橡胶地砖','Rubber flooring']
+    ];
     const view=[['-1','↶',t('向左旋转','Rotate left')],['1','↷',t('向右旋转','Rotate right')],['reset','⟲',t('复位视角','Reset view')]];
     return `<figure class="bm-course-gym" data-course-gym data-zone="${selected}" aria-label="${t('3D 健身房','3D gym')}">
       <div class="bm-gym-stage" role="group" aria-label="${t('健身房模型','Gym model')}" aria-describedby="pd-model-hint">
-        <img src="assets/learning-models/course-gym.webp?v=blender-gym-20261112-1" alt="" decoding="async">
+        <img src="assets/learning-models/course-gym.webp?v=detail-20261112-1" alt="" decoding="async">
         <canvas data-learning-model="course-gym" aria-hidden="true"></canvas>
       </div>
       <div class="bm-gym-zones" role="group" aria-label="${t('训练分区','Training zones')}">${zones.map(zone=>button(zone,true)).join('')}</div>
       <figcaption class="bm-gym-toolbar">
         ${button(all)}
-        <p id="pd-model-hint" class="bm-model-hint">${t('点训练区筛选课程，拖动或用方向键旋转。','Select a training zone to filter courses. Drag or use the arrow keys to rotate.')}</p>
-        <div class="bm-gym-view" role="group" aria-label="${t('视角','View')}">${view.map(([id,icon,label])=>`<button type="button" data-gym-view="${id}" title="${label}" aria-label="${label}">${icon}</button>`).join('')}</div>
+        <p id="pd-model-hint" class="bm-model-hint">${t('点训练区筛选课程。拖动旋转，双指或 + / − 缩放。','Select a training zone to filter courses. Drag to rotate, and pinch or use + / − to zoom.')}</p>
+        <label class="bm-gym-detail"><span>${t('近看','Inspect')}</span><select data-gym-detail>${details.map(([key,zh,en])=>`<option value="${key}">${t(zh,en)}</option>`).join('')}</select></label>
+        <div class="bm-gym-view" role="group" aria-label="${t('视角','View')}">${B.ModelViewTools.buttons()}${view.map(([id,icon,label])=>`<button type="button" data-gym-view="${id}" title="${label}" aria-label="${label}">${icon}</button>`).join('')}</div>
       </figcaption>
     </figure>`;
   }
-  const filters=(items,label,attr)=>`<div class="bm-model-filters" role="group" aria-label="${B.Product.E(label)}">${items.map(([value,name,kind,count])=>`<button type="button" ${attr}="${value}" aria-pressed="${value==='all'}" aria-describedby="pd-model-hint">${tile(kind,`<span class="bm-model-label"><strong>${B.Product.E(name)}</strong><small>${count}</small></span>`)}</button>`).join('')}</div>`;
+  const filters=(items,label,attr)=>`<div class="bm-model-filters" role="group" aria-label="${B.Product.E(label)}">${items.map(([value,name,kind,count])=>preview(`<button type="button" ${attr}="${value}" aria-pressed="${value==='all'}" aria-describedby="pd-model-hint">${tile(kind,`<span class="bm-model-label"><strong>${B.Product.E(name)}</strong><small>${count}</small></span>`)}</button>`)).join('')}</div>`;
   window.addEventListener('bm:page-ready',e=>{
     if(['learn','learn/courses','learn/experiments'].includes(e.detail.route))mount(document.getElementById('pd-content'));
     else leave();
@@ -230,5 +271,5 @@
   motion.addEventListener('change',()=>{for(const tile of active?.tiles||[])tile.dirty=true;schedule();});
   document.addEventListener('visibilitychange',schedule);
   const hint=()=>`<p class="bm-model-hint" id="pd-model-hint">${B.Product.t('点击选择，拖动或用方向键旋转模型。','Select to open or filter. Drag or use the arrow keys to rotate.')}</p>`;
-  B.LearningModels={tile,filters,hint,gym,leave};
+  B.LearningModels={tile,preview,filters,hint,gym,leave};
 })();

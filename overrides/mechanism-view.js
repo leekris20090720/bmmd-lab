@@ -45,6 +45,8 @@
       teal:solid(0x55b6ad), copper:solid(0xf2bb96), silver:solid(0xc5d6ef), gold:solid(0xe0ac69),
       arc:new T.LineBasicMaterial({color:0xf2bb96})
     };
+    B.ModelViewTools?.finish(T,[palette.graphite,palette.chrome,palette.bronze],'metal',.019);
+    B.ModelViewTools?.finish(T,[palette.rubber,palette.platform],'matte',.028);
     return {T,canvas,renderer,camera,scene,world,palette,width:0,height:0,rig:null,id:null,count:0};
   }
   function discardModel() {
@@ -119,7 +121,7 @@
     const position=graphics.rig(state);
     const tall=['pulley','pulley-efficiency','power','cable-lateral','force-balance','incline'].includes(state.id);
     const target=tall?1.12:.83;
-    const radius=(tall?8.85:8.35)*Math.max(1,1.42/camera.aspect);
+    const radius=(tall?8.85:8.35)*Math.max(1,1.42/camera.aspect)*session.zoom;
     const yaw=session.yaw,elevation=session.elevation,ground=radius*Math.cos(elevation);
     camera.position.set(ground*Math.sin(yaw),target+radius*Math.sin(elevation),ground*Math.cos(yaw));
     camera.lookAt(0,target,0);
@@ -140,7 +142,7 @@
     session.wrapper.dataset.mechanismMode=mode;
     session.toggle.textContent=mode==='2d'?t('返回 3D','Show 3D'):t('2D 图解','2D diagram');
     session.toggle.setAttribute('aria-pressed',String(mode==='2d'));
-    for(const button of session.wrapper.querySelectorAll('[data-mechanism-camera]'))button.hidden=mode==='2d';
+    for(const button of session.wrapper.querySelectorAll('[data-mechanism-camera],[data-mechanism-zoom]'))button.hidden=mode==='2d';
     queue();
   }
   function attach(diagram,state) {
@@ -154,6 +156,7 @@
     </dl>`:'';
     wrapper.innerHTML=`<div class="bm-mechanism-stage"></div>${readouts}<div class="bm-mechanism-legend"></div>
       <div class="bm-mechanism-tools"><span>${t('拖动旋转','Drag to rotate')}</span>
+        ${B.ModelViewTools.buttons('data-mechanism-zoom')}
         <button type="button" data-mechanism-camera="front">${t('正视','Front view')}</button>
         <button type="button" data-mechanism-camera="reset">${t('重置视角','Reset view')}</button>
         <button type="button" data-mechanism-toggle aria-pressed="false">${t('2D 图解','2D diagram')}</button>
@@ -163,8 +166,11 @@
     diagram.classList.add('bm-mechanism-diagram');
     wrapper.append(diagram);
     const controller=new AbortController(), {signal}=controller;
-    const session={wrapper,diagram,stage,state,controller,visible:false,yaw:.45,elevation:.31,mode:'3d',booting:false,readouts:[...wrapper.querySelectorAll('.bm-mechanism-readouts output')],legend:wrapper.querySelector('.bm-mechanism-legend'),toggle:wrapper.querySelector('[data-mechanism-toggle]')};
+    const session={wrapper,diagram,stage,state,controller,visible:false,yaw:.45,elevation:.31,zoom:1,mode:'3d',booting:false,readouts:[...wrapper.querySelectorAll('.bm-mechanism-readouts output')],legend:wrapper.querySelector('.bm-mechanism-legend'),toggle:wrapper.querySelector('[data-mechanism-toggle]')};
     let drag=null;
+    const zoom=factor=>{session.zoom=B.ModelViewTools.limits(session.zoom*factor);queue();};
+    const reset=()=>{session.zoom=1;orient(.45,.31);};
+    const input=B.ModelViewTools.bind(stage,{zoom,signal,available:()=>wrapper.dataset.mechanismMode==='3d'});
     const orient=(yaw,elevation)=>{
       session.yaw=yaw;session.elevation=clamp(elevation,.02,1.10);
       queue();
@@ -174,11 +180,12 @@
       if(!button)return;
       if(button===session.toggle)setView(session,session.mode==='3d'?'2d':'3d');
       else if(button.dataset.mechanismCamera==='front')orient(0,.035);
-      else if(button.dataset.mechanismCamera==='reset')orient(.45,.31);
+      else if(button.dataset.mechanismCamera==='reset')reset();
+      else if(button.dataset.mechanismZoom)zoom(Number(button.dataset.mechanismZoom)>0 ? .8 : 1.25);
     },{signal});
     stage.addEventListener('keydown',event=>{
       const offsets={ArrowLeft:[-.15,0],ArrowRight:[.15,0],ArrowUp:[0,.12],ArrowDown:[0,-.12]};
-      if(event.key==='Home'){event.preventDefault();orient(.45,.31);return;}
+      if(event.key==='Home'){event.preventDefault();reset();return;}
       if(!offsets[event.key])return;
       event.preventDefault();
       orient(session.yaw+offsets[event.key][0],session.elevation+offsets[event.key][1]);
@@ -189,7 +196,7 @@
       if(drag.axis)stage.setPointerCapture(event.pointerId);
     },{signal});
     stage.addEventListener('pointermove',event=>{
-      if(drag?.id!==event.pointerId)return;
+      if(drag?.id!==event.pointerId||input.pinching())return;
       const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
       if(!drag.axis){
         if(Math.abs(dx)<=8||Math.abs(dx)<Math.abs(dy)*1.2)return;

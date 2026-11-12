@@ -4270,6 +4270,9 @@ async function initializeDigitalTwin() {
   const equipmentGold = new THREE.MeshPhysicalMaterial({ color: 0xc9a44d, metalness: .84, roughness: .22, clearcoat: .72 });
   const insigniaUpholstery = new THREE.MeshPhysicalMaterial({ color: 0xb8242f, metalness: .02, roughness: .5, clearcoat: .4 });
 
+  BM.ModelViewTools?.finish(THREE, [equipmentFrame, equipmentSteel, equipmentAxiomSilver, equipmentHammerGraphite, equipmentGold], 'metal', .018);
+  BM.ModelViewTools?.finish(THREE, [equipmentPad, equipmentRedUpholstery, equipmentRubber, insigniaUpholstery], 'matte', .025);
+
   function buildCommercialEquipmentRig(sceneKey, def = null, index = 0) {
     if (sceneKey === 'cam' && BM.EquipmentModels?.createOPLE) {
       const rig = BM.EquipmentModels.createOPLE({ THREE, RoundedBoxGeometry });

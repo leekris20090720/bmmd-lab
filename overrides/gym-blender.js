@@ -3,7 +3,7 @@
   'use strict';
   const B=window.BM;
   const base=new URL('.',document.currentScript.src);
-  const version='blender-gym-20261112-1';
+  const version='detail-20261112-1';
   const file=new URL('assets/learning-models/course-gym.blender.glb.gz',base);
   file.searchParams.set('v',version);
   const zoneIds=['chest','back','shoulder','legs'];
@@ -16,7 +16,7 @@
     const contents=await new Response(compressed).arrayBuffer();
     const {THREE,GLTFLoader}=B.ThreeRuntime;
     const {scene:object}=await new GLTFLoader().parseAsync(contents,base.href);
-    const zones={},targets=[];
+    const zones={},targets=[],details=new Map();
     object.updateMatrixWorld(true);
     object.traverse(part=>{
       if(!part.isMesh)return;
@@ -47,10 +47,24 @@
       zones[id]={anchor:label.getWorldPosition(new THREE.Vector3()),floor,glow,lights};
     }
 
+    for(const root of object.children){
+      const match=/^machine_(chest|back|shoulder|legs)__(.+)$/.exec(root.name);
+      if(!match)continue;
+      const [,zone,id]=match;
+      const bounds=new THREE.Box3().setFromObject(root);
+      details.set(id,{center:bounds.getCenter(new THREE.Vector3()),radius:bounds.getSize(new THREE.Vector3()).length()/2});
+      root.traverse(part=>{
+        if(!part.isMesh)return;
+        part.userData.zone=zone;
+        targets.push(part);
+      });
+    }
+    if(details.size!==8)throw new Error('Blender gym inspection targets missing');
+    details.set('floor',{center:new THREE.Vector3(3.35,.16,3.64),radius:.92});
     let selected='all',began=0;
     const warm=new THREE.Color(0xc36534);
     object.userData.gym={
-      zones,targets,
+      zones,targets,details,
       select(id,now,animate){
         if(id!==selected){
           selected=id;began=now;
