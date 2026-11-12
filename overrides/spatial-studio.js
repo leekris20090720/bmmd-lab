@@ -5,10 +5,11 @@
   const t = (z,e) => B.i18n?.getLanguage() === 'en' ? e : z;
   const rooms = {
     train: {title:['训练','Train'],note:['计划、重量与每一组','Plans, loads and sets'],route:'train/plans',x:-3.62,z:2.54,yaw:-.42},
-    learn: {title:['动作学习','Movement'],note:['人体动作与器械结构','Movement and machine structure'],route:'learn',x:3.62,z:2.54,yaw:.57},
+    learn: {title:['学习','Learn'],note:['动作课程与力学实验','Movement courses and mechanics experiments'],route:'learn',x:3.62,z:2.54,yaw:.57},
     lab: {title:['力学实验','Mechanics'],note:['改变参数，验证原理','Change a variable and test it'],route:'learn/experiments',x:-3.62,z:-2.54,yaw:-.52},
-    interact: {title:['互动展厅','Explore'],note:['转动器械，观察细节','Turn a machine and examine it'],x:3.62,z:-2.54,yaw:1.22}
+    interact: {title:['互动','Explore'],note:['认器械挑战与节奏实验','Equipment quiz and rhythm game'],x:3.62,z:-2.54,yaw:1.22}
   };
+  const homeDoors = ['train','learn','interact'];
   const stations = {
     train: [
       ['训练椅','Train now','train/session',[-3.68,.58,3.35]],
@@ -42,10 +43,10 @@
     return `<figure class="spatial-view ${full?'spatial-view-full':'spatial-view-room'}${entry?' spatial-view-entry':''}" data-spatial-view="${view}" aria-label="${label}">
       <div class="spatial-stage">
         ${trace?'':`<img class="spatial-poster" src="assets/spatial-studio/${view}.webp?v=contour-20261111-1" alt="" width="1080" height="720" decoding="async" ${full?'fetchpriority="high"':''}>`}
-        ${full||entry?`<div class="spatial-markers">${full?Object.keys(rooms).map(id=>door(id,true,trainRoute)).join(''):stationLinks(true)}</div>`:''}
+        ${full||entry?`<div class="spatial-markers">${full?homeDoors.map(id=>door(id,true,trainRoute)).join(''):stationLinks(true)}</div>`:''}
       </div>
       <figcaption class="spatial-caption">
-        <span>${trace?t('三维曲线 · 橙为当前，浅蓝为对照','3D trace · Amber current, pale blue comparison'):full?t('俯瞰 · 四个区域','Overview · Four rooms'):`<a href="#home" class="spatial-return">${t('← 全馆视图','← Studio overview')}</a>`}</span>
+        <span>${trace?t('三维曲线 · 橙为当前，浅蓝为对照','3D trace · Amber current, pale blue comparison'):full?t('力学馆俯瞰','Studio overview'):`<a href="#home" class="spatial-return">${t('← 全馆视图','← Studio overview')}</a>`}</span>
         <span class="spatial-instructions">${t('拖动转动视角','Drag to orbit')}</span>
         <span class="spatial-controls">
           <button type="button" data-spatial-turn="-1" aria-label="${t('向左转','Turn left')}">↶</button>
@@ -64,12 +65,13 @@
       </header>
       <div class="deck-hub-model">${stage('hall',true,false,trainRoute)}</div>
       <nav class="deck-bays spatial-doors" aria-label="${t('舱室入口','Deck stations')}">
-        ${Object.keys(rooms).map(id=>door(id,false,trainRoute)).join('')}
+        ${homeDoors.map(id=>door(id,false,trainRoute)).join('')}
       </nav>
       <footer class="deck-hub-footer"><a href="#settings/data">${t('备份与恢复','Backup and restore')} ↗</a><span>${t('训练记录存于本机','Training records are stored locally')}</span></footer>
     </section>`;
   }
   function header(route) {
+    if (route==='learn' || route==='learn/courses' || route==='learn/experiments') return '';
     if (/^(course\/|engineering\/)|^learn\/map$/.test(route) || route==='experiment/kinematics') return '';
     if (route.startsWith('experiment/')) return stage('trace',false);
     if (roomEntries[route]) return stage(roomEntries[route],false,true);

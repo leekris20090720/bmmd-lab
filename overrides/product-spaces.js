@@ -8,7 +8,7 @@ const portal=document.getElementById('portal-hub-overlay'),welcome=document.getE
 const pageNavigation=B.Navigation.create(history,location);
 const sourceURL=new URL('.',document.currentScript.src);
 const anatomyModules=['anatomy-meshes.js','human-anatomy.js','human-lessons.js','script.js','product-courses.js'];
-const source=p=>{const url=new URL(p,sourceURL);url.searchParams.set('v',p==='research-labs.js'?'principles-layout-20261112-1':anatomyModules.includes(p)?'anatomy-3d-20261111-1':p==='course-workspace.js'?'taste-layout-20261111-1':['product-experiments.js','experiment-lessons.js'].includes(p)?'layout-balance-20261111-1':'mechanics-library-20261103-1');return url.href;};
+const source=p=>{const url=new URL(p,sourceURL);url.searchParams.set('v',['product-courses.js','product-experiments.js'].includes(p)?'simpler-navigation-20261112-1':p==='research-labs.js'?'principles-layout-20261112-1':anatomyModules.includes(p)?'anatomy-3d-20261111-1':p==='course-workspace.js'?'taste-layout-20261111-1':['product-experiments.js','experiment-lessons.js'].includes(p)?'layout-balance-20261111-1':'mechanics-library-20261103-1');return url.href;};
 function script(p){if(loaders.has(p))return loaders.get(p);const job=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=source(p);s.onload=resolve;s.onerror=()=>{loaders.delete(p);s.remove();reject(Error(t('学习资源未能加载，请重试：','Learning resource could not load; retry: ')+p));};document.body.append(s);});loaders.set(p,job);return job;}
 const modelScripts=['mechanics-core.js','mechanics-education.js','mechanics-spring.js','mechanics-snapshots.js','mechanics-three-bridge.js','assets/ui/three-runtime.js','equipment-op-le.js','studio-rendering.js','lesson-profiles.js','equipment-inspector.js','anatomy-meshes.js','human-anatomy.js','human-lessons.js','script.js'];
 // Download together, execute in the original dependency order. Classic script
@@ -71,7 +71,7 @@ function home(){
  const copy=welcome.querySelector('.apple-hero-copy');
  const train=F.active()?'train/session':'train/plans';
  copy.innerHTML=`<main class="studio-home-main deck-home" data-i18n-skip>
-  ${B.SpatialStudio?.home(train)||`<section class="deck-no-module" data-deck-plate><h1>BM//MD</h1><nav><a href="#${train}">${t('训练','Train')}</a><a href="#learn">${t('动作学习','Movement')}</a><a href="#learn/experiments">${t('力学实验','Mechanics')}</a><button type="button" data-pd-explore>${t('互动','Explore')}</button></nav></section>`}
+  ${B.SpatialStudio?.home(train)||`<section class="deck-no-module" data-deck-plate><h1>BM//MD</h1><nav><a href="#${train}">${t('训练','Train')}</a><a href="#learn">${t('动作学习','Movement')}</a><button type="button" data-pd-explore>${t('互动','Explore')}</button></nav></section>`}
  </main>`;
  welcome.querySelectorAll('.apple-welcome-footer,.bm-text-explore-down,#bm-home-intro,.bm-text-brand-footer').forEach(e=>e.hidden=true);
  welcome.querySelector('.apple-welcome-header').hidden=true;
@@ -80,52 +80,13 @@ function home(){
  window.dispatchEvent(new CustomEvent('bm:page-ready',{detail:{route:'home'}}));
 }
 function learning(){
- const title=a=>B.i18n?.t(a.name)||a.name,featured=F.byId.cam;
- const selected=['flat-press','arm','cable-row','home-sit-to-stand'].map(id=>F.byId[id]).filter(Boolean);
- const diagrams=[
- '<path d="M16 56H93M24 56L75 32"/><circle cx="24" cy="56" r="4"/><path class="pd-sketch-accent" d="M75 32V8m-4 6 4-6 4 6"/><path stroke-dasharray="3 3" d="M24 56H75V32"/>',
- '<circle cx="31" cy="36" r="21" stroke-dasharray="3 4"/><circle cx="31" cy="36" r="3"/><path class="pd-sketch-accent" d="M31 36H65V12m-4 6 4-6 4 6M65 43c10-15 16-10 25-29"/>',
- '<path d="M12 10V60H94"/><path class="pd-sketch-accent" d="M12 56C46 56 55 14 94 14"/><path stroke-dasharray="3 3" d="M57 9V60"/><circle cx="57" cy="35" r="4"/>'
+ const destinations=[
+   ['learn/courses',t('动作课程','Movement courses'),t('看人体怎么做动作、怎样调节器械。','See how to perform a movement and adjust the equipment.'),t(F.all.length+' 门课程',F.all.length+' courses')],
+   ['learn/experiments',t('力学实验','Mechanics experiments'),t('动手改参数，观察力、阻力和运动怎样变化。','Change a variable and see how force, resistance and motion respond.'),null]
  ];
- const questions=[
-  ['lever','滚垫力相同，膝部力矩为何不同？','Same pad force, different knee moment?','找转轴，再比较滚垫力的垂直力臂。','Find the pivot and compare perpendicular moment arms.'],
-  ['cam','凸轮如何改变阻力？','How does the cam change resistance?','观察钢索的作用线和力矩曲线。','Follow the cable’s line of action and the torque curve.'],
-  ['kinematics','转角、速度和加速度如何关联？','How do angle, speed and acceleration relate?','拖动同一时刻，对照三张曲线。','Scrub to the same instant on all three plots.']
- ];
- const courseLinks=selected.map(a=>`<li><a data-pd-course="${a.id}" href="#course/${a.id}">
-   <strong>${E(title(a))}</strong><small>${E(t({chest:'胸部',shoulder:'肩部',back:'背部',legs:'下肢'}[a.group]||'家庭练习',{chest:'Chest',shoulder:'Shoulders',back:'Back',legs:'Legs'}[a.group]||'Home exercise'))}</small>
-   <span aria-hidden="true">↗</span>
- </a></li>`).join('');
- const questionLinks=questions.map(([id,z,e,subZ,subE],i)=>`<li><a href="#experiment/${id}">
-   <svg viewBox="0 0 108 74" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">${diagrams[i]}</svg>
-   <div><h4>${t(z,e)}</h4><p>${t(subZ,subE)}</p></div><span aria-hidden="true">↗</span>
- </a></li>`).join('');
- page(t('学习','Learn'),`
-  <div class="pd-learn-intro"><p class="pd-lead">${t('看懂一个动作，再亲手验证它的原理。','Understand a movement, then test its mechanics yourself.')}</p></div>
-  <div class="pd-learn-layout">
-    <section class="pd-learn-movements" aria-labelledby="pd-learn-movements-title">
-      <div class="pd-section-head"><h2 id="pd-learn-movements-title">${t('从一个动作开始','Start with a movement')}</h2><a href="#learn/courses">${t('全部 '+F.all.length+' 门课程','All '+F.all.length+' courses')} ↗</a></div>
-      <article class="pd-learn-feature">
-        <div><h3>${E(title(featured))}</h3><p>${t('找准膝盖与转轴，观察滚垫带动工作臂。','Find the knee and pivot, then follow how the shin pad moves the work arm.')}</p></div>
-        <a class="pd-button pd-primary" data-pd-course="cam" href="#course/cam">${t('进入课程','Open course')} ↗</a>
-      </article>
-      <ul class="pd-learn-shelf" aria-label="${t('其他动作课程','More movement courses')}">${courseLinks}</ul>
-    </section>
-    <section class="pd-learn-questions" aria-labelledby="pd-learn-questions-title">
-      <div class="pd-section-head"><h2 id="pd-learn-questions-title">${t('把原理看明白','Explore the mechanics')}</h2><a href="#learn/experiments">${t('全部实验','All experiments')} ↗</a></div>
-      <div class="pd-learn-principle-group">
-        <h3>${t('动作案例','Movement studies')}</h3>
-        ${B.ResearchContent.learningCasesHTML()}
-      </div>
-      <div class="pd-learn-principle-group">
-        <h3>${t('坐姿腿屈伸的基础实验','Foundations of seated leg extension')}</h3>
-        <ul class="pd-learn-basics">${questionLinks}</ul>
-      </div>
-    </section>
-  </div>
-  ${B.LearningDynamics.overviewHTML(t)}
- `);
- B.LearningDynamics.mountOverview();
+ page(t('学习','Learn'),`<nav class="pd-learn-destinations" aria-label="${t('学习内容','Learning topics')}">
+   ${destinations.map(([path,title,note,count])=>`<a href="#${path}"><span><strong>${title}</strong><span>${note}</span>${count?`<small>${count}</small>`:''}</span><span aria-hidden="true">↗</span></a>`).join('')}
+ </nav>`);
 }
 function settings(){page(t('设置','Settings'),`<section class="pd-plan"><h2>${t('显示与操作','Display and interaction')}</h2><div class="pd-fields"><label><input id="pd-reduce" type="checkbox" ${F.state().preferences.reducedMotion?'checked':''}>${t('减少动态，使用静态关键帧','Reduce motion and use static keyframes')}</label><label><input id="pd-rest-sound" type="checkbox" ${F.state().preferences.restSound?'checked':''}>${t('休息结束提示音（默认关闭）','Rest completion sound (off by default)')}</label><label><input id="pd-rest-vibration" type="checkbox" ${F.state().preferences.restVibration?'checked':''}>${t('休息结束振动（设备支持时）','Vibrate when rest ends (if supported)')}</label></div><p>${t('声音和振动只在你选择后启用。训练数据保存在此浏览器。','Sound and vibration require your choice. Training data is saved in this browser.')}</p><a class="pd-button" href="#settings/data">${t('备份与恢复','Backup and restore')}</a></section><section class="pd-plan"><h2>${t('已有数据与工具','Existing data and tools')}</h2><p>${t('旧计划和训练快照保留。实验档案与器械结构检查仍在学习空间中。','Previous plans and training snapshots are retained. Experiment archives and equipment inspection remain in Learning.')}</p><a href="#learn/experiments">${t('查看学习工具','Open learning tools')}</a><a class="pd-button" href="#settings/profile">${t('可选身体档案','Optional body profile')}</a></section>`,'settings');}
 
@@ -146,7 +107,7 @@ const old=F.state(),numbered=F.clone(old);B.TrainingData.numberSessions(numbered
 // One supported appearance. Legacy light preferences in old backups remain
 // readable but never change the rendered theme or rewrite training records.
 function theme(){document.documentElement.dataset.theme='dark';document.body.classList.add('theme-dark','dark-mode');try{localStorage.setItem('bmmd_apple_theme_v1','dark');}catch{}}theme();
-document.addEventListener('click',e=>{const back=e.target.closest('[data-pd-back]');if(back){e.preventDefault();B.ProductTraining?.collectSet();pageNavigation.back(r=>location.replace('#'+r),back.getAttribute('href').slice(1));return;}const course=e.target.closest('[data-pd-course]');if(course){e.preventDefault();B.Product.openCourse(course.dataset.pdCourse,route);}if(e.target.closest('[data-pd-language]')){B.ProductTraining?.collectSet();B.i18n.setLanguage(en()?'zh-CN':'en');}if(e.target.closest('[data-pd-retry]'))render();if(e.target.closest('[data-pd-explore]'))document.dispatchEvent(new CustomEvent('bm:explore',{detail:{tab:'gallery'}}));});
+document.addEventListener('click',e=>{const back=e.target.closest('[data-pd-back]');if(back){e.preventDefault();B.ProductTraining?.collectSet();pageNavigation.back(r=>location.replace('#'+r),back.getAttribute('href').slice(1));return;}const course=e.target.closest('[data-pd-course]');if(course){e.preventDefault();B.Product.openCourse(course.dataset.pdCourse,route);}if(e.target.closest('[data-pd-language]')){B.ProductTraining?.collectSet();B.i18n.setLanguage(en()?'zh-CN':'en');}if(e.target.closest('[data-pd-retry]'))render();if(e.target.closest('[data-pd-explore]'))document.dispatchEvent(new CustomEvent('bm:explore',{detail:{tab:'quiz'}}));});
 document.addEventListener('change',e=>{const k=e.target.id;if(['pd-reduce','pd-rest-sound','pd-rest-vibration'].includes(k)){const key={'pd-reduce':'reducedMotion','pd-rest-sound':'restSound','pd-rest-vibration':'restVibration'}[k];const r=F.tx(s=>s.preferences[key]=e.target.checked,{onFailure:'base'});if(!r.ok)notice(r.error,true);document.documentElement.classList.toggle('pd-reduced',!!F.state().preferences.reducedMotion);}});
 document.addEventListener('bm:language-before-change',()=>B.ProductTraining?.collectSet());document.addEventListener('bm:language-change',()=>{const r=F.tx(s=>s.preferences.language=B.i18n.getLanguage(),{onFailure:'base'});if(!r.ok)notice(r.error,true);render();});window.addEventListener('hashchange',render);document.documentElement.classList.toggle('pd-reduced',!!F.state().preferences.reducedMotion);render();
 })();
