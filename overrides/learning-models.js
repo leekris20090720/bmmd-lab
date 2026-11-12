@@ -26,30 +26,38 @@
     }
     tile.gym.toggleAttribute('data-gym-projected',fits);
   }
+  function cacheModel(kind,object){
+    const T=graphics.T;
+    const bounds=new T.Box3().setFromObject(object);
+    const center=bounds.getCenter(new T.Vector3());
+    if(object.userData.gym)center.y-=.85;
+    models.set(kind,{object,center,radius:bounds.getSize(new T.Vector3()).length()/2});
+  }
   function draw(now){
     frame=0;
     if(!active?.ready||document.hidden||failed)return;
     const {T,renderer,scene,camera}=graphics;
     let animate=false;
     for(const tile of active.tiles){
-      if(!tile.visible)continue;
+      if(!tile.visible||tile.waitForModel)continue;
       const automatic=!tile.gym&&idle()&&tile===active.feature&&!tile.manual;
       if(!tile.dirty&&(!automatic||now-(tile.lastDraw||0)<42)){animate||=automatic;continue;}
       tile.lastDraw=now;
       const w=Math.round(tile.canvas.clientWidth),h=Math.round(tile.canvas.clientHeight);
       if(!w||!h)continue;
-      const scale=Math.min(devicePixelRatio||1,1.65,(tile.gym?1050:680)/w);
+      const scale=Math.min(devicePixelRatio||1,1.65,(tile.gym?1500:680)/w);
       const dw=Math.round(w*scale),dh=Math.round(h*scale);
       if(tile.canvas.width!==dw||tile.canvas.height!==dh){tile.canvas.width=dw;tile.canvas.height=dh;}
       if(renderer.domElement.width!==dw||renderer.domElement.height!==dh)renderer.setSize(dw,dh,false);
-      if(!models.has(tile.kind)){
-        const object=B.buildSpatialStudio(B.ThreeRuntime,tile.kind);
-        const bounds=new T.Box3().setFromObject(object),center=bounds.getCenter(new T.Vector3());
-        if(object.userData.gym)center.y-=.85;
-        models.set(tile.kind,{object,center,radius:bounds.getSize(new T.Vector3()).length()/2});
-      }
+      if(!models.has(tile.kind))cacheModel(tile.kind,B.buildSpatialStudio(B.ThreeRuntime,tile.kind));
       const {object,center,radius}=models.get(tile.kind);
-      scene.add(object);
+      const isBlender=object.userData.blender===true;
+      let targetScene=scene;
+      if(isBlender){
+        graphics.gymLighting ||= B.BlenderGym.light(T,renderer);
+        targetScene=graphics.gymLighting.scene;
+      }
+      targetScene.add(object);
       const yaw=(tile.gym ? .30 : .58)+tile.yaw+(automatic ? .16*Math.sin(now/1800) : 0);
       const pitch=(tile.gym ? .68 : .40)+tile.pitch,aspect=w/h;
       const fit=Math.min(1,aspect/(tile.gym?1.42:1));
@@ -59,18 +67,27 @@
       camera.lookAt(center);camera.updateProjectionMatrix();
       const gym=object.userData.gym;
       const lighting=gym?.select(tile.gym.dataset.zone,now,idle());
-      renderer.render(scene,camera);
+      renderer.toneMappingExposure=isBlender?1.12:1.23;
+      renderer.shadowMap.enabled=isBlender;
+      if(isBlender){
+        const key=graphics.gymLighting.key;
+        renderer.shadowMap.type=T.PCFShadowMap;
+        renderer.shadowMap.autoUpdate=false;
+        if(!key.shadow.map)renderer.shadowMap.needsUpdate=true;
+      }
+      renderer.render(targetScene,camera);
       if(gym){
         tile.pickCamera ||= camera.clone();
         tile.pickCamera.copy(camera);
         if(!tile.gym.hasAttribute('data-gym-live')){
           tile.gym.setAttribute('data-gym-live','');
           tile.control.tabIndex=0;
+          tile.gym.dataset.gymModel=isBlender?'blender':'fallback';
         }
         placeGymZones(tile,camera,gym,w,h);
       }
       tile.ctx.drawImage(renderer.domElement,0,0);
-      scene.remove(object);
+      targetScene.remove(object);
       tile.canvas.dataset.modelReady='true';
       tile.dirty=Boolean(lighting);animate||=automatic||lighting;
     }
@@ -98,7 +115,7 @@
       let framing=2.90;
       if(control.closest('.pd-learn-destinations'))framing=2.78;
       if(gym)framing=2.34;
-      const tile={canvas,ctx,control,kind,gym,framing,yaw:0,pitch:0,dirty:true,visible:false,manual:false};
+      const tile={canvas,ctx,control,kind,gym,framing,waitForModel:Boolean(gym&&!models.has(kind)),yaw:0,pitch:0,dirty:true,visible:false,manual:false};
       tiles.push(tile);resize.observe(canvas);observe.observe(canvas);
       let drag,preventClickUntil=0;
       const refresh=()=>{tile.dirty=true;schedule();};
@@ -162,16 +179,28 @@
       },{signal});
     }
     state.feature=tiles.find(tile=>!tile.gym);
-    (load||=B.Product.script('assets/ui/three-runtime.js')).then(()=>{
+    (load||=B.Product.script('assets/ui/three-runtime.js')).then(async()=>{
       if(signal.aborted)return;
       if(!graphics){
         const T=B.ThreeRuntime.THREE,renderer=new T.WebGLRenderer({antialias:true,powerPreference:'low-power'}),scene=new T.Scene();
         B.lightSpatialScene(T,renderer,scene);
         renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();failed=true;cancelAnimationFrame(frame);frame=0;});
-        renderer.domElement.addEventListener('webglcontextrestored',()=>{failed=false;for(const tile of active?.tiles||[])tile.dirty=true;schedule();});
+        renderer.domElement.addEventListener('webglcontextrestored',()=>{failed=false;renderer.shadowMap.needsUpdate=true;for(const tile of active?.tiles||[])tile.dirty=true;schedule();});
         graphics={T,renderer,scene,camera:new T.PerspectiveCamera(35,1,.05,100)};
       }
-      state.ready=true;schedule();
+      const gymTile=tiles.find(tile=>tile.waitForModel);
+      if(gymTile){
+        try{
+          await B.Product.script('gym-blender.js');
+          const object=await B.BlenderGym.load();
+          object.userData.blender=true;
+          if(!models.has(gymTile.kind))cacheModel(gymTile.kind,object);
+        }catch{
+          // Local file browsing and blocked asset downloads can use the compact model.
+        }
+        gymTile.waitForModel=false;
+      }
+      if(!signal.aborted){state.ready=true;schedule();}
     }).catch(()=>{load=null;if(!signal.aborted)leave();});
   }
   const tile=(id,body)=>`<span class="bm-learning-preview"><img src="assets/learning-models/${id}.webp" alt="" loading="lazy" decoding="async"><canvas data-learning-model="${id}" aria-hidden="true"></canvas></span>${body}`;
@@ -182,7 +211,7 @@
     const view=[['-1','↶',t('向左旋转','Rotate left')],['1','↷',t('向右旋转','Rotate right')],['reset','⟲',t('复位视角','Reset view')]];
     return `<figure class="bm-course-gym" data-course-gym data-zone="${selected}" aria-label="${t('3D 健身房','3D gym')}">
       <div class="bm-gym-stage" role="group" aria-label="${t('健身房模型','Gym model')}" aria-describedby="pd-model-hint">
-        <img src="assets/learning-models/course-gym.webp" alt="" decoding="async">
+        <img src="assets/learning-models/course-gym.webp?v=blender-gym-20261112-1" alt="" decoding="async">
         <canvas data-learning-model="course-gym" aria-hidden="true"></canvas>
       </div>
       <div class="bm-gym-zones" role="group" aria-label="${t('训练分区','Training zones')}">${zones.map(zone=>button(zone,true)).join('')}</div>
