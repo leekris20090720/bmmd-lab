@@ -8,7 +8,7 @@ const portal=document.getElementById('portal-hub-overlay'),welcome=document.getE
 const pageNavigation=B.Navigation.create(history,location);
 const sourceURL=new URL('.',document.currentScript.src);
 const anatomyModules=['anatomy-meshes.js','human-anatomy.js','human-lessons.js','script.js','product-courses.js'];
-const source=p=>{const url=new URL(p,sourceURL);url.searchParams.set('v',anatomyModules.includes(p)?'anatomy-3d-20261111-1':p==='course-workspace.js'?'taste-layout-20261111-1':['product-experiments.js','research-labs.js','experiment-lessons.js'].includes(p)?'layout-balance-20261111-1':'mechanics-library-20261103-1');return url.href;};
+const source=p=>{const url=new URL(p,sourceURL);url.searchParams.set('v',p==='research-labs.js'?'principles-layout-20261112-1':anatomyModules.includes(p)?'anatomy-3d-20261111-1':p==='course-workspace.js'?'taste-layout-20261111-1':['product-experiments.js','experiment-lessons.js'].includes(p)?'layout-balance-20261111-1':'mechanics-library-20261103-1');return url.href;};
 function script(p){if(loaders.has(p))return loaders.get(p);const job=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=source(p);s.onload=resolve;s.onerror=()=>{loaders.delete(p);s.remove();reject(Error(t('学习资源未能加载，请重试：','Learning resource could not load; retry: ')+p));};document.body.append(s);});loaders.set(p,job);return job;}
 const modelScripts=['mechanics-core.js','mechanics-education.js','mechanics-spring.js','mechanics-snapshots.js','mechanics-three-bridge.js','assets/ui/three-runtime.js','equipment-op-le.js','studio-rendering.js','lesson-profiles.js','equipment-inspector.js','anatomy-meshes.js','human-anatomy.js','human-lessons.js','script.js'];
 // Download together, execute in the original dependency order. Classic script
@@ -25,12 +25,18 @@ const overviewSections={
   'learn/experiments':'.ex-library-controls'
 };
 function placeWorkspacePreview(){
-  const selector=overviewSections[route];
-  if(!selector)return;
   const workspace=root.querySelector('.deck-workspace');
   const preview=workspace?.querySelector('.deck-observatory');
+  if(!preview)return;
+  const plots=workspace.querySelector('#fitness-plots');
+  if(plots){
+    if(preview.parentElement!==plots)plots.append(preview);
+    return;
+  }
+  const selector=overviewSections[route];
+  if(!selector)return;
   const section=workspace?.querySelector(selector);
-  if(!preview||!section)return;
+  if(!section)return;
   if(narrowWorkspace.matches){
     if(section.nextElementSibling!==preview)section.after(preview);
   }else if(preview.parentElement!==workspace){
@@ -92,7 +98,7 @@ function learning(){
  </a></li>`).join('');
  const questionLinks=questions.map(([id,z,e,subZ,subE],i)=>`<li><a href="#experiment/${id}">
    <svg viewBox="0 0 108 74" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">${diagrams[i]}</svg>
-   <div><h3>${t(z,e)}</h3><p>${t(subZ,subE)}</p></div><span aria-hidden="true">↗</span>
+   <div><h4>${t(z,e)}</h4><p>${t(subZ,subE)}</p></div><span aria-hidden="true">↗</span>
  </a></li>`).join('');
  page(t('学习','Learn'),`
   <div class="pd-learn-intro"><p class="pd-lead">${t('看懂一个动作，再亲手验证它的原理。','Understand a movement, then test its mechanics yourself.')}</p></div>
@@ -107,11 +113,17 @@ function learning(){
     </section>
     <section class="pd-learn-questions" aria-labelledby="pd-learn-questions-title">
       <div class="pd-section-head"><h2 id="pd-learn-questions-title">${t('把原理看明白','Explore the mechanics')}</h2><a href="#learn/experiments">${t('全部实验','All experiments')} ↗</a></div>
-      <p class="pd-learn-question-note">${t('三个实验都以坐姿腿屈伸为例。','Use the seated leg extension to test these three questions.')}</p>
-      <ul>${questionLinks}</ul>
+      <div class="pd-learn-principle-group">
+        <h3>${t('动作案例','Movement studies')}</h3>
+        ${B.ResearchContent.learningCasesHTML()}
+      </div>
+      <div class="pd-learn-principle-group">
+        <h3>${t('坐姿腿屈伸的基础实验','Foundations of seated leg extension')}</h3>
+        <ul class="pd-learn-basics">${questionLinks}</ul>
+      </div>
     </section>
   </div>
-  ${B.LearningDynamics.overviewHTML(t)}${B.ResearchContent.directoryLinks()}
+  ${B.LearningDynamics.overviewHTML(t)}
  `);
  B.LearningDynamics.mountOverview();
 }
