@@ -2,23 +2,31 @@
 function returnLink(){const r=P.returnRoute();return `<a href="#${E(r)}">← ${r==='train/preview'?t('返回待确认计划','Return to draft plan'):r==='train/session'?t('返回本次训练','Return to this session'):r==='train/edit'?t('返回计划草稿','Return to plan draft'):r==='learn/map'?t('返回立体导图','Return to movement map'):r==='learn'?t('返回学习','Return to learning'):t('返回动作课程','Return to courses')}</a>`;}
 const directoryFilters={query:'',group:'all'};
 function directory(){
- const groups=[['all','全部','All','catalog'],['chest','胸部','Chest','chest'],['back','背部','Back','back'],['shoulder','肩部','Shoulders','shoulders'],['legs','腿与臀','Legs and hips','legs']];
- const filters=groups.map(([id,z,e,model])=>[id,t(z,e),model,F.all.filter(a=>id==='all'||a.group===id).length]);
- const tiles=F.all.map(action=>`<a href="#course/${E(action.id)}" data-course-id="${E(action.id)}" draggable="false" aria-describedby="pd-model-hint">
-   ${B.LearningModels.tile('course-'+action.id,`<span class="bm-course-name">${E(name(action))}</span>`)}
- </a>`).join('');
- P.page(t('动作与器械课程','Exercise and equipment courses'),`<p class="pd-lead">${t('按部位筛选，或搜索动作名称和器械型号。','Filter by body area, or search by movement or equipment model.')}</p>
- <form class="pd-filter bm-model-search" id="pd-course-find"><label>${t('搜索动作或型号','Search movement or model')}<input id="pd-course-search" type="search" value="${E(directoryFilters.query)}"></label></form>
- ${B.LearningModels.filters(filters,t('按部位筛选课程','Filter courses by body area'),'data-course-filter')}
- ${B.LearningModels.hint()}<p class="bm-model-status" id="pd-course-status" role="status"></p>
- <div id="pd-course-directory" class="bm-course-miniatures">${tiles}</div>
- <p id="pd-course-empty" hidden>${t('没有匹配课程，换个关键词或选择“全部”。','No matches. Try another term or select All.')}</p>`);
+ const groups=[['all','全部','All'],['chest','胸部','Chest'],['back','背部','Back'],['shoulder','肩部','Shoulders'],['legs','腿与臀','Legs and hips']];
+ const filters=groups.map(([id,z,e])=>[id,t(z,e),F.all.filter(a=>id==='all'||a.group===id).length]);
+ const courses=F.all.map(action=>`<li><a href="#course/${E(action.id)}" data-course-id="${E(action.id)}">
+   <span>${E(name(action))}</span><span aria-hidden="true">↗</span>
+ </a></li>`).join('');
+ const catalog=`<aside class="bm-gym-catalog" aria-labelledby="pd-gym-list-title">
+   <header>
+     <h2 id="pd-gym-list-title"></h2>
+     <form class="bm-gym-search" id="pd-course-find"><label>${t('搜索动作或型号','Search movement or model')}<input id="pd-course-search" type="search" value="${E(directoryFilters.query)}"></label></form>
+     <p class="bm-model-status" id="pd-course-status" role="status"></p>
+   </header>
+   <ul id="pd-course-directory">${courses}</ul>
+   <p id="pd-course-empty" hidden>${t('没有匹配课程，换个关键词或选择“全部”。','No matches. Try another term or select All.')}</p>
+ </aside>`;
+ P.page(t('动作与器械课程','Exercise and equipment courses'),`<div class="bm-gym-workspace">
+   ${B.LearningModels.gym(filters,directoryFilters.group)}
+   ${catalog}
+ </div>`);
  const input=f('pd-course-search');
  const directory=f('pd-course-directory');
+ const gym=P.content.querySelector('[data-course-gym]');
  const buttons=[...P.content.querySelectorAll('[data-course-filter]')];
  const entries=[...directory.querySelectorAll('[data-course-id]')].map(link=>{
   const action=F.byId[link.dataset.courseId];
-  return {link,group:action.group,search:[action.name,name(action),action.model,tr(action.model),...action.aliases].join(' ').toLowerCase()};
+  return {row:link.parentElement,group:action.group,search:[action.name,name(action),action.model,tr(action.model),...action.aliases].join(' ').toLowerCase()};
  });
  function update(){
   const query=directoryFilters.query.trim().toLowerCase();
@@ -26,10 +34,12 @@ function directory(){
   let count=0;
   for(const entry of entries){
    const matches=(group==='all'||entry.group===group)&&entry.search.includes(query);
-   entry.link.hidden=!matches;
+   entry.row.hidden=!matches;
    if(matches)count++;
   }
   for(const button of buttons)button.setAttribute('aria-pressed',String(button.dataset.courseFilter===group));
+  if(gym.dataset.zone!==group)gym.dataset.zone=group;
+  f('pd-gym-list-title').textContent=group==='all'?t('全部课程','All courses'):filters.find(([id])=>id===group)[1];
   f('pd-course-status').textContent=t('找到 '+count+' 门课程','Found '+count+' courses');
   f('pd-course-empty').hidden=count!==0;
  }
@@ -42,7 +52,7 @@ function directory(){
  });
  f('pd-course-find').addEventListener('submit',e=>e.preventDefault());
  input.addEventListener('input',()=>{directoryFilters.query=input.value;update();});
- for(const button of buttons)button.addEventListener('click',()=>{directoryFilters.group=button.dataset.courseFilter;update();});
+ for(const button of buttons)button.addEventListener('click',()=>{directoryFilters.group=button.dataset.courseFilter;directory.scrollTop=0;update();});
 }
 function steps(a,s){const cues=a.steps.map(st=>st.cues.map(tr).join(' '));return [
 [cues[0],t('先在器械静止时确认支撑、附件和进入路径，再进入起点。','Check support, attachments and entry with the equipment still, then enter the start.')],

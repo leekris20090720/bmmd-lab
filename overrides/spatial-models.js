@@ -263,6 +263,116 @@
       soft(head,ink,0,0,.049,.43,.23,.025);
       rod(head,glow,[-.14,-.031,.067],[.13,.037,.067],.008);
     }
+    if(learningKind==='course-gym'){
+      const floor=make(0x23232c,.14,.78), edge=make(0x3e3b49,.52,.45);
+      const aisle=make(0x363340,.22,.65), pale=make(0x494553,.45,.52);
+      const bays={
+        chest:{x:-3.42,z:-2.25,fixtures:[flyStation,seatedMachine]},
+        back:{x:3.42,z:-2.25,fixtures:[rowingStation,cableMachine]},
+        shoulder:{x:-3.42,z:2.25,fixtures:[shoulderStation]},
+        legs:{x:3.42,z:2.25,fixtures:[inclineMachine,legExtension]},
+      };
+      soft(world,graphite,0,-.33,0,14.14,.50,9.62);
+      soft(world,edge,0,-.10,0,14.00,.24,9.48);
+      soft(world,aisle,0,.03,0,13.82,.12,9.31);
+      // Open walls and a central aisle keep the four rubber floors readable from above.
+      for(const x of [-6.87,6.87]){
+        soft(world,graphite,x,.33,-.98,.15,.66,6.96);
+        rod(world,chrome,[x,.67,-4.38],[x,.67,2.48],.043);
+      }
+      for(const x of [-6.48,-3.12,0,3.12,6.48]){
+        soft(world,graphite,x,.48,-4.56,.13,.91,.15);
+      }
+      soft(world,graphite,0,.29,-4.55,13.12,.56,.15);
+      rod(world,chrome,[-6.48,.91,-4.56],[6.48,.91,-4.56],.044);
+      const glassPanel=new T.MeshPhysicalMaterial({color:0x8d879f,metalness:.37,roughness:.22,transparent:true,opacity:.28,depthWrite:false});
+      for(const x of [-4.83,-1.56,1.56,4.83]){
+        soft(world,glassPanel,x,.99,-4.57,2.91,.71,.040);
+        rod(world,edge,[x-1.44,1.35,-4.56],[x+1.44,1.35,-4.56],.039);
+        rod(world,glow,[x-1.33,.78,-4.45],[x+1.33,.78,-4.45],.017);
+      }
+      for(const side of [-1,1]){
+        soft(world,edge,side*5.36,-.04,4.32,1.88,.18,.24);
+        soft(world,bronze,side*5.36,.057,4.37,1.68,.030,.035);
+      }
+      const sign=document.createElement('canvas');
+      sign.width=480;sign.height=136;
+      const lettering=sign.getContext('2d');
+      lettering.fillStyle='#211d25';lettering.fillRect(0,0,480,136);
+      lettering.fillStyle='#f1bb91';lettering.font='bold 92px system-ui';
+      lettering.textAlign='center';lettering.textBaseline='middle';
+      lettering.fillText('BM//MD',240,73);
+      const signTexture=new T.CanvasTexture(sign);
+      signTexture.colorSpace=T.SRGBColorSpace;
+      const nameplate=mesh(world,new T.PlaneGeometry(2.05,.58),new T.MeshBasicMaterial({map:signTexture}),0,1.17,-4.42);
+      nameplate.rotation.x=-.10;
+      for(let i=-3;i<=3;i++)soft(world,bronze,0,.094,i*1.06,.042,.015,.35);
+      for(let i=-5;i<=5;i++)if(i!==0)soft(world,pale,i*1.08,.095,0,.38,.016,.045);
+      const zones={},targets=[];
+      const trim=new T.MeshBasicMaterial({color:0xf2ba89,transparent:true,opacity:.88});
+      for(const [id,{x,z,fixtures}] of Object.entries(bays)){
+        const room=group(world,x,.095,z);
+        const slab=soft(room,floor,0,.055,0,5.98,.16,3.64);
+        const rim=soft(room,edge,0,.015,0,6.04,.075,3.70);
+        for(const seam of [-1.49,0,1.49]){
+          soft(room,pale,seam,.141,0,.018,.008,3.44);
+        }
+        for(const seam of [-.88,.88]){
+          soft(room,pale,0,.141,seam,5.76,.008,.018);
+        }
+        for(let i=0;i<fixtures.length;i++){
+          const offset=fixtures.length===1?0:(i===0?-1.45:1.42);
+          const machine=group(room,offset,.146,i===0?-.24:.13);
+          machine.rotation.y=i===0?-.12:.17;
+          machine.scale.setScalar(fixtures.length===1?.90:.68);
+          fixtures[i](machine);
+        }
+        if(id==='shoulder'){
+          const rack=group(room,-2.03,.15,.28);
+          soft(rack,graphite,0,.37,0,.47,.12,1.78);
+          for(const z of [-.68,.68])rod(rack,chrome,[0,.05,z],[0,.39,z],.052);
+          for(const z of [-.54,-.18,.18,.54]){
+            rod(rack,chrome,[-.17,.48,z],[.17,.48,z],.038);
+            for(const x of [-.16,.16])cylinder(rack,rubber,x,.48,z,.112,.08,'x');
+          }
+        }
+        room.traverse(part=>{
+          if(!part.isMesh||part.material.transparent)return;
+          part.userData.zone=id;
+          targets.push(part);
+        });
+        const guide=group(room,0,.146,0);
+        for(const z of [-1.70,1.70])soft(guide,trim,0,0,z,5.78,.018,.033);
+        for(const x of [-2.89,2.89])soft(guide,trim,x,0,0,.033,.018,3.40);
+        guide.visible=false;
+        zones[id]={slab,rim,guide,anchor:v(x,.23,z+1.48)};
+      }
+      const activeFloor=make(0x533c31,.20,.60);
+      let previousZone='all',lightStart=0;
+      world.userData.gym={
+        zones,
+        targets,
+        select(key,now,animate){
+          if(key!==previousZone){
+            previousZone=key;
+            lightStart=now;
+            for(const [id,zone] of Object.entries(zones)){
+              const selected=id===key;
+              zone.slab.material=selected?activeFloor:floor;
+              zone.rim.material=selected?bronze:edge;
+              zone.guide.visible=selected;
+            }
+          }
+          const rising=key!=='all'&&animate&&now-lightStart<420;
+          const progress=Math.min(1,(now-lightStart)/420);
+          trim.opacity=rising?.28+.60*Math.sin(progress*Math.PI/2):.88;
+          activeFloor.emissive.setHex(0x8c3d18);
+          activeFloor.emissiveIntensity=rising?.08+.19*Math.sin(progress*Math.PI):.08;
+          return rising;
+        }
+      };
+      return world;
+    }
     if(learningKind){
       const model=group(world);
       const base=(w=2.3,d=1.4)=>capsule(world,1,w,d);
