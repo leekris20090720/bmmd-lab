@@ -307,7 +307,149 @@
         },
         study(){base(2.35,1.50);legExtension(model);},
       };
-      builders[learningKind]?.();
+      function barbell(parent,y,z,radius){
+        rod(parent,chrome,[-1.65,y,z],[1.65,y,z],.044);
+        for(const side of [-1,1]){
+          cylinder(parent,graphite,side*1.25,y,z,radius,.14,'x');
+          cylinder(parent,bronze,side*1.39,y,z,radius*.39,.13,'x');
+        }
+      }
+      function barbellStation(squat){
+        for(const x of [-.92,.92]){
+          rod(model,graphite,[x,.1,1.19],[x,.1,-1.06],.075);
+          for(const z of squat?[-.83,.75]:[-.64]){
+            soft(model,graphite,x,squat?1.25:.87,z,.16,squat?2.50:1.65,.15);
+            soft(model,chrome,x,squat?1.75:1.25,z+.11,.20,.12,.31);
+            for(let y=.58;y<(squat?2.35:1.55);y+=.20)cylinder(model,rubber,x,y,z+.081,.028,.015,'z');
+          }
+        }
+        if(squat){
+          for(const z of [-.83,.75])rod(model,graphite,[-.92,2.45,z],[.92,2.45,z],.076);
+          barbell(model,1.81,.90,.37);
+        }else{
+          for(const z of [-.52,1.02])rod(model,chrome,[0,.10,z],[0,.64,z],.072);
+          soft(model,ceramic,0,.66,.27,.61,.18,1.95);
+          barbell(model,1.31,-.51,.36);
+        }
+      }
+      function overheadStation(kind){
+        const plateLoaded=kind==='scissor';
+        const lowCable=kind==='dual';
+        const frameX=plateLoaded?1.15:.89;
+        for(const x of [-frameX,frameX]){
+          rod(model,graphite,[x,.10,1.22],[x,.10,-1.01],.080);
+          rod(model,graphite,[x,.12,-.89],[x,2.59,-.89],.090);
+        }
+        rod(model,graphite,[-frameX,2.58,-.89],[frameX,2.58,-.89],.095);
+        rod(model,chrome,[0,.12,.32],[0,.75,.32],.080);
+        soft(model,ceramic,0,.74,.40,.67,.15,.62);
+        cylinder(model,rubber,0,1.02,.64,.095,.78,'x');
+        if(plateLoaded){
+          for(const side of [-1,1]){
+            tube(model,chrome,[[side*1.03,2.44,-.74],[side*1.05,2.52,-.18],[side*.93,2.40,.60],[side*.68,2.03,.70]],.059,24);
+            cylinder(model,graphite,side*1.25,2.07,-.94,.38,.15,'x');
+            rod(model,bronze,[side*1.03,2.43,-.72],[side*1.25,2.07,-.94],.060);
+          }
+          return;
+        }
+        const stackX=lowCable?-.48:.72;
+        soft(model,graphite,stackX,1.18,-.89,.57,2.12,.49);
+        for(let i=0;i<9;i++)soft(model,i===5?bronze:rubber,stackX,.33+i*.14,-.59,.43,.094,.25);
+        wheel(model,0,2.54,.35,.18);
+        rod(model,graphite,[0,2.57,-.82],[0,2.55,.42],.083);
+        if(lowCable){
+          rod(model,bronze,[0,2.48,.42],[0,2.04,.42],.019);
+          tube(model,chrome,[[-.66,2.01,.45],[-.41,2.11,.43],[.41,2.11,.43],[.66,2.01,.45]],.041,18);
+          soft(model,ceramic,0,.36,1.03,.55,.13,.44);
+          rod(model,bronze,[stackX,.44,-.57],[0,.46,.99],.015);
+        }else{
+          for(const side of [-1,1]){
+            tube(model,chrome,[[side*.49,2.43,-.67],[side*.61,2.38,.19],[side*.68,2.15,.62]],.060,20);
+            cylinder(model,rubber,side*.68,2.08,.62,.058,.31);
+          }
+        }
+      }
+      function plateStation(kind){
+        const row=kind==='row';
+        const overhead=kind==='shoulder';
+        for(const side of [-1,1]){
+          const x=side*.94;
+          rod(model,graphite,[x,.12,-1.16],[x,.12,1.15],.090);
+          rod(model,graphite,[x,.13,-.73],[x,1.85,-.66],.12);
+          wheel(model,x,1.75,-.52,.21,'x');
+          tube(model,chrome,[[x,1.75,-.50],[x*1.16,1.47,.22],[x*.83,overhead?1.97:1.34,.77]],.066,21);
+          cylinder(model,rubber,x*.74,overhead?1.97:1.34,.78,.059,.32,'x');
+          cylinder(model,graphite,x*1.34,1.37,.19,.33,.13,'x');
+          cylinder(model,bronze,x*1.48,1.37,.19,.11,.15,'x');
+        }
+        rod(model,chrome,[0,.14,.15],[0,.70,.15],.083);
+        soft(model,ceramic,0,.70,.25,.67,.15,.65);
+        soft(model,rubber,0,1.15,row?.70:-.21,.60,.79,.18).rotation.x=row?-.32:overhead?.08:.37;
+      }
+      function pullover(){
+        seatedMachine(model);
+        tube(model,bronze,[[-.74,1.27,.58],[-.52,1.32,.93],[0,1.35,1.02],[.52,1.32,.93],[.74,1.27,.58]],.084,28);
+        cylinder(model,rubber,0,1.35,1.04,.11,.86,'x');
+      }
+      function homeExercise(kind){
+        const wall=kind==='wall';
+        const seated=kind==='chair';
+        if(wall){
+          soft(model,graphite,0,1.34,-.94,2.37,2.68,.16);
+          for(const x of [-.34,.34])soft(model,bronze,x,1.63,-.83,.28,.24,.065);
+        }else{
+          for(const x of [-.53,.53])for(const z of [-.64,.08])rod(model,graphite,[x,.07,z],[x,.79,z],.064);
+          soft(model,ceramic,0,.81,-.28,1.16,.14,.87);
+          for(const x of [-.53,.53])rod(model,chrome,[x,.78,-.64],[x,1.61,-.64],.048);
+          soft(model,ceramic,0,1.52,-.64,1.12,.24,.11);
+        }
+        const hip=wall?[1.10,1.05]:seated?[.16,.97]:kind==='squat'?[.88,1.01]:[.96,1.24];
+        const shoulder=wall?[.45,1.72]:seated?[.41,1.58]:kind==='squat'?[.60,1.66]:[.91,1.96];
+        const head=[shoulder[0]-.06,shoulder[1]+.31];
+        const foot=wall?[1.72,.17]:seated?[.86,.12]:[1.08,kind==='calf'?.22:.12];
+        const joint=(x,[z,y])=>[x,y,z];
+        rod(model,chrome,joint(0,hip),joint(0,shoulder),.125);
+        mesh(model,new T.SphereGeometry(.15,16,10),bronze,0,head[1],head[0]);
+        for(const side of [-1,1]){
+          const x=side*.20;
+          const knee=seated?[.77,.81]:kind==='squat'?[1.18,.66]:[(hip[0]+foot[0])/2,.66];
+          const hand=wall?[-.82,1.64]:seated?[.80,1.42]:[-.14,1.52];
+          rod(model,chrome,joint(x,hip),joint(x,knee),.060);
+          rod(model,chrome,joint(x,knee),joint(x,foot),.052);
+          rod(model,bronze,joint(x,foot),joint(x,[foot[0]-.23,.12]),.060);
+          rod(model,chrome,joint(x,shoulder),joint(side*.30,hand),.048);
+        }
+      }
+      const courses={
+        arm:()=>cableMachine(model),
+        cam:()=>legExtension(model),
+        incline:()=>inclineMachine(model),
+        pec:()=>flyStation(model),
+        lat:()=>overheadStation('fixed'),
+        'barbell-squat':()=>barbellStation(true),
+        'cable-row':()=>rowingStation(model),
+        'barbell-bench':()=>barbellStation(false),
+        'flat-press':()=>seatedMachine(model),
+        'incline-press':()=>plateStation('incline'),
+        'cable-fly':()=>cableMachine(model),
+        'machine-fly':()=>flyStation(model),
+        'scissor-pulldown':()=>overheadStation('scissor'),
+        'nautilus-pullover':pullover,
+        'hammer-row':()=>plateStation('row'),
+        'cable-pulldown':()=>overheadStation('dual'),
+        'machine-military-press':()=>plateStation('shoulder'),
+        'seated-machine-shoulder':()=>shoulderStation(model),
+        'home-wall-press-up':()=>homeExercise('wall'),
+        'home-sit-to-stand':()=>homeExercise('chair'),
+        'home-mini-squat':()=>homeExercise('squat'),
+        'home-calf-raise':()=>homeExercise('calf'),
+      };
+      if(learningKind.startsWith('course-')){
+        base(2.22,1.80);
+        courses[learningKind.slice(7)]?.();
+      }else{
+        builders[learningKind]?.();
+      }
       return world;
     }
     const rooms=[

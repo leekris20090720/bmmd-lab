@@ -4,20 +4,42 @@ const directoryFilters={query:'',group:'all'};
 function directory(){
  const groups=[['all','全部','All','catalog'],['chest','胸部','Chest','chest'],['back','背部','Back','back'],['shoulder','肩部','Shoulders','shoulders'],['legs','腿与臀','Legs and hips','legs']];
  const filters=groups.map(([id,z,e,model])=>[id,t(z,e),model,F.all.filter(a=>id==='all'||a.group===id).length]);
- P.page(t('动作与器械课程','Exercise and equipment courses'),`<p class="pd-lead">${t('选择器械模型按部位筛选，或搜索动作名称和器械型号。','Choose a 3D machine to filter by body area, or search by movement or equipment model.')}</p>
+ const tiles=F.all.map(action=>`<a href="#course/${E(action.id)}" data-course-id="${E(action.id)}" draggable="false" aria-describedby="pd-model-hint">
+   ${B.LearningModels.tile('course-'+action.id,`<span class="bm-course-name">${E(name(action))}</span>`)}
+ </a>`).join('');
+ P.page(t('动作与器械课程','Exercise and equipment courses'),`<p class="pd-lead">${t('按部位筛选，或搜索动作名称和器械型号。','Filter by body area, or search by movement or equipment model.')}</p>
  <form class="pd-filter bm-model-search" id="pd-course-find"><label>${t('搜索动作或型号','Search movement or model')}<input id="pd-course-search" type="search" value="${E(directoryFilters.query)}"></label></form>
  ${B.LearningModels.filters(filters,t('按部位筛选课程','Filter courses by body area'),'data-course-filter')}
- ${B.LearningModels.hint()}<p class="bm-model-status" id="pd-course-status" role="status"></p><div id="pd-course-directory" class="pd-course-directory"></div>`);
- const input=f('pd-course-search'),buttons=[...P.content.querySelectorAll('[data-course-filter]')];
+ ${B.LearningModels.hint()}<p class="bm-model-status" id="pd-course-status" role="status"></p>
+ <div id="pd-course-directory" class="bm-course-miniatures">${tiles}</div>
+ <p id="pd-course-empty" hidden>${t('没有匹配课程，换个关键词或选择“全部”。','No matches. Try another term or select All.')}</p>`);
+ const input=f('pd-course-search');
+ const directory=f('pd-course-directory');
+ const buttons=[...P.content.querySelectorAll('[data-course-filter]')];
+ const entries=[...directory.querySelectorAll('[data-course-id]')].map(link=>{
+  const action=F.byId[link.dataset.courseId];
+  return {link,group:action.group,search:[action.name,name(action),action.model,tr(action.model),...action.aliases].join(' ').toLowerCase()};
+ });
  function update(){
-  const q=directoryFilters.query.trim().toLowerCase(),g=directoryFilters.group;
-  const list=F.all.filter(a=>(g==='all'||a.group===g)&&[a.name,name(a),a.model,tr(a.model),...a.aliases].join(' ').toLowerCase().includes(q));
-  for(const button of buttons)button.setAttribute('aria-pressed',String(button.dataset.courseFilter===g));
-  f('pd-course-status').textContent=t('找到 '+list.length+' 门课程','Found '+list.length+' courses');
-  f('pd-course-directory').innerHTML=list.map(a=>`<a href="#course/${a.id}">${a.image?`<img src="${E(a.image)}" alt="" loading="lazy" decoding="async">`:'<span aria-hidden="true">↗</span>'}<div><h2>${E(name(a))}</h2><p>${a.sceneKey?E(tr(a.model)):t('稳固支撑与自重练习','Stable support and bodyweight')}</p></div></a>`).join('')||`<p>${t('没有匹配课程，换个关键词或选择“全部”。','No matches. Try another term or select All.')}</p>`;
+  const query=directoryFilters.query.trim().toLowerCase();
+  const group=directoryFilters.group;
+  let count=0;
+  for(const entry of entries){
+   const matches=(group==='all'||entry.group===group)&&entry.search.includes(query);
+   entry.link.hidden=!matches;
+   if(matches)count++;
+  }
+  for(const button of buttons)button.setAttribute('aria-pressed',String(button.dataset.courseFilter===group));
+  f('pd-course-status').textContent=t('找到 '+count+' 门课程','Found '+count+' courses');
+  f('pd-course-empty').hidden=count!==0;
  }
  update();
- f('pd-course-directory').addEventListener('click',e=>{const a=e.target.closest('a[href^="#course/"]');if(a){e.preventDefault();P.openCourse(a.getAttribute('href').slice(8),'learn/courses');}});
+ directory.addEventListener('click',event=>{
+  const link=event.target.closest('[data-course-id]');
+  if(!link||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+  event.preventDefault();
+  P.openCourse(link.dataset.courseId,'learn/courses');
+ });
  f('pd-course-find').addEventListener('submit',e=>e.preventDefault());
  input.addEventListener('input',()=>{directoryFilters.query=input.value;update();});
  for(const button of buttons)button.addEventListener('click',()=>{directoryFilters.group=button.dataset.courseFilter;update();});

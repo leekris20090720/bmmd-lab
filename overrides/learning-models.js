@@ -33,7 +33,7 @@
       const yaw=.58+tile.yaw+(automatic ? .16*Math.sin(now/1800) : 0);
       const pitch=.40+tile.pitch,aspect=w/h;
       const fit=Math.min(1,aspect);
-      const distance=radius*(tile.large?2.78:2.90)/fit;
+      const distance=radius*tile.framing/fit;
       camera.aspect=aspect;
       camera.position.set(center.x+distance*Math.cos(pitch)*Math.sin(yaw),center.y+distance*Math.sin(pitch),center.z+distance*Math.cos(pitch)*Math.cos(yaw));
       camera.lookAt(center);camera.updateProjectionMatrix();
@@ -62,7 +62,11 @@
       const control=canvas.closest('a,button');
       const ctx=canvas.getContext('2d');
       if(!control||!ctx)continue;
-      const tile={canvas,ctx,control,kind:canvas.dataset.learningModel,yaw:0,pitch:0,dirty:true,visible:false,manual:false,large:!!control.closest('.pd-learn-destinations')};
+      const kind=canvas.dataset.learningModel;
+      let framing=2.90;
+      if(control.closest('.pd-learn-destinations'))framing=2.78;
+      if(kind.startsWith('course-'))framing=2.63;
+      const tile={canvas,ctx,control,kind,framing,yaw:0,pitch:0,dirty:true,visible:false,manual:false};
       tiles.push(tile);resize.observe(canvas);observe.observe(canvas);
       let drag,preventClickUntil=0;
       const refresh=()=>{tile.dirty=true;schedule();};
@@ -113,7 +117,7 @@
       state.ready=true;schedule();
     }).catch(()=>{load=null;if(!signal.aborted)leave();});
   }
-  const tile=(id,body)=>`<span class="bm-learning-preview"><img src="assets/learning-models/${id}.webp" alt="" decoding="async"><canvas data-learning-model="${id}" aria-hidden="true"></canvas></span>${body}`;
+  const tile=(id,body)=>`<span class="bm-learning-preview"><img src="assets/learning-models/${id}.webp" alt="" loading="lazy" decoding="async"><canvas data-learning-model="${id}" aria-hidden="true"></canvas></span>${body}`;
   const filters=(items,label,attr)=>`<div class="bm-model-filters" role="group" aria-label="${B.Product.E(label)}">${items.map(([value,name,kind,count])=>`<button type="button" ${attr}="${value}" aria-pressed="${value==='all'}" aria-describedby="pd-model-hint">${tile(kind,`<span class="bm-model-label"><strong>${B.Product.E(name)}</strong><small>${count}</small></span>`)}</button>`).join('')}</div>`;
   window.addEventListener('bm:page-ready',e=>{
     if(['learn','learn/courses','learn/experiments'].includes(e.detail.route))mount(document.getElementById('pd-content'));
