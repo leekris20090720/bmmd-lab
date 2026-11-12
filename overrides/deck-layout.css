@@ -66,6 +66,20 @@ body.bm-studio.bm-deck :is(#product-root, #engineering-root) :is(
   text-wrap: balance;
 }
 
+/* Avoid a final line of one or two characters in short Chinese descriptions. */
+html:lang(zh) body.bm-studio.bm-deck :is(
+  .deck-hub-title > p,
+  #pd-content > p,
+  #pd-content .pd-empty > p,
+  .pd-course-prose p,
+  .pd-ex-observe p,
+  .pd-ex-controls p,
+  .pd-auto-bar p,
+  #engineering-root .eng-chart-note
+) {
+  text-wrap: balance;
+}
+
 body.bm-studio.bm-deck #product-root :is(.pd-course-directory > a, .pd-course-directory > a > div) {
   min-width: 0;
   overflow-wrap: anywhere;
