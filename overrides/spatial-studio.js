@@ -131,7 +131,7 @@
     const preview=host.classList.contains('pg-model');
     const isWayfinder=instrumentKind==='wayfinder',isBench=instrumentKind==='bench';
     const fit=isWayfinder&&callouts.length?1:Math.max(1,(isHall?1.46:isBench?1.59:preview?1:1.25)/camera.aspect);
-    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isWayfinder?wayfinderDistance():isBench?7.45:isInstrument?6.65:isExhibit?7.85:9.2)*fit;
+    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isWayfinder?wayfinderDistance():isBench?7.45:isInstrument?6.65:isExhibit?8.55:9.2)*fit;
     const angle=(isWayfinder?.16:isBench?.11:layout.yaw)+shownTurn+idleYaw;
     const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:isInstrument?isWayfinder?.67:.34:.47)+shownPitch,.22,1.26);
     const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:isInstrument?isWayfinder?.05:isBench?1.19:1.05:.89,layout.z);
