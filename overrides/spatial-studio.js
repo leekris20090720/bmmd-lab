@@ -92,7 +92,7 @@
     if(document.body.hasAttribute('data-explore-open')&&!document.hidden)
       window.dispatchEvent(new CustomEvent('bm:explore-sound',{detail:name}));
   }
-  let turn=0,pitch=0,shownTurn=0,shownPitch=0,lastDraw=0,previousView,transition,lost=false,traceData,markers=[];
+  let turn=0,pitch=0,shownTurn=0,shownPitch=0,lastDraw=0,previousView,transition,lost=false,traceData,markers=[],callouts=[];
   const stop=()=>{
     cancelAnimationFrame(frame);clearTimeout(ambientWake);frame=ambientWake=0;lastDraw=0;
   };
@@ -130,14 +130,59 @@
     const compact = host.classList.contains('spatial-view-room');
     const preview=host.classList.contains('pg-model');
     const isWayfinder=instrumentKind==='wayfinder',isBench=instrumentKind==='bench';
-    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isWayfinder?8.25:isBench?7.45:isInstrument?6.65:isExhibit?7.85:9.2)
-      * Math.max(1,(isHall?1.46:isBench?1.59:isWayfinder?1.14:preview?1:1.25)/camera.aspect);
+    const fit=isWayfinder&&callouts.length?1:Math.max(1,(isHall?1.46:isBench?1.59:preview?1:1.25)/camera.aspect);
+    const radius=(isHall?(compact?30:21.4):isTrace?8.05:isWayfinder?wayfinderDistance():isBench?7.45:isInstrument?6.65:isExhibit?7.85:9.2)*fit;
     const angle=(isWayfinder?.16:isBench?.11:layout.yaw)+shownTurn+idleYaw;
     const elevation = clamp((isHall?.56:isTrace?.29:isExhibit?.37:isInstrument?isWayfinder?.67:.34:.47)+shownPitch,.22,1.26);
     const center = new T.Vector3(layout.x,isHall?.53:isTrace?1.14:isInstrument?isWayfinder?.05:isBench?1.19:1.05:.89,layout.z);
     const ground = radius*Math.cos(elevation);
     const position = new T.Vector3(center.x+ground*Math.sin(angle),center.y+radius*Math.sin(elevation),center.z+ground*Math.cos(angle));
     return {center,position};
+  }
+  function wayfinderLabelWidth(){
+    return graphics.width<370?61:77;
+  }
+  function wayfinderDistance(){
+    const {width,height}=graphics;
+    if(!callouts.length||!width||!height)return 8.25;
+    const labelReserve=2*(wayfinderLabelWidth()+9);
+    const modelWidth=Math.max(105,width-labelReserve+(width<300?16:0));
+    return Math.max(8.25,7.45*height/modelWidth);
+  }
+  function positionCallouts(){
+    if(!callouts.length)return;
+    const {model,point,camera,width,height}=graphics;
+    const pins=[];
+    for(const node of callouts){
+      if(!model.instrumentAnchor(node.dataset.spatialCallout,point))continue;
+      point.project(camera);
+      pins.push({node,x:(point.x+1)*width/2,y:(1-point.y)*height/2});
+    }
+    pins.sort((a,b)=>a.x-b.x);
+    const size=wayfinderLabelWidth(), inset=7, minY=28,maxY=height-44;
+    const middle=Math.ceil(pins.length/2);
+    [pins.slice(0,middle),pins.slice(middle)].forEach((lane,side)=>{
+      lane.sort((a,b)=>a.y-b.y);
+      const gap=Math.min(49,(maxY-minY)/Math.max(1,lane.length-1));
+      const left=side?width-inset-size:inset,edge=side?left:left+size;
+      const rowSpan=(lane.length-1)*gap;
+      const crowded=width<300&&lane.length>1&&lane.at(-1).y-lane[0].y<rowSpan;
+      const firstRow=crowded?clamp(lane.reduce((sum,pin)=>sum+pin.y,0)/lane.length-rowSpan/2,minY,maxY-rowSpan):minY;
+      lane.forEach((pin,i)=>{
+        const previous=lane[i-1]?.top??firstRow-gap;
+        const desired=crowded?firstRow+i*gap:pin.y;
+        pin.top=clamp(desired,previous+gap,maxY-(lane.length-1-i)*gap);
+        const dx=edge-pin.x,dy=pin.top-pin.y;
+        const css=pin.node.style;
+        css.setProperty('--callout-left',left+'px');
+        css.setProperty('--callout-top',pin.top.toFixed(1)+'px');
+        css.setProperty('--callout-width',size+'px');
+        css.setProperty('--line-x',pin.x.toFixed(1)+'px');
+        css.setProperty('--line-y',pin.y.toFixed(1)+'px');
+        css.setProperty('--line-size',Math.hypot(dx,dy).toFixed(1)+'px');
+        css.setProperty('--line-angle',Math.atan2(dy,dx).toFixed(3)+'rad');
+      });
+    });
   }
   function draw(now) {
     frame=0;
@@ -195,6 +240,7 @@
     }
     camera.lookAt(look); camera.updateMatrixWorld();
     renderer.render(scene,camera);
+    positionCallouts();
     for(const marker of markers){
       const anchor=model.anchors[marker.dataset.spatialMarker];
       if(anchor)point.copy(anchor);
@@ -320,6 +366,7 @@
       }
       previousView=view; turn=shownTurn=0; pitch=shownPitch=0; lastDraw=0;
       markers=[...next.querySelectorAll('[data-spatial-marker],[data-spatial-station]')];
+      callouts=[...next.querySelectorAll('[data-spatial-callout]')];
       model.select(view);
       updateGallery(next);
       const passive=next.dataset.spatialPassive==='true';

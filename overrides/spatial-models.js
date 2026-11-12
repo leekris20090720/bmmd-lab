@@ -537,13 +537,14 @@
         const start=i%6===0?1.49:1.56;
         rod(stand,i%6===0?bronze:softLight,[sin*start,.582,cos*start],[sin*1.64,.582,cos*1.64],i%6===0?.016:.007);
       }
-      const targets=[];
+      const targets=[],anchors={};
       const stations=miniatures.map(([id,build],i)=>{
         const angle=i*Math.PI/4,x=Math.sin(angle)*1.94,z=Math.cos(angle)*1.94;
         const station=group(stand,x,.548,z);
         turned(station,graphite,[[0,0],[.36,0],[.39,.027],[.39,.069],[.36,.094],[0,.094]],0,0,0,'y',44);
         const ring=band(station,softLight,.36,.014,.073);
         const model=group(station,0,.096,0);model.rotation.y=.12;
+        anchors[id]=group(station,0,.12,0);
         const animate=build(model);
         station.traverse(node=>{
           if(!node.isMesh)return;
@@ -560,7 +561,7 @@
       cylinder(stand,graphite,0,.682,0,.32,.27);
       cylinder(stand,chrome,0,.827,0,.23,.075);
       band(stand,glow,.17,.018,.869);
-      return {targets,update({selection,time,quiet,dt}){
+      return {targets,anchors,update({selection,time,quiet,dt}){
         const index=Math.max(0,stations.findIndex(station=>station.id===selection));
         const heading=index*Math.PI/4+(quiet?0:.034*Math.sin(time*1.9));
         const difference=Math.atan2(Math.sin(heading-rotor.rotation.y),Math.cos(heading-rotor.rotation.y));
@@ -705,6 +706,11 @@
       active?.pulse?.(signal,quiet);
       active?.scan?.(fraction);
       return active?.update?.({selection,progress:fraction,time,quiet,dt});
+    },instrumentAnchor(id,point){
+      const anchor=liveInstrument?.model.anchors?.[id];
+      if(!anchor)return false;
+      anchor.getWorldPosition(point);
+      return true;
     },pickInstrument(ray){
       const target=ray.intersectObjects(liveInstrument?.model.targets||[],false)[0];
       return target?.object.userData.destination;
