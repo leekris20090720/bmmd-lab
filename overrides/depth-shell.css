@@ -53,7 +53,12 @@ body.bm-studio.bm-deck .pd-page-topline {
   display:flex;align-items:center;gap:16px;flex:none;margin-bottom:18px;
 }
 body.bm-studio.bm-deck #product-root .pd-page-topline .pd-return-bar {
-  position:static;flex:none;margin:0;background:transparent!important;
+  position:static;flex:none;display:flex;align-items:center;gap:6px;
+  max-width:100%;margin:0;background:transparent!important;
+}
+body.bm-studio.bm-deck #product-root .pd-return-bar .pd-page-home {
+  padding-inline:10px;white-space:nowrap;color:var(--pd-ink);
+  border:1px solid var(--pd-line);border-radius:8px;background:var(--deck-inset);
 }
 body.bm-studio.bm-deck #product-root .pd-page-topline .pd-page-heading {min-width:0;margin:0!important;}
 body.bm-studio.bm-deck .pd-page-heading[data-deck-plate] {
@@ -220,7 +225,7 @@ body.bm-studio.bm-deck[data-deck-measuring] #pd-header[data-deck-active] {transf
   body.bm-studio.bm-deck.pd-app.eng-active>#engineering-root {height:calc(100dvh - 69px);}
   body.bm-studio.bm-deck.pd-home #portal-hub-overlay {padding-top:69px!important;}
   body.bm-studio.bm-deck .pd-main {padding-top:17px;}
-  body.bm-studio.bm-deck .pd-page-topline {gap:9px;margin-bottom:12px;}
+  body.bm-studio.bm-deck .pd-page-topline {flex-wrap:wrap;gap:4px 9px;margin-bottom:12px;}
   body.bm-studio.bm-deck .pd-page-topline .pd-page-back {font-size:12px;padding-inline:2px;}
   body.bm-studio.bm-deck .pd-subnav {gap:16px;}
   body.bm-studio.bm-deck .deck-hub {grid-template-columns:minmax(0,1fr);grid-template-areas:"title" "model" "bays" "footer";grid-template-rows:auto;align-content:start;gap:12px;padding-top:22px;}
@@ -306,18 +311,9 @@ body.bm-studio.bm-deck #product-root .fit-week {padding:12px;}
 body.bm-studio.bm-deck #pd-content > .pd-learn-intro .pd-lead {
   font-size:17px!important;line-height:1.75!important;max-width:54ch!important;
 }
-body.bm-studio.bm-deck #pd-content > .pd-learn-tools {
-  display:flex;flex-wrap:wrap;gap:2px 22px;margin:0 0 clamp(26px,4vw,44px);
-  border:0;border-bottom:1px solid var(--pd-line);padding:0 0 7px;
+body.bm-studio.bm-deck #pd-content > .pd-learn-intro {
+  margin-bottom:clamp(22px,3vw,36px)!important;
 }
-body.bm-studio.bm-deck #product-root #pd-content .pd-learn-tools > :is(a,button) {
-  display:inline-flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:7px;
-  min-height:44px;padding:0 3px;background:none!important;border:0!important;border-radius:4px!important;
-  box-shadow:none!important;color:var(--pd-ink);font:550 14px/1.5 var(--pd-font);transform:none;
-}
-body.bm-studio.bm-deck #pd-content .pd-learn-tools > :is(a,button):hover {text-decoration:underline;}
-body.bm-studio.bm-deck #pd-content .pd-learn-tools :is(span,kbd) {color:var(--pd-muted);}
-body.bm-studio.bm-deck #pd-content .pd-learn-tools kbd {font:400 12px/1.5 var(--pd-font);}
 body.bm-studio.bm-deck #pd-content .pd-learn-layout {
   display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(30px,5vw,55px);margin-bottom:clamp(30px,5vw,55px);
 }
@@ -363,8 +359,6 @@ body.bm-studio.bm-deck #pd-content .pd-learn-questions p {font-size:15px;line-he
   body.bm-studio.bm-deck #product-root #pd-content .pd-learn-feature {grid-template-columns:minmax(0,1fr);}
   body.bm-studio.bm-deck #pd-content .pd-learn-feature .pd-button {justify-self:start;}
   body.bm-studio.bm-deck #pd-content .pd-learn-shelf {grid-template-columns:minmax(0,1fr);}
-  body.bm-studio.bm-deck #pd-content .pd-learn-tools {column-gap:10px;}
-  body.bm-studio.bm-deck #pd-content .pd-learn-tools kbd {display:none;}
 }
 body.bm-studio.bm-deck #pd-content > :is(.pd-plan,.fit-training-panel) {margin-block:17px;}
 body.bm-studio.bm-deck .ex-topic {padding:12px;border:1px solid var(--deck-edge);background:var(--deck-face);border-radius:16px;}
